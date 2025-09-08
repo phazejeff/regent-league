@@ -1,5 +1,5 @@
-from typing import List, Dict
-from fastapi import FastAPI
+from typing import List
+from fastapi import FastAPI, Response, status
 from .database import create_db_and_tables, engine
 from .models import *
 from sqlmodel import Session, select, func
@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 create_db_and_tables()
 app = FastAPI()
+PASSWORD = "test"
 
 class TeamStats(BaseModel):
     team: Team
@@ -43,30 +44,38 @@ class MatchWithMapsWithStats(MatchBase):
 def read_root():
     return {"Status" : "OK"}
 
-@app.post("/addmatch")
-def add_match(match: Match, maps: List[Map], playerstats: List[Playerstats]):
+@app.post("/addmatch", status_code=status.HTTP_201_CREATED)
+def add_match(match: Match, maps: List[Map], playerstats: List[Playerstats], password: str, response: Response):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
     session = Session(engine)
     session.add_all([match, *maps, *playerstats])
     session.commit()
     return {"message" : "Created"}
 
-@app.post("/addteam")
-def add_team(team: Team):
-    print(team)
+@app.post("/addteam", status_code=status.HTTP_201_CREATED)
+def add_team(team: Team, password, response: Response):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
     session = Session(engine)
     session.add(team)
     session.commit()
     return {"message" : "Created"}
 
-@app.post("/addplayers")
-def add_players(players: List[Player]):
+@app.post("/addplayers", status_code=status.HTTP_201_CREATED)
+def add_players(players: List[Player], password, response: Response):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
     session = Session(engine)
     session.add_all(players)
     session.commit()
     return {"message" : "Created"}
 
 @app.get("/matches")
-def get_matches(div: str | None, group: str | None) -> List[MatchWithMapsWithStats]:
+def get_matches(div: str | None = None, group: str | None = None) -> List[MatchWithMapsWithStats]:
     session = Session(engine)
     statement = select(Match)
     if div is not None:
