@@ -66,16 +66,24 @@ def add_players(players: List[Player]):
     return {"message" : "Created"}
 
 @app.get("/matches")
-def get_matches() -> List[MatchWithMapsWithStats]:
+def get_matches(div: str | None, group: str | None) -> List[MatchWithMapsWithStats]:
     session = Session(engine)
     statement = select(Match)
+    if div is not None:
+        statement = statement.where(Match.team1.div == div)
+    if group is not None:
+        statement = statement.where(Match.team1.group == group)
     results = session.exec(statement).all()
     return results
 
 @app.get("/standings")
 def get_standings(div: str, group: str) -> List[TeamStats]:
     session = Session(engine)
-    statement = select(Team).where(Team.div == div and Team.group == group)
+    statement = select(Team)
+    if div is not None:
+        statement = statement.where(Team.div == div)
+    if group is not None:
+        statement = statement.where(Team.group == group)
     teams = session.exec(statement).all()
 
     all_team_stats: List[TeamStats] = []
@@ -132,6 +140,11 @@ def get_playerstats(div: str | None = None, group: int | None = None) -> List[Pl
         .join(Playerstats, Player.id == Playerstats.player_id)
         .group_by(Player.id)
     )
+
+    if div is not None:
+        statement = statement.where(Player.team.div == div)
+    if group is not None:
+        statement = statement.where(Player.team.group == group)
 
     results = session.exec(statement).all()
     return results
