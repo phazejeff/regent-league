@@ -28,6 +28,17 @@ class PlayerstatsAggregated(BaseModel):
     HS: float
     accuracy: float
 
+class PlayerstatsWithPlayer(PlayerstatsBase):
+    player: Player | None
+
+class MapWithStats(MapBase):
+    player_stats: List[PlayerstatsWithPlayer]
+
+class MatchWithMapsWithStats(MatchBase):
+    team1: Team
+    team2: Team
+    maps: List[MapWithStats]
+
 @app.get("/")
 def read_root():
     return {"Status" : "OK"}
@@ -55,7 +66,7 @@ def add_players(players: List[Player]):
     return {"message" : "Created"}
 
 @app.get("/matches")
-def get_matches() -> List[Match]:
+def get_matches() -> List[MatchWithMapsWithStats]:
     session = Session(engine)
     statement = select(Match)
     results = session.exec(statement).all()
@@ -104,7 +115,7 @@ def get_standings(div: str, group: str) -> List[TeamStats]:
     return all_team_stats
 
 @app.get("/playerstats")
-def get_playerstats(div: int | None = None, group: int | None = None) -> List[PlayerstatsAggregated]:
+def get_playerstats(div: str | None = None, group: int | None = None) -> List[PlayerstatsAggregated]:
     session = Session(engine)
     statement = (
         select(
@@ -124,3 +135,17 @@ def get_playerstats(div: int | None = None, group: int | None = None) -> List[Pl
 
     results = session.exec(statement).all()
     return results
+
+@app.get("/divisions")
+def get_divisions() -> List[Divisions]:
+    session = Session(engine)
+    statement = select(Divisions)
+    result = session.exec(statement).all()
+    return result
+
+@app.get("/groups")
+def get_groups(div: str) -> List[Groups]:
+    session = Session(engine)
+    statement = select(Groups).where(Groups.division == div)
+    result = session.exec(statement).all()
+    return result
