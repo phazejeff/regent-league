@@ -47,10 +47,10 @@ export default function AddPlayers() {
         team_id: Number(selectedTeam),
       }));
 
-    const response = await fetch(`${process.env.API_ROOT}/addplayers`, {
+    const response = await fetch(`${process.env.API_ROOT}/addplayers?password=${password}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, players: playersData }),
+      body: JSON.stringify(playersData),
     });
 
     if (response.ok) {

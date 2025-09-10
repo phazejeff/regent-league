@@ -142,10 +142,10 @@ export default function AddMatch() {
       maps,
     };
 
-    const response = await fetch(`${process.env.API_ROOT}/addmatch`, {
+    const response = await fetch(`${process.env.API_ROOT}/addmatch?password=${password}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, match }),
+      body: JSON.stringify(match),
     });
 
     if (response.ok) {

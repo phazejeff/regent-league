@@ -50,10 +50,10 @@ export default function AddTeamPage() {
       group: selectedGroup,
     };
 
-    const response = await fetch(`${process.env.API_ROOT}/addteam`, {
+    const response = await fetch(`${process.env.API_ROOT}/addteam?password=${password}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, team }),
+      body: JSON.stringify(team),
     });
 
     if (response.ok) {
@@ -95,7 +95,7 @@ export default function AddTeamPage() {
               </SelectTrigger>
               <SelectContent>
                 {divisions.map((div) => (
-                  <SelectItem key={div.id} value={div.id.toString()}>
+                  <SelectItem key={div.id} value={div.name}>
                     {div.name}
                   </SelectItem>
                 ))}
@@ -112,7 +112,7 @@ export default function AddTeamPage() {
               </SelectTrigger>
               <SelectContent>
                 {groups.map((group) => (
-                  <SelectItem key={group.id} value={group.id.toString()}>
+                  <SelectItem key={group.id} value={group.name}>
                     {group.name}
                   </SelectItem>
                 ))}
