@@ -14,7 +14,7 @@ interface Team {
   group: string;
 }
 
-export default function AddPlayers() {
+export default function AddPlayersPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [players, setPlayers] = useState<string[]>([""]);

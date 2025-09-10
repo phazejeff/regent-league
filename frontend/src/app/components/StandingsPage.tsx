@@ -61,7 +61,7 @@ export default function StandingsPage() {
             </SelectTrigger>
             <SelectContent>
               {divisions.map((div) => (
-                <SelectItem key={div.id} value={div.id.toString()}>
+                <SelectItem key={div.id} value={div.name}>
                   {div.name}
                 </SelectItem>
               ))}
@@ -75,7 +75,7 @@ export default function StandingsPage() {
             </SelectTrigger>
             <SelectContent>
               {groups.map((group) => (
-                <SelectItem key={group.id} value={group.id.toString()}>
+                <SelectItem key={group.id} value={group.name}>
                   {group.name}
                 </SelectItem>
               ))}

@@ -39,7 +39,7 @@ interface MapData {
   player_stats: PlayerStat[];
 }
 
-export default function AddMatch() {
+export default function AddMatchPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [team1Id, setTeam1Id] = useState<string>("");
@@ -103,7 +103,6 @@ export default function AddMatch() {
     setMaps(newMaps);
   };
 
-
   const addPlayerStat = (mapIndex: number) => {
     const newMaps = [...maps];
     newMaps[mapIndex].player_stats.push({
@@ -139,7 +138,7 @@ export default function AddMatch() {
       team1_id: Number(team1Id),
       team2_id: Number(team2Id),
       winner_id: Number(winnerId),
-      maps,
+      maps: maps.map((m, idx) => ({ ...m, map_num: idx + 1 })), // auto map_num
     };
 
     const response = await fetch(`${process.env.API_ROOT}/addmatch?password=${password}`, {
@@ -195,12 +194,11 @@ export default function AddMatch() {
                   ))}
                 </SelectContent>
               </Select>
+              <Label className="mt-2 block">Score 1</Label>
               <Input
                 type="number"
                 value={score1}
                 onChange={(e) => setScore1(Number(e.target.value))}
-                placeholder="Score 1"
-                className="mt-2"
               />
             </div>
             <div>
@@ -217,12 +215,11 @@ export default function AddMatch() {
                   ))}
                 </SelectContent>
               </Select>
+              <Label className="mt-2 block">Score 2</Label>
               <Input
                 type="number"
                 value={score2}
                 onChange={(e) => setScore2(Number(e.target.value))}
-                placeholder="Score 2"
-                className="mt-2"
               />
             </div>
           </div>
@@ -265,38 +262,38 @@ export default function AddMatch() {
                 key={mapIndex}
                 className="border p-3 rounded-lg mt-3 space-y-3"
               >
+                <p className="font-semibold">Map {mapIndex + 1}</p>
+
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    placeholder="Map name"
-                    value={map.map_name}
-                    onChange={(e) =>
-                      handleMapChange(mapIndex, "map_name", e.target.value)
-                    }
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Map #"
-                    value={map.map_num}
-                    onChange={(e) =>
-                      handleMapChange(mapIndex, "map_num", Number(e.target.value))
-                    }
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Team1 score"
-                    value={map.team1_score}
-                    onChange={(e) =>
-                      handleMapChange(mapIndex, "team1_score", Number(e.target.value))
-                    }
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Team2 score"
-                    value={map.team2_score}
-                    onChange={(e) =>
-                      handleMapChange(mapIndex, "team2_score", Number(e.target.value))
-                    }
-                  />
+                  <div>
+                    <Label>Map Name</Label>
+                    <Input
+                      value={map.map_name}
+                      onChange={(e) =>
+                        handleMapChange(mapIndex, "map_name", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Team 1 Score</Label>
+                    <Input
+                      type="number"
+                      value={map.team1_score}
+                      onChange={(e) =>
+                        handleMapChange(mapIndex, "team1_score", Number(e.target.value))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Team 2 Score</Label>
+                    <Input
+                      type="number"
+                      value={map.team2_score}
+                      onChange={(e) =>
+                        handleMapChange(mapIndex, "team2_score", Number(e.target.value))
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -330,83 +327,115 @@ export default function AddMatch() {
                 {/* Player Stats */}
                 <div>
                   <Label>Player Stats</Label>
+
+                  {/* Header Row */}
+                  <div className="grid grid-cols-8 gap-2 mt-2 font-semibold text-sm text-gray-700">
+                    <div className="col-span-2">Player</div>
+                    <div className="text-center">K</div>
+                    <div className="text-center">A</div>
+                    <div className="text-center">D</div>
+                    <div className="text-center">ADR</div>
+                    <div className="text-center">HS%</div>
+                    <div className="text-center">Acc</div>
+                  </div>
+
                   {map.player_stats.map((ps, psIndex) => (
                     <div
                       key={psIndex}
-                      className="grid grid-cols-4 gap-2 mt-2 items-center"
+                      className="grid grid-cols-8 gap-2 mt-2 items-center"
                     >
-                      <Select
-                        onValueChange={(v) =>
-                          handlePlayerStatChange(
-                            mapIndex,
-                            psIndex,
-                            "player_id",
-                            Number(v)
-                          )
-                        }
-                        value={ps.player_id ? ps.player_id.toString() : ""}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select player" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {players.map((p) => (
-                            <SelectItem key={p.id} value={p.id.toString()}>
-                              {p.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        placeholder="K"
-                        value={ps.K}
-                        onChange={(e) =>
-                          handlePlayerStatChange(
-                            mapIndex,
-                            psIndex,
-                            "K",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
-                      <Input
-                        type="number"
-                        placeholder="A"
-                        value={ps.A}
-                        onChange={(e) =>
-                          handlePlayerStatChange(
-                            mapIndex,
-                            psIndex,
-                            "A",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
-                      <Input
-                        type="number"
-                        placeholder="D"
-                        value={ps.D}
-                        onChange={(e) =>
-                          handlePlayerStatChange(
-                            mapIndex,
-                            psIndex,
-                            "D",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
-                    </div>
+                  {/* Player Select */}
+                  <div className="col-span-2">
+                    <Select
+                      onValueChange={(v) =>
+                        handlePlayerStatChange(
+                          mapIndex,
+                          psIndex,
+                          "player_id",
+                          Number(v)
+                        )
+                      }
+                      value={ps.player_id ? ps.player_id.toString() : ""}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select player" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {players.map((p) => (
+                          <SelectItem key={p.id} value={p.id.toString()}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* K */}
+                  <Input
+                    type="number"
+                    value={ps.K}
+                    onChange={(e) =>
+                      handlePlayerStatChange(mapIndex, psIndex, "K", Number(e.target.value))
+                    }
+                  />
+
+                  {/* A */}
+                  <Input
+                    type="number"
+                    value={ps.A}
+                    onChange={(e) =>
+                      handlePlayerStatChange(mapIndex, psIndex, "A", Number(e.target.value))
+                    }
+                  />
+
+                  {/* D */}
+                  <Input
+                    type="number"
+                    value={ps.D}
+                    onChange={(e) =>
+                      handlePlayerStatChange(mapIndex, psIndex, "D", Number(e.target.value))
+                    }
+                  />
+
+                  {/* ADR */}
+                  <Input
+                    type="number"
+                    value={ps.ADR}
+                    onChange={(e) =>
+                      handlePlayerStatChange(mapIndex, psIndex, "ADR", Number(e.target.value))
+                    }
+                  />
+
+                  {/* HS% */}
+                  <Input
+                    type="number"
+                    value={ps.hs_percent}
+                    onChange={(e) =>
+                      handlePlayerStatChange(mapIndex, psIndex, "hs_percent", Number(e.target.value))
+                    }
+                  />
+
+                  {/* Accuracy */}
+                  <Input
+                    type="number"
+                    value={ps.accuracy}
+                    onChange={(e) =>
+                      handlePlayerStatChange(mapIndex, psIndex, "accuracy", Number(e.target.value))
+                    }
+                  />
+                  </div>
                   ))}
+
                   <Button
-                    type="button"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => addPlayerStat(mapIndex)}
+                  type="button"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => addPlayerStat(mapIndex)}
                   >
-                    + Add Player Stat
+                  + Add Player Stat
                   </Button>
                 </div>
+
               </div>
             ))}
             <Button type="button" className="mt-3" onClick={addMap}>

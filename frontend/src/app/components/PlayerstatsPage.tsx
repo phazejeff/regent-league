@@ -91,7 +91,7 @@ export default function PlayerStatsPage() {
             <SelectContent>
               <SelectItem value="All">All Divisions</SelectItem>
               {divisions.map((div) => (
-                <SelectItem key={div.id} value={div.id.toString()}>
+                <SelectItem key={div.id} value={div.name}>
                   {div.name}
                 </SelectItem>
               ))}
@@ -109,7 +109,7 @@ export default function PlayerStatsPage() {
             <SelectContent>
               <SelectItem value="All">All Groups</SelectItem>
               {groups.map((group) => (
-                <SelectItem key={group.id} value={group.id.toString()}>
+                <SelectItem key={group.id} value={group.name}>
                   {group.name}
                 </SelectItem>
               ))}

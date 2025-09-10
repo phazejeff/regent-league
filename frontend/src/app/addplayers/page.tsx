@@ -1,6 +1,6 @@
-import AddPlayersPage from './page';
+import AddPlayersPage from "../components/AddPlayersPage";
 
-export default function Matches() {
+export default function AddPlayers() {
   return (
     <AddPlayersPage />
   );

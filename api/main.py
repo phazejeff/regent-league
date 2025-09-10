@@ -4,19 +4,32 @@ from .database import create_db_and_tables, engine
 from .models import *
 from sqlmodel import Session, select, func
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 create_db_and_tables()
 app = FastAPI()
 PASSWORD = "test"
 
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
 class TeamStats(BaseModel):
-    team: Team
-    match_wins: int
-    match_losses: int
-    map_wins: int
-    map_losses: int
-    round_wins: int
-    round_losses: int
+    team: Team | None = None
+    match_wins: int = 0
+    match_losses: int = 0
+    map_wins: int = 0
+    map_losses: int = 0
+    round_wins: int = 0
+    round_losses: int = 0
 
 class PlayerstatsAggregated(BaseModel):
     id: int
@@ -123,10 +136,11 @@ def add_match(match_data: MatchCreate):
     return {"message" : "Created"}
 
 @app.post("/addteam", status_code=status.HTTP_201_CREATED)
-def add_team(team: Team, password, response: Response):
+def add_team(team: TeamBase, password, response: Response):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
+    print(team)
     team_db = Team.model_validate(team)
     session = Session(engine)
     session.add(team_db)
@@ -209,10 +223,11 @@ def get_standings(div: str, group: str) -> List[TeamStats]:
     all_team_stats = sorted(
         all_team_stats,
         key = lambda t: (
-            t.match_wins - t.map_losses,
+            t.match_wins - t.match_losses,
             t.map_wins - t.map_losses,
-            t.round_wins - t.round_losses
-        )
+            t.round_wins - t.round_losses,
+        ),
+        reverse=True
     )
     return all_team_stats
 
