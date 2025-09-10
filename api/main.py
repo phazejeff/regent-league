@@ -169,11 +169,11 @@ def get_players(team_id: int | None = None) -> List[Player]:
 @app.get("/matches")
 def get_matches(div: str | None = None, group: str | None = None) -> List[MatchWithMapsWithStats]:
     session = Session(engine)
-    statement = select(Match)
+    statement = select(Match).join(Match.team1)
     if div is not None:
-        statement = statement.where(Match.team1.div == div)
+        statement = statement.where(Team.div == div)
     if group is not None:
-        statement = statement.where(Match.team1.group == group)
+        statement = statement.where(Team.group == group)
     results = session.exec(statement).all()
     return results
 

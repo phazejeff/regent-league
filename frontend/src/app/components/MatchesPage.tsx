@@ -75,7 +75,7 @@ export default function MatchesPage() {
   // Load groups for selected division
   useEffect(() => {
     if (!selectedDiv || selectedDiv === "All") {
-      setGroups([]); // reset groups if All
+      setGroups([]);
       return;
     }
     fetch(`${process.env.API_ROOT}/groups?div=${selectedDiv}`)
@@ -83,7 +83,7 @@ export default function MatchesPage() {
       .then(setGroups);
   }, [selectedDiv]);
 
-  // Load matches when div/group change
+  // Load matches
   useEffect(() => {
     let url = `${process.env.API_ROOT}/matches`;
     const params = new URLSearchParams();
@@ -103,9 +103,9 @@ export default function MatchesPage() {
       {/* Filters */}
       <Card className="shadow-md rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-lg">Filter Matches</CardTitle>
+          <CardTitle className="text-lg font-semibold">Filter Matches</CardTitle>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex gap-4 flex-wrap">
           <Select onValueChange={setSelectedDiv} value={selectedDiv}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Division" />
@@ -143,13 +143,14 @@ export default function MatchesPage() {
       {/* Matches List */}
       {matches.length > 0 ? (
         matches.map((match, idx) => (
-          <Card key={idx} className="shadow-md rounded-2xl">
+          <Card key={idx} className="shadow-lg rounded-2xl border">
             <CardHeader>
               <CardTitle className="flex justify-between items-center text-lg">
-                <span>
+                <span className="font-semibold">
                   {match.team1.name}{" "}
-                  <span className="font-bold">{match.score1}</span> -{" "}
-                  <span className="font-bold">{match.score2}</span>{" "}
+                  <span className="font-bold text-blue-600">{match.score1}</span>{" "}
+                  -{" "}
+                  <span className="font-bold text-red-600">{match.score2}</span>{" "}
                   {match.team2.name}
                 </span>
                 <span className="text-sm text-gray-500">
@@ -159,42 +160,101 @@ export default function MatchesPage() {
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
-                {match.maps.map((map) => (
-                  <AccordionItem key={map.map_num} value={`map-${map.map_num}`}>
-                    <AccordionTrigger>
-                      Map {map.map_num + 1}: {map.map_name} (
-                      {map.team1_score} - {map.team2_score})
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Player</TableHead>
-                            <TableHead>K</TableHead>
-                            <TableHead>A</TableHead>
-                            <TableHead>D</TableHead>
-                            <TableHead>ADR</TableHead>
-                            <TableHead>HS%</TableHead>
-                            <TableHead>Accuracy</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {map.player_stats.map((ps) => (
-                            <TableRow key={ps.player.id}>
-                              <TableCell>{ps.player.name}</TableCell>
-                              <TableCell>{ps.K}</TableCell>
-                              <TableCell>{ps.A}</TableCell>
-                              <TableCell>{ps.D}</TableCell>
-                              <TableCell>{ps.ADR}</TableCell>
-                              <TableCell>{ps.hs_percent}%</TableCell>
-                              <TableCell>{ps.accuracy}%</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
+                {match.maps.map((map) => {
+                  const team1Players = map.player_stats.filter(
+                    (ps) => ps.player.team_id === match.team1.id
+                  );
+                  const team2Players = map.player_stats.filter(
+                    (ps) => ps.player.team_id === match.team2.id
+                  );
+
+                  return (
+                    <AccordionItem key={map.map_num} value={`map-${map.map_num}`}>
+                      <AccordionTrigger>
+                        <div className="flex justify-between w-full items-center">
+                          {/* Map name */}
+                          <span>
+                            Map {map.map_num}: {map.map_name}
+                          </span>
+
+                          {/* Score block */}
+                          <span className="font-semibold">
+                            <span className="text-blue-600">{map.team1_score}</span>
+                            <span className="mx-1">-</span>
+                            <span className="text-red-600">{map.team2_score}</span>
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {/* Team 1 Players */}
+                        <div className="mb-6">
+                          <h3 className="font-semibold text-blue-600 mb-2">
+                            {match.team1.name}
+                          </h3>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Player</TableHead>
+                                <TableHead>K</TableHead>
+                                <TableHead>A</TableHead>
+                                <TableHead>D</TableHead>
+                                <TableHead>ADR</TableHead>
+                                <TableHead>HS%</TableHead>
+                                <TableHead>Accuracy</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {team1Players.map((ps) => (
+                                <TableRow key={ps.player.id}>
+                                  <TableCell>{ps.player.name}</TableCell>
+                                  <TableCell>{ps.K}</TableCell>
+                                  <TableCell>{ps.A}</TableCell>
+                                  <TableCell>{ps.D}</TableCell>
+                                  <TableCell>{ps.ADR}</TableCell>
+                                  <TableCell>{ps.hs_percent}%</TableCell>
+                                  <TableCell>{ps.accuracy}%</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+
+                        {/* Team 2 Players */}
+                        <div>
+                          <h3 className="font-semibold text-red-600 mb-2">
+                            {match.team2.name}
+                          </h3>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Player</TableHead>
+                                <TableHead>K</TableHead>
+                                <TableHead>A</TableHead>
+                                <TableHead>D</TableHead>
+                                <TableHead>ADR</TableHead>
+                                <TableHead>HS%</TableHead>
+                                <TableHead>Accuracy</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {team2Players.map((ps) => (
+                                <TableRow key={ps.player.id}>
+                                  <TableCell>{ps.player.name}</TableCell>
+                                  <TableCell>{ps.K}</TableCell>
+                                  <TableCell>{ps.A}</TableCell>
+                                  <TableCell>{ps.D}</TableCell>
+                                  <TableCell>{ps.ADR}</TableCell>
+                                  <TableCell>{ps.hs_percent}%</TableCell>
+                                  <TableCell>{ps.accuracy}%</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
               </Accordion>
             </CardContent>
           </Card>
