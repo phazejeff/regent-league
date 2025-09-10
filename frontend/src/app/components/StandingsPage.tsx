@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Loader2, Trophy } from "lucide-react";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -27,94 +27,160 @@ export default function StandingsPage() {
   const [selectedDiv, setSelectedDiv] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<string>("");
 
+  const [loadingGroups, setLoadingGroups] = useState(false);
+  const [loadingStandings, setLoadingStandings] = useState(false);
+
   useEffect(() => {
     fetch(`${process.env.API_ROOT}/divisions`)
       .then((res) => res.json())
-      .then(setDivisions);
+      .then((json) => {
+        setDivisions(json)
+        setSelectedDiv(json[0].name)
+      });
   }, []);
 
   useEffect(() => {
     if (!selectedDiv) return;
+    setLoadingGroups(true);
     fetch(`${process.env.API_ROOT}/groups?div=${selectedDiv}`)
       .then((res) => res.json())
-      .then(setGroups);
+      .then((data) => {
+        setGroups(data);
+        setSelectedGroup(data[0].name)
+        setLoadingGroups(false);
+      });
   }, [selectedDiv]);
 
   useEffect(() => {
     if (!selectedDiv || !selectedGroup) return;
+    setLoadingStandings(true);
     fetch(`${process.env.API_ROOT}/standings?div=${selectedDiv}&group=${selectedGroup}`)
       .then((res) => res.json())
-      .then(setStandings);
+      .then((data) => {
+        setStandings(data);
+        setLoadingStandings(false);
+      });
   }, [selectedDiv, selectedGroup]);
 
+  const getWinRate = (won: number, lost: number) => {
+    const total = won + lost;
+    if (total === 0) return "0%";
+    return `${((won / total) * 100).toFixed(1)}%`;
+  };
+
+  const getDiff = (won: number, lost: number) => won - lost;
+
   return (
-    <Card className="w-full max-w-5xl mx-auto mt-6 shadow-lg rounded-2xl">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold">Standings</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-4 mb-6">
-          {/* Division Selector */}
-          <Select onValueChange={setSelectedDiv} value={selectedDiv}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select Division" />
-            </SelectTrigger>
-            <SelectContent>
-              {divisions.map((div) => (
-                <SelectItem key={div.id} value={div.name}>
-                  {div.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className="w-full max-w-4xl mx-auto mt-8 space-y-6">
+      {/* Header + Filters */}
+      <Card className="shadow-xl rounded-2xl border border-gray-200 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">League Standings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap justify-center gap-6">
+            {/* Division Selector */}
+            <Select onValueChange={setSelectedDiv} value={selectedDiv}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Select Division" />
+              </SelectTrigger>
+              <SelectContent>
+                {divisions.map((div) => (
+                  <SelectItem key={div.id} value={div.name}>
+                    {div.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {/* Group Selector */}
-          <Select onValueChange={setSelectedGroup} value={selectedGroup} disabled={!selectedDiv}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select Group" />
-            </SelectTrigger>
-            <SelectContent>
-              {groups.map((group) => (
-                <SelectItem key={group.id} value={group.name}>
-                  {group.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {/* Group Selector */}
+            <Select
+              onValueChange={setSelectedGroup}
+              value={selectedGroup}
+              disabled={!selectedDiv || loadingGroups}
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Select Group" />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map((group) => (
+                  <SelectItem key={group.id} value={group.name}>
+                    {group.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Standings List */}
+      {loadingStandings ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
         </div>
+      ) : standings.length > 0 ? (
+        <div className="space-y-4">
+          {standings.map((s, index) => (
+            <Card
+              key={s.team.id}
+              className="p-4 shadow-md hover:shadow-lg transition rounded-xl"
+            >
+              <div className="flex items-start gap-4">
+                {/* Rank / Trophy */}
+                <div className="flex-shrink-0 w-8 text-center">
+                  {index === 0 && <Trophy className="text-yellow-500" size={24} />}
+                  {index === 1 && <Trophy className="text-gray-400" size={24} />}
+                  {index === 2 && <Trophy className="text-amber-700" size={24} />}
+                  {index > 2 && (
+                    <span className="text-lg font-bold text-gray-600 dark:text-gray-300">
+                      {index + 1}
+                    </span>
+                  )}
+                </div>
 
-        {/* Standings Table */}
-        {standings.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Team</TableHead>
-                <TableHead>Match W</TableHead>
-                <TableHead>Match L</TableHead>
-                <TableHead>Map W</TableHead>
-                <TableHead>Map L</TableHead>
-                <TableHead>Round W</TableHead>
-                <TableHead>Round L</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {standings.map((s) => (
-                <TableRow key={s.team.id}>
-                  <TableCell>{s.team.name}</TableCell>
-                  <TableCell>{s.match_wins}</TableCell>
-                  <TableCell>{s.match_losses}</TableCell>
-                  <TableCell>{s.map_wins}</TableCell>
-                  <TableCell>{s.map_losses}</TableCell>
-                  <TableCell>{s.round_wins}</TableCell>
-                  <TableCell>{s.round_losses}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <p className="text-gray-500 text-center">Select division & group to see standings</p>
-        )}
-      </CardContent>
-    </Card>
+                {/* Team Info */}
+                <div className="flex-grow">
+                  <h3 className="text-lg font-semibold">{s.team.name}</h3>
+                  <div className="grid grid-cols-3 gap-6 mt-3 text-sm">
+                    <div>
+                      <p className="font-medium">Matches</p>
+                      <p>
+                        {s.match_wins}W - {s.match_losses}L
+                      </p>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        {getWinRate(s.match_wins, s.match_losses)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Maps</p>
+                      <p>
+                        {s.map_wins}W - {s.map_losses}L
+                      </p>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        Diff: {getDiff(s.map_wins, s.map_losses)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Rounds</p>
+                      <p>
+                        {s.round_wins}W - {s.round_losses}L
+                      </p>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        Diff: {getDiff(s.round_wins, s.round_losses)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 text-center py-10">
+          Select a division and group to view standings.
+        </p>
+      )}
+    </div>
   );
 }
