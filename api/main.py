@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, HTTPException, Response, status
 from .database import create_db_and_tables, engine
 from .models import *
 from sqlmodel import Session, select, func
@@ -40,18 +40,86 @@ class MatchWithMapsWithStats(MatchBase):
     team2: Team
     maps: List[MapWithStats]
 
+class PlayerstatsCreate(PlayerstatsBase):
+    player_id: int
+
+class MapCreate(MapBase):
+    winner_id: int
+    player_stats: List[PlayerstatsCreate]
+
+class MatchCreate(MatchBase):
+    team1_id: int
+    team2_id: int
+    winner_id: int
+    maps: List[MapCreate]
+
 @app.get("/")
 def read_root():
     return {"Status" : "OK"}
 
-@app.post("/addmatch", status_code=status.HTTP_201_CREATED)
-def add_match(match: Match, maps: List[Map], playerstats: List[Playerstats], password: str, response: Response):
-    if password != PASSWORD:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {"message" : "Incorrect password"}
+@app.post("/addmatch")
+def add_match(match_data: MatchCreate):
     session = Session(engine)
-    session.add_all([match, *maps, *playerstats])
+    # Verify teams exist
+    team1 = session.get(Team, match_data.team1_id)
+    team2 = session.get(Team, match_data.team2_id)
+    if not team1 or not team2:
+        raise HTTPException(status_code=404, detail="One or both teams not found")
+
+    # Create Match
+    match = Match(
+        team1_id=match_data.team1_id,
+        team2_id=match_data.team2_id,
+        score1=match_data.score1,
+        score2=match_data.score2,
+        datetime=match_data.datetime,
+        winner_id=match_data.winner_id,
+    )
+    session.add(match)
+    session.flush()  # ensures match.id is available
+
+    # Create Maps
+    for map_data in match_data.maps:
+        map_obj = Map(
+            map_num=map_data.map_num,
+            map_name=map_data.map_name,
+            team1_score=map_data.team1_score,
+            team2_score=map_data.team2_score,
+            winner_id=map_data.winner_id,
+            match_id=match.id,
+        )
+        session.add(map_obj)
+        session.flush()  # ensures map.id is available
+
+        # Add Player Stats for each map
+        for ps in map_data.player_stats:
+            player = session.get(Player, ps.player_id)
+            if not player:
+                raise HTTPException(status_code=404, detail=f"Player {ps.player_id} not found")
+
+            # MapPlayer (ensures association between player, team, map)
+            mp = MapPlayer(
+                map_id=map_obj.id,
+                player_id=ps.player_id,
+                team_id=player.team_id,
+            )
+            session.add(mp)
+
+            # Playerstats
+            stats = Playerstats(
+                player_id=ps.player_id,
+                map_id=map_obj.id,
+                K=ps.K,
+                A=ps.A,
+                D=ps.D,
+                ADR=ps.ADR,
+                hs_percent=ps.hs_percent,
+                accuracy=ps.accuracy,
+            )
+            session.add(stats)
+
     session.commit()
+    session.refresh(match)
     return {"message" : "Created"}
 
 @app.post("/addteam", status_code=status.HTTP_201_CREATED)
@@ -59,8 +127,9 @@ def add_team(team: Team, password, response: Response):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
+    team_db = Team.model_validate(team)
     session = Session(engine)
-    session.add(team)
+    session.add(team_db)
     session.commit()
     return {"message" : "Created"}
 
@@ -74,6 +143,15 @@ def add_players(players: List[Player], password, response: Response):
     session.commit()
     return {"message" : "Created"}
 
+@app.get("/players")
+def get_players(team_id: int | None = None) -> List[Player]:
+    session = Session(engine)
+    statement = select(Player)
+    if team_id is not None:
+        statement = statement.where(Player.team_id == team_id)
+    players = session.exec(statement).all()
+    return players
+
 @app.get("/matches")
 def get_matches(div: str | None = None, group: str | None = None) -> List[MatchWithMapsWithStats]:
     session = Session(engine)
@@ -82,6 +160,13 @@ def get_matches(div: str | None = None, group: str | None = None) -> List[MatchW
         statement = statement.where(Match.team1.div == div)
     if group is not None:
         statement = statement.where(Match.team1.group == group)
+    results = session.exec(statement).all()
+    return results
+
+@app.get("/teams")
+def get_teams() -> List[Team]:
+    session = Session(engine)
+    statement = select(Team)
     results = session.exec(statement).all()
     return results
 

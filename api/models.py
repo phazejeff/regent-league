@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import  List, Optional
 from sqlmodel import Field, SQLModel, Relationship
+from datetime import datetime
 
 class TeamBase(SQLModel):
     name: str
@@ -26,6 +27,7 @@ class Player(PlayerBase, table=True):
 class MatchBase(SQLModel):
     score1: int
     score2: int
+    datetime: datetime
 class Match(MatchBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team1_id: int = Field(foreign_key="team.id")
