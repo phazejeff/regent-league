@@ -1,7 +1,11 @@
+import NavigationBar from "../components/NavigationBar";
 import StandingsPage from "../components/StandingsPage";
 
 export default function Standings() {
   return (
-    <StandingsPage />
+    <div>
+      <NavigationBar />
+      <StandingsPage />
+    </div>
   );
 }
