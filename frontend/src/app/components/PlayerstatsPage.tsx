@@ -2,31 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
+import { ChevronUp, ChevronDown, Medal } from "lucide-react";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
 
-type Team = { name: string; div: string; group: string; id: number };
-
 type PlayerStats = {
   id: number;
   name: string;
-  team: Team;
+  team: string;
   K: number;
   D: number;
   A: number;
@@ -43,6 +27,9 @@ export default function PlayerStatsPage() {
   const [selectedDiv, setSelectedDiv] = useState<string>("All");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
 
+  const [sortBy, setSortBy] = useState<keyof PlayerStats>("K");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
   // Load divisions
   useEffect(() => {
     fetch(`${process.env.API_ROOT}/divisions`)
@@ -50,7 +37,7 @@ export default function PlayerStatsPage() {
       .then(setDivisions);
   }, []);
 
-  // Load groups for selected division
+  // Load groups
   useEffect(() => {
     if (!selectedDiv || selectedDiv === "All") {
       setGroups([]);
@@ -61,14 +48,12 @@ export default function PlayerStatsPage() {
       .then(setGroups);
   }, [selectedDiv]);
 
-  // Load player stats
+  // Load players
   useEffect(() => {
     let url = `${process.env.API_ROOT}/playerstats`;
     const params = new URLSearchParams();
-
     if (selectedDiv !== "All") params.append("div", selectedDiv);
     if (selectedGroup !== "All") params.append("group", selectedGroup);
-
     if (params.toString()) url += `?${params.toString()}`;
 
     fetch(url)
@@ -76,90 +61,121 @@ export default function PlayerStatsPage() {
       .then(setPlayers);
   }, [selectedDiv, selectedGroup]);
 
-  return (
-    <div className="w-full max-w-6xl mx-auto mt-6 space-y-6">
-      {/* Filters */}
-      <Card className="shadow-md rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-lg">Filter Player Stats</CardTitle>
-        </CardHeader>
-        <CardContent className="flex gap-4">
-          <Select onValueChange={setSelectedDiv} value={selectedDiv}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select Division" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Divisions</SelectItem>
-              {divisions.map((div) => (
-                <SelectItem key={div.id} value={div.name}>
-                  {div.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+  const handleSort = (column: keyof PlayerStats) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+  };
 
-          <Select
-            onValueChange={setSelectedGroup}
-            value={selectedGroup}
-            disabled={!selectedDiv}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select Group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Groups</SelectItem>
-              {groups.map((group) => (
-                <SelectItem key={group.id} value={group.name}>
-                  {group.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+  const sortedPlayers = [...players].sort((a, b) => {
+    const valueA = a[sortBy];
+    const valueB = b[sortBy];
+
+    if (typeof valueA === "number" && typeof valueB === "number") {
+      return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
+    }
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return sortOrder === "asc"
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
+    }
+    return 0;
+  });
+
+  const SortableHeader: React.FC<{ column: keyof PlayerStats; label: string }> = ({
+    column,
+    label,
+  }) => (
+    <th
+      onClick={() => handleSort(column)}
+      className="p-3 text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {sortBy === column &&
+          (sortOrder === "asc" ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          ))}
+      </div>
+    </th>
+  );
+
+  const getStatClass = (column: keyof PlayerStats, value: number) => {
+    if (column === "ADR") {
+      if (value >= 90) return "text-green-600 font-semibold";
+      if (value <= 50) return "text-red-500 font-semibold";
+    }
+    if (column === "HS") {
+      if (value >= 70) return "text-green-600 font-semibold";
+      if (value <= 20) return "text-red-500 font-semibold";
+    }
+    if (column === "accuracy") {
+      if (value >= 60) return "text-green-600 font-semibold";
+      if (value <= 15) return "text-red-500 font-semibold";
+    }
+    return "";
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Player Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-100 dark:bg-gray-800">
+                <tr>
+                  <th className="p-3 text-left">Rank</th>
+                  <th className="p-3 text-left">Player</th>
+                  <th className="p-3 text-left">Team</th>
+                  <SortableHeader column="K" label="Kills" />
+                  <SortableHeader column="D" label="Deaths" />
+                  <SortableHeader column="A" label="Assists" />
+                  <SortableHeader column="ADR" label="ADR" />
+                  <SortableHeader column="HS" label="HS%" />
+                  <SortableHeader column="accuracy" label="Accuracy%" />
+                </tr>
+              </thead>
+              <tbody>
+                {sortedPlayers.map((p, index) => (
+                  <tr
+                    key={p.id}
+                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <td className="p-3">
+                      {index === 0 && <Medal className="text-yellow-500" />}
+                      {index === 1 && <Medal className="text-gray-400" />}
+                      {index === 2 && <Medal className="text-amber-700" />}
+                      {index > 2 && index + 1}
+                    </td>
+                    <td className="p-3">{p.name}</td>
+                    <td className="p-3">{p.team}</td>
+                    <td className="p-3">{p.K}</td>
+                    <td className="p-3">{p.D}</td>
+                    <td className="p-3">{p.A}</td>
+                    <td className={`p-3 ${getStatClass("ADR", p.ADR)}`}>
+                      {p.ADR}
+                    </td>
+                    <td className={`p-3 ${getStatClass("HS", p.HS)}`}>
+                      {p.HS}%
+                    </td>
+                    <td className={`p-3 ${getStatClass("accuracy", p.accuracy)}`}>
+                      {p.accuracy}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
-
-      {/* Player Stats Table */}
-      {players.length > 0 ? (
-        <Card className="shadow-md rounded-2xl">
-          <CardHeader>
-            <CardTitle className="text-lg">Player Stats</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Player</TableHead>
-                  <TableHead>Team</TableHead>
-                  <TableHead>K</TableHead>
-                  <TableHead>D</TableHead>
-                  <TableHead>A</TableHead>
-                  <TableHead>ADR</TableHead>
-                  <TableHead>HS%</TableHead>
-                  <TableHead>Accuracy%</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {players.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell>{p.name}</TableCell>
-                    <TableCell>{p.team.name}</TableCell>
-                    <TableCell>{p.K}</TableCell>
-                    <TableCell>{p.D}</TableCell>
-                    <TableCell>{p.A}</TableCell>
-                    <TableCell>{p.ADR}</TableCell>
-                    <TableCell>{p.HS}%</TableCell>
-                    <TableCell>{p.accuracy}%</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      ) : (
-        <p className="text-center text-gray-500">
-          No player stats found for this selection.
-        </p>
-      )}
     </div>
   );
 }

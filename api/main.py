@@ -32,15 +32,15 @@ class TeamStats(BaseModel):
     round_losses: int = 0
 
 class PlayerstatsAggregated(BaseModel):
-    id: int
-    name: str
-    team: Team
-    K: int
-    D: int
-    A: int
-    ADR: float
-    HS: float
-    accuracy: float
+    id: int = 0
+    name: str = ""
+    team: str = ""
+    K: int = 0
+    D: int = 0
+    A: int = 0
+    ADR: float = 0
+    HS: float = 0
+    accuracy: float = 0
 
 class PlayerstatsWithPlayer(PlayerstatsBase):
     player: Player | None
@@ -238,7 +238,7 @@ def get_playerstats(div: str | None = None, group: int | None = None) -> List[Pl
         select(
             Player.id,
             Player.name,
-            Player.team,
+            Team.name.label("team"),  # Get the actual team name
             func.sum(Playerstats.K).label("K"),
             func.sum(Playerstats.A).label("A"),
             func.sum(Playerstats.D).label("D"),
@@ -247,15 +247,16 @@ def get_playerstats(div: str | None = None, group: int | None = None) -> List[Pl
             func.avg(Playerstats.accuracy).label("accuracy")
         )
         .join(Playerstats, Player.id == Playerstats.player_id)
-        .group_by(Player.id)
+        .join(Team, Player.team_id == Team.id)  # Join with Team table
+        .group_by(Player.id, Player.name, Team.name)  # Include Team.name in group_by
     )
-
     if div is not None:
-        statement = statement.where(Player.team.div == div)
+        statement = statement.where(Team.div == div)
     if group is not None:
-        statement = statement.where(Player.team.group == group)
-
+        statement = statement.where(Team.group == group)
+    
     results = session.exec(statement).all()
+    print(results)
     return results
 
 @app.get("/divisions")
