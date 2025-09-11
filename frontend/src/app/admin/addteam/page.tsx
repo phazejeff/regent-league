@@ -1,4 +1,4 @@
-import AddTeamPage from "../components/AddTeamPage";
+import AddTeamPage from "../../components/AddTeamPage";
 
 export default function Matches() {
   return (
