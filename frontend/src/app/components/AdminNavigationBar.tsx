@@ -1,0 +1,91 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+
+export default function AdminNavigationBar() {
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const links = [
+    { href: "/admin/addmatch", label: "Add Match" },
+    { href: "/admin/addteam", label: "Add Team" },
+    { href: "/admin/addplayers", label: "Add Players" },
+  ];
+
+  const renderLink = (href: string, label: string) => {
+    const isActive = pathname === href;
+    const base =
+      "relative inline-block text-lg font-semibold px-3 py-2 transition-transform duration-200 ease-out transform active:scale-95";
+    const activeStyles =
+      "scale-105 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900 rounded-md shadow-sm";
+    const inactiveStyles =
+      "text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 hover:scale-105";
+
+    return (
+      <Link
+        key={href}
+        href={href}
+        onClick={() => setIsOpen(false)}
+        className={`${base} ${isActive ? activeStyles : inactiveStyles}`}
+        aria-current={isActive ? "page" : undefined}
+      >
+        {label}
+      </Link>
+    );
+  };
+
+  return (
+    <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex items-center justify-between h-16 relative">
+          {/* Left logo */}
+          <Link href='/'>
+          <div className="text-xl font-bold dark:text-white">Regent League</div>
+          </Link>
+          {/* Desktop centered nav */}
+          <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 space-x-8">
+            {links.map((l) => renderLink(l.href, l.label))}
+          </div>
+
+          {/* Mobile button */}
+          <div className="md:hidden">
+            <button
+              aria-label="Toggle menu"
+              aria-expanded={isOpen}
+              onClick={() => setIsOpen((s) => !s)}
+              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            >
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {isOpen && (
+        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col px-4 py-3 space-y-2">
+            {links.map((l) => (
+              <div key={l.href} className="w-full">
+                <Link
+                  href={l.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block w-full text-left text-base font-medium px-3 py-2 transition-transform duration-150 transform active:scale-95 ${
+                    pathname === l.href
+                      ? "scale-105 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900 rounded-md shadow-sm"
+                      : "text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 hover:scale-105"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}

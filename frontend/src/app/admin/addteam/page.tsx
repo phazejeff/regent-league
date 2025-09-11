@@ -1,7 +1,11 @@
+import AdminNavigationBar from "@/app/components/AdminNavigationBar";
 import AddTeamPage from "../../components/AddTeamPage";
 
 export default function Matches() {
   return (
-    <AddTeamPage />
+    <div>
+      <AdminNavigationBar />
+      <AddTeamPage />
+    </div>
   );
 }

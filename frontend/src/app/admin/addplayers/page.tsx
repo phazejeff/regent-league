@@ -1,7 +1,11 @@
+import AdminNavigationBar from "@/app/components/AdminNavigationBar";
 import AddPlayersPage from "../../components/AddPlayersPage";
 
 export default function AddPlayers() {
   return (
-    <AddPlayersPage />
+    <div>
+      <AdminNavigationBar />
+      <AddPlayersPage />
+    </div>
   );
 }

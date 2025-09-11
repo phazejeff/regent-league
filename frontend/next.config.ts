@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
           source: '/',
           destination: '/standings',
           permanent: true
+        },
+        {
+          source: '/admin',
+          destination: '/admin/addmatch',
+          permanent: true
         }
       ]
   },
