@@ -42,7 +42,7 @@ export default function NavigationBar() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16 relative">
           {/* Left logo */}
-          <div className="text-xl font-bold dark:text-white">MyLeague</div>
+          <div className="text-xl font-bold dark:text-white">Regent League</div>
 
           {/* Desktop centered nav */}
           <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 space-x-8">
