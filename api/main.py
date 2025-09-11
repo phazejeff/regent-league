@@ -256,7 +256,6 @@ def get_playerstats(div: str | None = None, group: int | None = None) -> List[Pl
         statement = statement.where(Team.group == group)
     
     results = session.exec(statement).all()
-    print(results)
     return results
 
 @app.get("/divisions")
