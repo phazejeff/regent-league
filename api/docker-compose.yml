@@ -1,0 +1,9 @@
+services:
+  regent-league-api:
+    image: phazejeff/regent-league-api:latest
+    ports:
+      - "43269:8000"
+    volumes:
+      - ./local/regent-database:/code/database
+    environment:
+      - PASSWORD=value

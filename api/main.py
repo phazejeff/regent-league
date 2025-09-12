@@ -1,14 +1,17 @@
-from typing import List, Dict
+from typing import List
 from fastapi import FastAPI, HTTPException, Response, status
 from .database import create_db_and_tables, engine
 from .models import *
 from sqlmodel import Session, select, func
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 create_db_and_tables()
 app = FastAPI()
-PASSWORD = "test"
+PASSWORD = os.environ.get("PASSWORD")
+if PASSWORD is None:
+    PASSWORD = "test"
 
 origins = [
     "*"
