@@ -2,8 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+
+function DarkModeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+      aria-label="Toggle Dark Mode"
+    >
+      {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+    </button>
+  );
+}
 
 export default function NavigationBar() {
   const pathname = usePathname();
@@ -49,8 +68,14 @@ export default function NavigationBar() {
             {links.map((l) => renderLink(l.href, l.label))}
           </div>
 
+          {/* Right side: Dark mode toggle (desktop) */}
+          <div className="hidden md:flex items-center">
+            <DarkModeToggle />
+          </div>
+
           {/* Mobile button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-2">
+            <DarkModeToggle />
             <button
               aria-label="Toggle menu"
               aria-expanded={isOpen}

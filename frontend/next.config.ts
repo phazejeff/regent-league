@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     API_ROOT: 'https://regent-league-api.poopdealer.lol'
+    // API_ROOT: 'http://127.0.0.1:8000'
   }
 };
 
