@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from fastapi import FastAPI, HTTPException, Response, status
 from .database import create_db_and_tables, engine
 from .models import *
@@ -70,8 +70,11 @@ class MatchCreate(MatchBase):
 def read_root():
     return {"Status" : "OK"}
 
-@app.post("/addmatch")
-def add_match(match_data: MatchCreate):
+@app.post("/addmatch", status_code=status.HTTP_201_CREATED)
+def add_match(match_data: MatchCreate, password, response: Response):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
     session = Session(engine)
     # Verify teams exist
     team1 = session.get(Team, match_data.team1_id)
@@ -100,6 +103,7 @@ def add_match(match_data: MatchCreate):
             team2_score=map_data.team2_score,
             winner_id=map_data.winner_id,
             match_id=match.id,
+            map_picker_name=map_data.map_picker_name
         )
         session.add(map_obj)
         session.flush()  # ensures map.id is available
@@ -266,8 +270,34 @@ def get_divisions() -> List[Divisions]:
     return result
 
 @app.get("/groups")
-def get_groups(div: str) -> List[Groups]:
+def get_groups(div: str | None = None) -> List[Groups]:
     session = Session(engine)
-    statement = select(Groups).where(Groups.division == div)
+    statement = select(Groups)
+    if div is not None:
+        statement = statement.where(Groups.division == div)
     result = session.exec(statement).all()
     return result
+
+@app.post("/setdivsandgroups", status_code=status.HTTP_201_CREATED)
+def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], password, response: Response):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    session = Session(engine)
+    statement = select(Divisions)
+    old_divisions = session.exec(statement).all()
+    for division in old_divisions:
+        session.delete(division)
+    statement = select(Groups)
+    old_groups = session.exec(statement).all()
+    for group in old_groups:
+        session.delete(group)
+
+    for division in divs:
+        div_db = Divisions.model_validate(division)
+        session.add(div_db)
+    for group in groups:
+        group_db = Groups.model_validate(group)
+        session.add(group_db)
+    session.commit()
+    return {"message" : "Created"}

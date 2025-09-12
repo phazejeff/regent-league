@@ -36,6 +36,7 @@ interface MapData {
   team1_score: number;
   team2_score: number;
   winner_id: number;
+  map_picker_name: string;
   player_stats: PlayerStat[];
 }
 
@@ -57,9 +58,11 @@ export default function AddMatchPage() {
       team1_score: 0,
       team2_score: 0,
       winner_id: 0,
+      map_picker_name: "",
       player_stats: [],
     },
   ]);
+
 
   const [password, setPassword] = useState("");
 
@@ -88,6 +91,7 @@ export default function AddMatchPage() {
         team1_score: 0,
         team2_score: 0,
         winner_id: 0,
+        map_picker_name: "",
         player_stats: [],
       },
     ]);
@@ -162,6 +166,7 @@ export default function AddMatchPage() {
           team1_score: 0,
           team2_score: 0,
           winner_id: 0,
+          map_picker_name: "",
           player_stats: [],
         },
       ]);
@@ -255,74 +260,94 @@ export default function AddMatchPage() {
           </div>
 
           {/* Maps */}
-          <div>
-            <Label>Maps</Label>
-            {maps.map((map, mapIndex) => (
-              <div
-                key={mapIndex}
-                className="border p-3 rounded-lg mt-3 space-y-3"
-              >
-                <p className="font-semibold">Map {mapIndex + 1}</p>
+<div>
+  <Label>Maps</Label>
+  {maps.map((map, mapIndex) => (
+    <div
+      key={mapIndex}
+      className="border p-3 rounded-lg mt-3 space-y-3"
+    >
+      <p className="font-semibold">Map {mapIndex + 1}</p>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Map Name</Label>
-                    <Input
-                      value={map.map_name}
-                      onChange={(e) =>
-                        handleMapChange(mapIndex, "map_name", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label>Team 1 Score</Label>
-                    <Input
-                      type="number"
-                      value={map.team1_score}
-                      onChange={(e) =>
-                        handleMapChange(mapIndex, "team1_score", Number(e.target.value))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label>Team 2 Score</Label>
-                    <Input
-                      type="number"
-                      value={map.team2_score}
-                      onChange={(e) =>
-                        handleMapChange(mapIndex, "team2_score", Number(e.target.value))
-                      }
-                    />
-                  </div>
-                </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Map Name</Label>
+          <Input
+            value={map.map_name}
+            onChange={(e) =>
+              handleMapChange(mapIndex, "map_name", e.target.value)
+            }
+          />
+        </div>
 
-                <div>
-                  <Label>Map Winner</Label>
-                  <Select
-                    onValueChange={(v) =>
-                      handleMapChange(mapIndex, "winner_id", Number(v))
-                    }
-                    value={map.winner_id ? map.winner_id.toString() : ""}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select winner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[team1Id, team2Id]
-                        .filter(Boolean)
-                        .map((id) => {
-                          const t = teams.find(
-                            (t) => t.id.toString() === id
-                          );
-                          return (
-                            <SelectItem key={id} value={id!}>
-                              {t?.name}
-                            </SelectItem>
-                          );
-                        })}
-                    </SelectContent>
-                  </Select>
-                </div>
+        <div>
+          <Label>Map Picker</Label>
+          <Select
+            onValueChange={(v) =>
+              handleMapChange(mapIndex, "map_picker_name", v)
+            }
+            value={map.map_picker_name || ""}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select picker" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="team1">Team 1</SelectItem>
+              <SelectItem value="team2">Team 2</SelectItem>
+              <SelectItem value="decider">Decider</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Team 1 Score</Label>
+          <Input
+            type="number"
+            value={map.team1_score}
+            onChange={(e) =>
+              handleMapChange(mapIndex, "team1_score", Number(e.target.value))
+            }
+          />
+        </div>
+
+        <div>
+          <Label>Team 2 Score</Label>
+          <Input
+            type="number"
+            value={map.team2_score}
+            onChange={(e) =>
+              handleMapChange(mapIndex, "team2_score", Number(e.target.value))
+            }
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label>Map Winner</Label>
+        <Select
+          onValueChange={(v) =>
+            handleMapChange(mapIndex, "winner_id", Number(v))
+          }
+          value={map.winner_id ? map.winner_id.toString() : ""}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select winner" />
+          </SelectTrigger>
+          <SelectContent>
+            {[team1Id, team2Id]
+              .filter(Boolean)
+              .map((id) => {
+                const t = teams.find((t) => t.id.toString() === id);
+                return (
+                  <SelectItem key={id} value={id!}>
+                    {t?.name}
+                  </SelectItem>
+                );
+              })}
+          </SelectContent>
+        </Select>
+      </div>
+
 
                 {/* Player Stats */}
                 <div>

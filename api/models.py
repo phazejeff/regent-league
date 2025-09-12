@@ -43,6 +43,7 @@ class MapBase(SQLModel):
     map_name: str
     team1_score: int
     team2_score: int
+    map_picker_name: str
 class Map(MapBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     match_id: int = Field(foreign_key="match.id")
@@ -74,11 +75,13 @@ class Playerstats(PlayerstatsBase, table=True):
     player: Optional["Player"] = Relationship(back_populates="map_stats")
     map: Optional["Map"] = Relationship(back_populates="player_stats")
 
-class Divisions(SQLModel, table=True):
-    id: int | None = Field(primary_key=True)
+class DivisionsBase(SQLModel):
     name: str
+class Divisions(DivisionsBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
 
-class Groups(SQLModel, table=True):
-    id: int | None = Field(primary_key=True)
+class GroupsBase(SQLModel):
     division: str
     name: str
+class Groups(GroupsBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)

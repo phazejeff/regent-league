@@ -43,6 +43,7 @@ type MapStats = {
   map_name: string;
   team1_score: number;
   team2_score: number;
+  map_picker_name: string;
   player_stats: PlayerStats[];
 };
 
@@ -172,9 +173,12 @@ export default function MatchesPage() {
                     <AccordionItem key={map.map_num} value={`map-${map.map_num}`}>
                       <AccordionTrigger>
                         <div className="flex justify-between w-full items-center">
-                          {/* Map name */}
+                          {/* Map name + picker */}
                           <span>
                             Map {map.map_num}: {map.map_name}
+                            <span className="ml-2 text-sm text-gray-500">
+                              (Picked by {map.map_picker_name})
+                            </span>
                           </span>
 
                           {/* Score block */}
