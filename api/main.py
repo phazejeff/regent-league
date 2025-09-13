@@ -185,8 +185,10 @@ def get_matches(div: str | None = None, group: str | None = None, session: Sessi
     return results
 
 @app.get("/teams")
-def get_teams(session: Session = Depends(get_session)) -> List[Team]:
+def get_teams(div: str | None = None, session: Session = Depends(get_session)) -> List[Team]:
     statement = select(Team)
+    if div is not None:
+        statement = statement.where(Team.div == div)
     results = session.exec(statement).all()
     return results
 
