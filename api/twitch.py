@@ -30,7 +30,6 @@ class Twitch:
             'user_login': TWITCH_USERNAME
         }
         resp = requests.get(url, headers=headers, params=params)
-        resp.raise_for_status()
         data = resp.json()
         # If the "data" array is non-empty, the channel is live
         if data['data']:
