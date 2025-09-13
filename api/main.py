@@ -140,6 +140,7 @@ def add_match(match_data: MatchCreate, password, response: Response):
 
         session.commit()
         session.refresh(match)
+        session.close()
         return {"message" : "Created"}
 
 @app.post("/addteam", status_code=status.HTTP_201_CREATED)
@@ -151,6 +152,7 @@ def add_team(team: TeamBase, password, response: Response):
         team_db = Team.model_validate(team)
         session.add(team_db)
         session.commit()
+        session.close()
         return {"message" : "Created"}
 
 @app.post("/addplayers", status_code=status.HTTP_201_CREATED)
@@ -161,6 +163,7 @@ def add_players(players: List[Player], password, response: Response):
     with Session(engine) as session:
         session.add_all(players)
         session.commit()
+        session.close()
         return {"message" : "Created"}
 
 @app.get("/players")
@@ -170,6 +173,7 @@ def get_players(team_id: int | None = None) -> List[Player]:
         if team_id is not None:
             statement = statement.where(Player.team_id == team_id)
         players = session.exec(statement).all()
+        session.close()
         return players
 
 @app.get("/matches")
@@ -181,6 +185,7 @@ def get_matches(div: str | None = None, group: str | None = None) -> List[MatchW
         if group is not None:
             statement = statement.where(Team.group == group)
         results = session.exec(statement).all()
+        session.close()
         return results
 
 @app.get("/teams")
@@ -188,6 +193,7 @@ def get_teams() -> List[Team]:
     with Session(engine) as session:
         statement = select(Team)
         results = session.exec(statement).all()
+        session.close()
         return results
 
 @app.get("/standings")
@@ -199,6 +205,7 @@ def get_standings(div: str, group: str) -> List[TeamStats]:
         if group is not None:
             statement = statement.where(Team.group == group)
         teams = session.exec(statement).all()
+        session.close()
 
         all_team_stats: List[TeamStats] = []
 
@@ -262,6 +269,7 @@ def get_playerstats(div: str | None = None, group: int | None = None) -> List[Pl
             statement = statement.where(Team.group == group)
         
         results = session.exec(statement).all()
+        session.close()
         return results
 
 @app.get("/divisions")
@@ -269,6 +277,7 @@ def get_divisions() -> List[Divisions]:
     with Session(engine) as session:
         statement = select(Divisions)
         result = session.exec(statement).all()
+        session.close()
         return result
 
 @app.get("/groups")
@@ -278,6 +287,7 @@ def get_groups(div: str | None = None) -> List[Groups]:
         if div is not None:
             statement = statement.where(Groups.division == div)
         result = session.exec(statement).all()
+        session.close()
         return result
 
 @app.post("/setdivsandgroups", status_code=status.HTTP_201_CREATED)
@@ -302,4 +312,5 @@ def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], pas
             group_db = Groups.model_validate(group)
             session.add(group_db)
         session.commit()
+        session.close()
         return {"message" : "Created"}
