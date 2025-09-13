@@ -26,10 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-tr from-[#0d1b2a] via-[#1b263b] to-[#9e2a2b]`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+            {children}
         </ThemeProvider>
       </body>
     </html>
