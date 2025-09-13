@@ -14,7 +14,8 @@ class Twitch:
             'grant_type': 'client_credentials'
         }
         resp = requests.post(url, params=params)
-        resp.raise_for_status()
+        if resp.status_code == 400:
+            return
         data = resp.json()
         self.access_token = data['access_token']
 
