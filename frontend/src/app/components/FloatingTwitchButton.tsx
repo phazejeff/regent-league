@@ -37,7 +37,7 @@ export default function TwitchFloating() {
         </a>
       ) : (
         <iframe
-          src="https://player.twitch.tv/?channel=stewie2k&parent=localhost&parent=regent-league.vercel.app"
+          src="https://player.twitch.tv/?channel=regent_xd&parent=localhost&parent=regent-league.vercel.app&allowfullscreen=true"
           height="250"
           width="400"
           allowFullScreen
