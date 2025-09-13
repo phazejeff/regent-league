@@ -235,7 +235,7 @@ def get_standings(div: str, group: str, session: Session = Depends(get_session))
     return all_team_stats
 
 @app.get("/playerstats")
-def get_playerstats(div: str | None = None, group: int | None = None, session: Session = Depends(get_session)) -> List[PlayerstatsAggregated]:
+def get_playerstats(div: str | None = None, group: str | None = None, team_id: int | None = None, session: Session = Depends(get_session)) -> List[PlayerstatsAggregated]:
     statement = (
         select(
             Player.id,
@@ -256,6 +256,8 @@ def get_playerstats(div: str | None = None, group: int | None = None, session: S
         statement = statement.where(Team.div == div)
     if group is not None:
         statement = statement.where(Team.group == group)
+    if team_id is not None:
+        statement = statement.where(Team.id == team_id)
     
     results = session.exec(statement).all()
     return results

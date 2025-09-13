@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown, Medal } from "lucide-react";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
+type Team = { id: number; name: string; div: string; group: string };
 
 type PlayerStats = {
   id: number;
@@ -22,10 +23,12 @@ type PlayerStats = {
 export default function PlayerStatsPage() {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<PlayerStats[]>([]);
 
   const [selectedDiv, setSelectedDiv] = useState<string>("All");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
+  const [selectedTeam, setSelectedTeam] = useState<number | "All">("All");
 
   const [sortBy, setSortBy] = useState<keyof PlayerStats>("K");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -37,7 +40,7 @@ export default function PlayerStatsPage() {
       .then(setDivisions);
   }, []);
 
-  // Load groups
+  // Load groups when division changes
   useEffect(() => {
     if (!selectedDiv || selectedDiv === "All") {
       setGroups([]);
@@ -48,18 +51,26 @@ export default function PlayerStatsPage() {
       .then(setGroups);
   }, [selectedDiv]);
 
+  // Load teams
+  useEffect(() => {
+    fetch(`${process.env.API_ROOT}/teams`)
+      .then((res) => res.json())
+      .then(setTeams);
+  }, []);
+
   // Load players
   useEffect(() => {
     let url = `${process.env.API_ROOT}/playerstats`;
     const params = new URLSearchParams();
     if (selectedDiv !== "All") params.append("div", selectedDiv);
     if (selectedGroup !== "All") params.append("group", selectedGroup);
+    if (selectedTeam !== "All") params.append("team_id", String(selectedTeam));
     if (params.toString()) url += `?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
       .then(setPlayers);
-  }, [selectedDiv, selectedGroup]);
+  }, [selectedDiv, selectedGroup, selectedTeam]);
 
   const handleSort = (column: keyof PlayerStats) => {
     if (sortBy === column) {
@@ -128,6 +139,70 @@ export default function PlayerStatsPage() {
           <CardTitle>Player Statistics</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 mb-4">
+            {/* Division */}
+            <select
+              value={selectedDiv}
+              onChange={(e) => {
+                setSelectedDiv(e.target.value);
+                setSelectedGroup("All");
+                setSelectedTeam("All");
+              }}
+              className="border rounded p-2 bg-white dark:bg-gray-900"
+            >
+              <option value="All">All Divisions</option>
+              {divisions.map((d) => (
+                <option key={d.id} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Group */}
+            <select
+              value={selectedGroup}
+              onChange={(e) => {
+                setSelectedGroup(e.target.value);
+                setSelectedTeam("All");
+              }}
+              className="border rounded p-2 bg-white dark:bg-gray-900"
+              disabled={selectedDiv === "All"}
+            >
+              <option value="All">All Groups</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.name}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Team */}
+            <select
+              value={selectedTeam}
+              onChange={(e) =>
+                setSelectedTeam(
+                  e.target.value === "All" ? "All" : Number(e.target.value)
+                )
+              }
+              className="border rounded p-2 bg-white dark:bg-gray-900"
+            >
+              <option value="All">All Teams</option>
+              {teams
+                .filter(
+                  (t) =>
+                    (selectedDiv === "All" || t.div === selectedDiv) &&
+                    (selectedGroup === "All" || t.group === selectedGroup)
+                )
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-100 dark:bg-gray-800">
