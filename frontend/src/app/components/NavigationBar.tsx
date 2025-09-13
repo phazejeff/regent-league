@@ -58,35 +58,38 @@ export default function NavigationBar() {
 
   return (
     <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16 relative">
-          {/* Left logo */}
-          <div className="text-xl font-bold dark:text-white">Regent League</div>
-
-          {/* Desktop centered nav */}
-          <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 space-x-8">
-            {links.map((l) => renderLink(l.href, l.label))}
-          </div>
-
-          {/* Right side: Dark mode toggle (desktop) */}
-          <div className="hidden md:flex items-center">
-            <DarkModeToggle />
-          </div>
-
-          {/* Mobile button */}
-          <div className="md:hidden flex items-center space-x-2">
-            <DarkModeToggle />
-            <button
-              aria-label="Toggle menu"
-              aria-expanded={isOpen}
-              onClick={() => setIsOpen((s) => !s)}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-            >
-              {isOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+      <div className="flex items-center justify-between h-16">
+        {/* Left logo (desktop only) */}
+        <div className="hidden md:flex flex-1 items-center ml-50">
+          <div className="text-xl font-bold dark:text-white">
+            RegentXD&apos;s Collegiate CS2 League
           </div>
         </div>
+
+        {/* Centered nav */}
+        <div className="hidden md:flex flex-1 justify-center space-x-8">
+          {links.map((l) => renderLink(l.href, l.label))}
+        </div>
+
+        {/* Right side: Dark mode toggle (desktop) */}
+        <div className="flex-1 hidden md:flex justify-end items-center mr-50">
+          <DarkModeToggle />
+        </div>
+
+        {/* Mobile button */}
+        <div className="md:hidden flex items-center space-x-2">
+          <button
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen((s) => !s)}
+            className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          <DarkModeToggle />
+        </div>
       </div>
+
 
       {/* Mobile menu */}
       {isOpen && (

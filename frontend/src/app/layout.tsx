@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Regent League",
-  description: "Official Standings for Regent League",
+  title: "RegentXD's Collegiate CS2 League",
+  description: "Official Standings for RegentXD's Collegiate CS2 League",
 };
 
 export default function RootLayout({
