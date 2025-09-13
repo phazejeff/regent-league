@@ -38,10 +38,10 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <main className="flex-grow">{children}</main>
           <TwitchFloating />
-          <footer className="w-full py-4 text-center text-sm bg-black/30 backdrop-blur-md">
-            Made by <Link href="https://github.com/phazejeff" target="_blank" rel="noopener noreferrer"><u>poop dealer</u></Link>
-          </footer>
         </ThemeProvider>
+        <footer className="w-full py-4 text-center text-sm backdrop-blur-md text-white sm:text-lg">
+          Made by <Link href="https://github.com/phazejeff" target="_blank" rel="noopener noreferrer"><u>poop dealer</u></Link>
+        </footer>
       </body>
     </html>
   );
