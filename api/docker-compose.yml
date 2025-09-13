@@ -7,3 +7,5 @@ services:
       - ./local/regent-database:/code/database
     environment:
       - PASSWORD=value
+      - TWITCH_CLIENT_ID=fdgfdgdsfg
+      - TWITCH_CLIENT_SECRET=dsgfdsgdsf
