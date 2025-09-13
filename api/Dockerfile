@@ -8,6 +8,7 @@ COPY __init__.py /code
 COPY database.py /code
 COPY main.py /code
 COPY models.py /code
+COPY twitch.py /code
 COPY pyproject.toml /code
 COPY .python-version /code
 COPY uv.lock /code
