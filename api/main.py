@@ -6,9 +6,11 @@ from sqlmodel import Session, select, func
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from .twitch import Twitch
 
 create_db_and_tables()
 app = FastAPI()
+twitch = Twitch()
 PASSWORD = os.environ.get("PASSWORD")
 if PASSWORD is None:
     PASSWORD = "test"
@@ -298,3 +300,8 @@ def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], pas
         session.add(group_db)
     session.commit()
     return {"message" : "Created"}
+
+
+@app.get("/islive")
+def get_is_live() -> bool:
+    return twitch.is_channel_live()
