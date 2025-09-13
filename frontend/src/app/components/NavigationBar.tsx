@@ -32,6 +32,7 @@ export default function NavigationBar() {
     { href: "/standings", label: "Standings" },
     { href: "/matches", label: "Matches" },
     { href: "/playerstats", label: "Player Stats" },
+    { href: "/teams", label: "Teams" },
   ];
 
   const renderLink = (href: string, label: string) => {
