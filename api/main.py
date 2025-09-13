@@ -78,229 +78,228 @@ def add_match(match_data: MatchCreate, password, response: Response):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
-    session = Session(engine)
-    # Verify teams exist
-    team1 = session.get(Team, match_data.team1_id)
-    team2 = session.get(Team, match_data.team2_id)
-    if not team1 or not team2:
-        raise HTTPException(status_code=404, detail="One or both teams not found")
+    with Session(engine) as session:
+        # Verify teams exist
+        team1 = session.get(Team, match_data.team1_id)
+        team2 = session.get(Team, match_data.team2_id)
+        if not team1 or not team2:
+            raise HTTPException(status_code=404, detail="One or both teams not found")
 
-    # Create Match
-    match = Match(
-        team1_id=match_data.team1_id,
-        team2_id=match_data.team2_id,
-        score1=match_data.score1,
-        score2=match_data.score2,
-        datetime=match_data.datetime,
-        winner_id=match_data.winner_id,
-    )
-    session.add(match)
-    session.flush()  # ensures match.id is available
-
-    # Create Maps
-    for map_data in match_data.maps:
-        map_obj = Map(
-            map_num=map_data.map_num,
-            map_name=map_data.map_name,
-            team1_score=map_data.team1_score,
-            team2_score=map_data.team2_score,
-            winner_id=map_data.winner_id,
-            match_id=match.id,
-            map_picker_name=map_data.map_picker_name
+        # Create Match
+        match = Match(
+            team1_id=match_data.team1_id,
+            team2_id=match_data.team2_id,
+            score1=match_data.score1,
+            score2=match_data.score2,
+            datetime=match_data.datetime,
+            winner_id=match_data.winner_id,
         )
-        session.add(map_obj)
-        session.flush()  # ensures map.id is available
+        session.add(match)
+        session.flush()  # ensures match.id is available
 
-        # Add Player Stats for each map
-        for ps in map_data.player_stats:
-            player = session.get(Player, ps.player_id)
-            if not player:
-                raise HTTPException(status_code=404, detail=f"Player {ps.player_id} not found")
-
-            # MapPlayer (ensures association between player, team, map)
-            mp = MapPlayer(
-                map_id=map_obj.id,
-                player_id=ps.player_id,
-                team_id=player.team_id,
+        # Create Maps
+        for map_data in match_data.maps:
+            map_obj = Map(
+                map_num=map_data.map_num,
+                map_name=map_data.map_name,
+                team1_score=map_data.team1_score,
+                team2_score=map_data.team2_score,
+                winner_id=map_data.winner_id,
+                match_id=match.id,
+                map_picker_name=map_data.map_picker_name
             )
-            session.add(mp)
+            session.add(map_obj)
+            session.flush()  # ensures map.id is available
 
-            # Playerstats
-            stats = Playerstats(
-                player_id=ps.player_id,
-                map_id=map_obj.id,
-                K=ps.K,
-                A=ps.A,
-                D=ps.D,
-                ADR=ps.ADR,
-                hs_percent=ps.hs_percent,
-                accuracy=ps.accuracy,
-            )
-            session.add(stats)
+            # Add Player Stats for each map
+            for ps in map_data.player_stats:
+                player = session.get(Player, ps.player_id)
+                if not player:
+                    raise HTTPException(status_code=404, detail=f"Player {ps.player_id} not found")
 
-    session.commit()
-    session.refresh(match)
-    return {"message" : "Created"}
+                # MapPlayer (ensures association between player, team, map)
+                mp = MapPlayer(
+                    map_id=map_obj.id,
+                    player_id=ps.player_id,
+                    team_id=player.team_id,
+                )
+                session.add(mp)
+
+                # Playerstats
+                stats = Playerstats(
+                    player_id=ps.player_id,
+                    map_id=map_obj.id,
+                    K=ps.K,
+                    A=ps.A,
+                    D=ps.D,
+                    ADR=ps.ADR,
+                    hs_percent=ps.hs_percent,
+                    accuracy=ps.accuracy,
+                )
+                session.add(stats)
+
+        session.commit()
+        session.refresh(match)
+        return {"message" : "Created"}
 
 @app.post("/addteam", status_code=status.HTTP_201_CREATED)
 def add_team(team: TeamBase, password, response: Response):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
-    print(team)
-    team_db = Team.model_validate(team)
-    session = Session(engine)
-    session.add(team_db)
-    session.commit()
-    return {"message" : "Created"}
+    with Session(engine) as session:
+        team_db = Team.model_validate(team)
+        session.add(team_db)
+        session.commit()
+        return {"message" : "Created"}
 
 @app.post("/addplayers", status_code=status.HTTP_201_CREATED)
 def add_players(players: List[Player], password, response: Response):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
-    session = Session(engine)
-    session.add_all(players)
-    session.commit()
-    return {"message" : "Created"}
+    with Session(engine) as session:
+        session.add_all(players)
+        session.commit()
+        return {"message" : "Created"}
 
 @app.get("/players")
 def get_players(team_id: int | None = None) -> List[Player]:
-    session = Session(engine)
-    statement = select(Player)
-    if team_id is not None:
-        statement = statement.where(Player.team_id == team_id)
-    players = session.exec(statement).all()
-    return players
+    with Session(engine) as session:
+        statement = select(Player)
+        if team_id is not None:
+            statement = statement.where(Player.team_id == team_id)
+        players = session.exec(statement).all()
+        return players
 
 @app.get("/matches")
 def get_matches(div: str | None = None, group: str | None = None) -> List[MatchWithMapsWithStats]:
-    session = Session(engine)
-    statement = select(Match).join(Match.team1)
-    if div is not None:
-        statement = statement.where(Team.div == div)
-    if group is not None:
-        statement = statement.where(Team.group == group)
-    results = session.exec(statement).all()
-    return results
+    with Session(engine) as session:
+        statement = select(Match).join(Match.team1)
+        if div is not None:
+            statement = statement.where(Team.div == div)
+        if group is not None:
+            statement = statement.where(Team.group == group)
+        results = session.exec(statement).all()
+        return results
 
 @app.get("/teams")
 def get_teams() -> List[Team]:
-    session = Session(engine)
-    statement = select(Team)
-    results = session.exec(statement).all()
-    return results
+    with Session(engine) as session:
+        statement = select(Team)
+        results = session.exec(statement).all()
+        return results
 
 @app.get("/standings")
 def get_standings(div: str, group: str) -> List[TeamStats]:
-    session = Session(engine)
-    statement = select(Team)
-    if div is not None:
-        statement = statement.where(Team.div == div)
-    if group is not None:
-        statement = statement.where(Team.group == group)
-    teams = session.exec(statement).all()
+    with Session(engine) as session:
+        statement = select(Team)
+        if div is not None:
+            statement = statement.where(Team.div == div)
+        if group is not None:
+            statement = statement.where(Team.group == group)
+        teams = session.exec(statement).all()
 
-    all_team_stats: List[TeamStats] = []
+        all_team_stats: List[TeamStats] = []
 
-    for team in teams:
-        matches = [*team.matches_as_team1, *team.matches_as_team2]
-        team_stats = TeamStats()
-        team_stats.team = team
-        for match in matches:
-            if match.winner_id == team.id:
-                team_stats.match_wins += 1
-            else:
-                team_stats.match_losses += 1
-            
-            for map in match.maps:
-                if map.winner_id == team.id:
-                    team_stats.map_wins += 1
+        for team in teams:
+            matches = [*team.matches_as_team1, *team.matches_as_team2]
+            team_stats = TeamStats()
+            team_stats.team = team
+            for match in matches:
+                if match.winner_id == team.id:
+                    team_stats.match_wins += 1
                 else:
-                    team_stats.map_losses += 1
+                    team_stats.match_losses += 1
                 
-                if match.team1_id == team.id:
-                    team_stats.round_wins += map.team1_score
-                    team_stats.round_losses += map.team2_score
-                else:
-                    team_stats.round_wins += map.team2_score
-                    team_stats.round_losses += map.team2_score
-        all_team_stats.append(team_stats)
+                for map in match.maps:
+                    if map.winner_id == team.id:
+                        team_stats.map_wins += 1
+                    else:
+                        team_stats.map_losses += 1
+                    
+                    if match.team1_id == team.id:
+                        team_stats.round_wins += map.team1_score
+                        team_stats.round_losses += map.team2_score
+                    else:
+                        team_stats.round_wins += map.team2_score
+                        team_stats.round_losses += map.team2_score
+            all_team_stats.append(team_stats)
 
-    all_team_stats = sorted(
-        all_team_stats,
-        key = lambda t: (
-            t.match_wins - t.match_losses,
-            t.map_wins - t.map_losses,
-            t.round_wins - t.round_losses,
-        ),
-        reverse=True
-    )
-    return all_team_stats
+        all_team_stats = sorted(
+            all_team_stats,
+            key = lambda t: (
+                t.match_wins - t.match_losses,
+                t.map_wins - t.map_losses,
+                t.round_wins - t.round_losses,
+            ),
+            reverse=True
+        )
+        return all_team_stats
 
 @app.get("/playerstats")
 def get_playerstats(div: str | None = None, group: int | None = None) -> List[PlayerstatsAggregated]:
-    session = Session(engine)
-    statement = (
-        select(
-            Player.id,
-            Player.name,
-            Team.name.label("team"),  # Get the actual team name
-            func.sum(Playerstats.K).label("K"),
-            func.sum(Playerstats.A).label("A"),
-            func.sum(Playerstats.D).label("D"),
-            func.avg(Playerstats.ADR).label("ADR"),
-            func.avg(Playerstats.hs_percent).label("HS"),
-            func.avg(Playerstats.accuracy).label("accuracy")
+    with Session(engine) as session:
+        statement = (
+            select(
+                Player.id,
+                Player.name,
+                Team.name.label("team"),  # Get the actual team name
+                func.sum(Playerstats.K).label("K"),
+                func.sum(Playerstats.A).label("A"),
+                func.sum(Playerstats.D).label("D"),
+                func.avg(Playerstats.ADR).label("ADR"),
+                func.avg(Playerstats.hs_percent).label("HS"),
+                func.avg(Playerstats.accuracy).label("accuracy")
+            )
+            .join(Playerstats, Player.id == Playerstats.player_id)
+            .join(Team, Player.team_id == Team.id)  # Join with Team table
+            .group_by(Player.id, Player.name, Team.name)  # Include Team.name in group_by
         )
-        .join(Playerstats, Player.id == Playerstats.player_id)
-        .join(Team, Player.team_id == Team.id)  # Join with Team table
-        .group_by(Player.id, Player.name, Team.name)  # Include Team.name in group_by
-    )
-    if div is not None:
-        statement = statement.where(Team.div == div)
-    if group is not None:
-        statement = statement.where(Team.group == group)
-    
-    results = session.exec(statement).all()
-    return results
+        if div is not None:
+            statement = statement.where(Team.div == div)
+        if group is not None:
+            statement = statement.where(Team.group == group)
+        
+        results = session.exec(statement).all()
+        return results
 
 @app.get("/divisions")
 def get_divisions() -> List[Divisions]:
-    session = Session(engine)
-    statement = select(Divisions)
-    result = session.exec(statement).all()
-    return result
+    with Session(engine) as session:
+        statement = select(Divisions)
+        result = session.exec(statement).all()
+        return result
 
 @app.get("/groups")
 def get_groups(div: str | None = None) -> List[Groups]:
-    session = Session(engine)
-    statement = select(Groups)
-    if div is not None:
-        statement = statement.where(Groups.division == div)
-    result = session.exec(statement).all()
-    return result
+    with Session(engine) as session:
+        statement = select(Groups)
+        if div is not None:
+            statement = statement.where(Groups.division == div)
+        result = session.exec(statement).all()
+        return result
 
 @app.post("/setdivsandgroups", status_code=status.HTTP_201_CREATED)
 def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], password, response: Response):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
-    session = Session(engine)
-    statement = select(Divisions)
-    old_divisions = session.exec(statement).all()
-    for division in old_divisions:
-        session.delete(division)
-    statement = select(Groups)
-    old_groups = session.exec(statement).all()
-    for group in old_groups:
-        session.delete(group)
+    with Session(engine) as session:
+        statement = select(Divisions)
+        old_divisions = session.exec(statement).all()
+        for division in old_divisions:
+            session.delete(division)
+        statement = select(Groups)
+        old_groups = session.exec(statement).all()
+        for group in old_groups:
+            session.delete(group)
 
-    for division in divs:
-        div_db = Divisions.model_validate(division)
-        session.add(div_db)
-    for group in groups:
-        group_db = Groups.model_validate(group)
-        session.add(group_db)
-    session.commit()
-    return {"message" : "Created"}
+        for division in divs:
+            div_db = Divisions.model_validate(division)
+            session.add(div_db)
+        for group in groups:
+            group_db = Groups.model_validate(group)
+            session.add(group_db)
+        session.commit()
+        return {"message" : "Created"}
