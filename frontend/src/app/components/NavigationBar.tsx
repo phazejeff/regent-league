@@ -69,7 +69,7 @@ export default function NavigationBar() {
         </div>
 
         {/* Centered nav */}
-        <div className="hidden md:flex flex-1 justify-center space-x-8">
+        <div className="hidden md:flex justify-center space-x-8">
           {links.map((l) => renderLink(l.href, l.label))}
         </div>
 
