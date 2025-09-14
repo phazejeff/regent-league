@@ -14,10 +14,19 @@ interface Team {
   group: string;
 }
 
+interface Player {
+  name: string;
+  age: number | "";
+  year: string;
+  major: string;
+  main: boolean;
+  team_sub_id?: number | "";
+}
+
 export default function AddPlayersPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [players, setPlayers] = useState<string[]>([""]);
+  const [players, setPlayers] = useState<Player[]>([{ name: "", age: "", year: "", major: "", main: true, team_sub_id: "" }]);
   const [password, setPassword] = useState("");
 
   // Load teams
@@ -27,13 +36,22 @@ export default function AddPlayersPage() {
       .then((data) => setTeams(data));
   }, []);
 
-  const handlePlayerChange = (index: number, value: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handlePlayerChange = (index: number, field: keyof Player, value: any) => {
     const newPlayers = [...players];
-    newPlayers[index] = value;
+    if (field === "age" || field === "team_sub_id") {
+      newPlayers[index][field] = value === "" ? "" : Number(value);
+    } else if (field === "main") {
+      newPlayers[index][field] = value;
+      if (!value) newPlayers[index].team_sub_id = "";
+    } else {
+      newPlayers[index][field] = value;
+    }
     setPlayers(newPlayers);
   };
 
-  const addPlayerField = () => setPlayers([...players, ""]);
+  const addPlayerField = () =>
+    setPlayers([...players, { name: "", age: "", year: "", major: "", main: true, team_sub_id: "" }]);
   const removePlayerField = (index: number) =>
     setPlayers(players.filter((_, i) => i !== index));
 
@@ -41,9 +59,9 @@ export default function AddPlayersPage() {
     e.preventDefault();
 
     const playersData = players
-      .filter((p) => p.trim() !== "")
+      .filter((p) => p.name.trim() !== "")
       .map((p) => ({
-        name: p,
+        ...p,
         team_id: Number(selectedTeam),
       }));
 
@@ -55,7 +73,7 @@ export default function AddPlayersPage() {
 
     if (response.ok) {
       alert("Players added successfully!");
-      setPlayers([""]);
+      setPlayers([{ name: "", age: "", year: "", major: "", main: true, team_sub_id: "" }]);
       setPassword("");
       setSelectedTeam("");
     } else {
@@ -70,7 +88,7 @@ export default function AddPlayersPage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Team Selector */}
+          {/* Main Team Selector */}
           <div>
             <Label htmlFor="team">Team</Label>
             <Select onValueChange={setSelectedTeam} value={selectedTeam}>
@@ -91,13 +109,66 @@ export default function AddPlayersPage() {
           <div>
             <Label>Players</Label>
             {players.map((player, index) => (
-              <div key={index} className="flex items-center space-x-2 mt-2">
+              <div key={index} className="flex flex-col space-y-2 mt-2 border-b pb-2">
                 <Input
-                  value={player}
-                  onChange={(e) => handlePlayerChange(index, e.target.value)}
+                  value={player.name}
+                  onChange={(e) => handlePlayerChange(index, "name", e.target.value)}
                   placeholder="Enter player name"
                   required
                 />
+                <div className="flex space-x-2">
+                  <Input
+                    type="number"
+                    value={player.age}
+                    onChange={(e) => handlePlayerChange(index, "age", e.target.value)}
+                    placeholder="Age"
+                    min={0}
+                    required
+                  />
+                  <Input
+                    value={player.year}
+                    onChange={(e) => handlePlayerChange(index, "year", e.target.value)}
+                    placeholder="Year"
+                    required
+                  />
+                  <Input
+                    value={player.major}
+                    onChange={(e) => handlePlayerChange(index, "major", e.target.value)}
+                    placeholder="Major"
+                    required
+                  />
+                </div>
+                <div className="flex items-center space-x-2 mt-1">
+                  <input
+                    type="checkbox"
+                    checked={player.main}
+                    onChange={(e) => handlePlayerChange(index, "main", e.target.checked)}
+                  />
+                  <Label>Main Player</Label>
+                </div>
+
+                {/* Sub Team Selector */}
+                {player.main && (
+                  <div>
+                    <Label>Sub Team (optional)</Label>
+                    <Select
+                      onValueChange={(val) => handlePlayerChange(index, "team_sub_id", val)}
+                      value={player.team_sub_id === "" ? "" : String(player.team_sub_id)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select sub team" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id.toString()}>
+                            {team.name} ({team.div} - {team.group})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 {players.length > 1 && (
                   <Button
                     type="button"
