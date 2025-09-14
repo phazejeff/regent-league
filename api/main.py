@@ -1,5 +1,6 @@
 from typing import List
-from fastapi import FastAPI, HTTPException, Response, status, Depends
+from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, File, UploadFile
+from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine
 from .models import *
 from sqlmodel import Session, select, func
@@ -26,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+app.mount("/photos", StaticFiles(directory="photos"), name="photos")
 
 class TeamStats(BaseModel):
     team: Team | None = None
@@ -70,6 +73,12 @@ class MatchCreate(MatchBase):
     team2_id: int
     winner_id: int
     maps: List[MapCreate]
+
+class TeamUpdate(TeamBase):
+    name: str | None
+    div: str | None
+    group: str | None
+    logo: str | None
 
 def get_session():
     with Session(engine) as session:
@@ -156,6 +165,17 @@ def add_team(team: TeamBase, password, response: Response, session: Session = De
     session.add(team_db)
     session.commit()
     return {"message" : "Created"}
+
+@app.post("/upload")
+async def upload(file: UploadFile, password, response: Response):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    file_content = await file.read()
+    file_location = f"photos/{file.filename}"
+    with open(file_location, "wb") as f:
+        f.write(file_content)
+    return file.filename
 
 @app.post("/addplayers", status_code=status.HTTP_201_CREATED)
 def add_players(players: List[Player], password, response: Response, session: Session = Depends(get_session)):

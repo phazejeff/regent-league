@@ -6,6 +6,7 @@ class TeamBase(SQLModel):
     name: str
     div: str
     group: str
+    logo: str
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
@@ -16,6 +17,9 @@ class Team(TeamBase, table=True):
 
 class PlayerBase(SQLModel):
     name: str
+    age: int
+    year: int
+    major: str
 class Player(PlayerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team_id: int = Field(foreign_key="team.id")

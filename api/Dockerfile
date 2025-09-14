@@ -12,6 +12,7 @@ COPY twitch.py /code
 COPY pyproject.toml /code
 COPY .python-version /code
 COPY uv.lock /code
+COPY photos/!base /code/photos
 
 RUN cd /code && uv sync 
 
