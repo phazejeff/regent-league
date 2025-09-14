@@ -25,6 +25,7 @@ export default function AddTeamPage() {
   const [selectedGroup, setSelectedGroup] = useState<string>("");
   const [teamName, setTeamName] = useState("");
   const [password, setPassword] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   // Load divisions
   useEffect(() => {
@@ -44,17 +45,47 @@ export default function AddTeamPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let logoFilename = "";
+
+    // Step 1: upload logo if file chosen
+    if (logoFile) {
+      const formData = new FormData();
+      formData.append("file", logoFile);
+
+      const uploadRes = await fetch(
+        `${process.env.API_ROOT}/upload?password=${password}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!uploadRes.ok) {
+        alert("Failed to upload logo.");
+        return;
+      }
+
+      const fileName = await uploadRes.json();
+      // Assume your /upload returns { filename: "xyz.png" }
+      logoFilename = fileName;
+    }
+
+    // Step 2: submit team info
     const team = {
       name: teamName,
       div: selectedDiv,
       group: selectedGroup,
+      logo: logoFilename,
     };
 
-    const response = await fetch(`${process.env.API_ROOT}/addteam?password=${password}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(team),
-    });
+    const response = await fetch(
+      `${process.env.API_ROOT}/addteam?password=${password}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(team),
+      }
+    );
 
     if (response.ok) {
       alert("Team added successfully!");
@@ -62,6 +93,7 @@ export default function AddTeamPage() {
       setSelectedDiv("");
       setSelectedGroup("");
       setPassword("");
+      setLogoFile(null);
     } else {
       alert("Failed to add team.");
     }
@@ -106,7 +138,11 @@ export default function AddTeamPage() {
           {/* Group Selector */}
           <div>
             <Label htmlFor="group">Group</Label>
-            <Select onValueChange={setSelectedGroup} value={selectedGroup} disabled={!selectedDiv}>
+            <Select
+              onValueChange={setSelectedGroup}
+              value={selectedGroup}
+              disabled={!selectedDiv}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select group" />
               </SelectTrigger>
@@ -118,6 +154,19 @@ export default function AddTeamPage() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Logo Upload */}
+          <div>
+            <Label htmlFor="logo">Logo</Label>
+            <Input
+              id="logo"
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setLogoFile(e.target.files ? e.target.files[0] : null)
+              }
+            />
           </div>
 
           {/* Password */}
