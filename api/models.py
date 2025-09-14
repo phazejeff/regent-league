@@ -11,7 +11,8 @@ class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     # Relationship to players
-    players: List["Player"] = Relationship(back_populates="team")
+    players: List["Player"] = Relationship(back_populates="team", sa_relationship_kwargs={"foreign_keys": "[Player.team_id]"})
+    sub_players: List["Player"] = Relationship(back_populates="team_sub", sa_relationship_kwargs={"foreign_keys": "[Player.team_sub_id]"})
     matches_as_team1: List["Match"] = Relationship(back_populates="team1", sa_relationship_kwargs={"foreign_keys": "[Match.team1_id]"})
     matches_as_team2: List["Match"] = Relationship(back_populates="team2", sa_relationship_kwargs={"foreign_keys": "[Match.team2_id]"})
 
@@ -26,7 +27,8 @@ class Player(PlayerBase, table=True):
     team_id: int = Field(foreign_key="team.id")
     team_sub_id: int | None = Field(foreign_key="team.id", default=None)
 
-    team: Optional["Team"] = Relationship(back_populates="players")
+    team: Optional["Team"] = Relationship(back_populates="players", sa_relationship_kwargs={"foreign_keys": "[Player.team_id]"})
+    team_sub: Optional["Team"] = Relationship(back_populates="sub_players", sa_relationship_kwargs={"foreign_keys": "[Player.team_sub_id]"})
     map_stats: List["Playerstats"] = Relationship(back_populates="player")
     map_entries: List["MapPlayer"] = Relationship(back_populates="player")
 
