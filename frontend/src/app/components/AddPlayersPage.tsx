@@ -148,7 +148,6 @@ export default function AddPlayersPage() {
                 </div>
 
                 {/* Sub Team Selector */}
-                {player.main && (
                   <div>
                     <Label>Sub Team (optional)</Label>
                     <Select
@@ -167,7 +166,6 @@ export default function AddPlayersPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                )}
 
                 {players.length > 1 && (
                   <Button
