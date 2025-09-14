@@ -4,7 +4,8 @@ services:
     ports:
       - "43269:8000"
     volumes:
-      - ./local/regent-database:/code/database
+      - ./local/regent-league/regent-database:/code/database
+      - ./local/regent-league/regent-photos:/code/photos
     environment:
       - PASSWORD=value
       - TWITCH_CLIENT_ID=fdgfdgdsfg
