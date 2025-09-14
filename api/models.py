@@ -18,11 +18,13 @@ class Team(TeamBase, table=True):
 class PlayerBase(SQLModel):
     name: str
     age: int
-    year: int
+    year: str
     major: str
+    main: bool
 class Player(PlayerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team_id: int = Field(foreign_key="team.id")
+    team_sub_id: int | None = Field(foreign_key="team.id", default=None)
 
     team: Optional["Team"] = Relationship(back_populates="players")
     map_stats: List["Playerstats"] = Relationship(back_populates="player")

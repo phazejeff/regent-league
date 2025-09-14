@@ -190,7 +190,7 @@ def add_players(players: List[Player], password, response: Response, session: Se
 def get_players(team_id: int | None = None, session: Session = Depends(get_session)) -> List[Player]:
     statement = select(Player)
     if team_id is not None:
-        statement = statement.where(Player.team_id == team_id)
+        statement = statement.where(Player.team_id == team_id or Player.team_sub_id == team_id)
     players = session.exec(statement).all()
     return players
 
