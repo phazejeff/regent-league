@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,6 +15,7 @@ interface Team {
   name: string;
   div: string;
   group: string;
+  logo?: string;
 }
 
 export default function TeamsByDivision() {
@@ -87,12 +89,35 @@ export default function TeamsByDivision() {
                 {teams
                   .filter((team) => team.div === selectedDivision.name)
                   .map((team) => (
-                    <Card key={team.id} className="hover:shadow-md transition">
-                      <CardHeader>
-                        <CardTitle>{team.name}</CardTitle>
+                    <Card
+                      key={team.id}
+                      className="hover:shadow-md transition flex flex-col items-center p-4"
+                    >
+                      {/* Logo */}
+                      <div className="w-full flex justify-center mb-2">
+                        {team.logo ? (
+                          <Image
+                            src={`${process.env.API_ROOT}/photos/${team.logo}`}
+                            alt={`${team.name} logo`}
+                            width={96}
+                            height={96}
+                            className="object-contain rounded-md"
+                          />
+                        ) : (
+                          <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-md" />
+                        )}
+                      </div>
+
+                      {/* Team Name */}
+                      <CardHeader className="w-full flex justify-center">
+                        <div className="text-center w-full">
+                          <CardTitle>{team.name}</CardTitle>
+                        </div>
                       </CardHeader>
+
+                      {/* Group */}
                       <CardContent>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                           Group: {team.group}
                         </p>
                       </CardContent>
