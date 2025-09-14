@@ -62,24 +62,24 @@ export default function NavigationBar() {
     <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex items-center justify-between h-16">
         {/* Left logo (desktop only) */}
-        <div className="hidden md:flex flex-1 items-center ml-50">
+        <div className="hidden xl:flex flex-1 items-center ml-50">
           <div className="text-xl font-bold dark:text-white">
             RegentXD&apos;s Collegiate CS2 League
           </div>
         </div>
 
         {/* Centered nav */}
-        <div className="hidden md:flex justify-center space-x-8">
+        <div className="hidden xl:flex justify-center space-x-8">
           {links.map((l) => renderLink(l.href, l.label))}
         </div>
 
         {/* Right side: Dark mode toggle (desktop) */}
-        <div className="flex-1 hidden md:flex justify-end items-center mr-50">
+        <div className="flex-1 hidden xl:flex justify-end items-center mr-50">
           <DarkModeToggle />
         </div>
 
         {/* Mobile button */}
-        <div className="md:hidden flex items-center space-x-2">
+        <div className="xl:hidden flex items-center space-x-2">
           <button
             aria-label="Toggle menu"
             aria-expanded={isOpen}
@@ -95,7 +95,7 @@ export default function NavigationBar() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div className="xl:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
           <div className="flex flex-col px-4 py-3 space-y-2">
             {links.map((l) => (
               <div key={l.href} className="w-full">
