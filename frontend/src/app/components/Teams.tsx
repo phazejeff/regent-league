@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Division {
@@ -18,11 +18,24 @@ interface Team {
   logo?: string;
 }
 
+interface Player {
+  id: number;
+  name: string;
+  age: number;
+  year: string;
+  major: string;
+  main: boolean;
+  team_id: number;
+  team_sub_id: number;
+}
+
 export default function TeamsByDivision() {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedDivId, setSelectedDivId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [playersByTeam, setPlayersByTeam] = useState<Record<number, Player[]>>({});
+  const [hoveredTeam, setHoveredTeam] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,9 +59,23 @@ export default function TeamsByDivision() {
     fetchData();
   }, []);
 
+  const fetchPlayers = async (teamId: number) => {
+    if (playersByTeam[teamId]) return; // already cached
+
+    try {
+      const res = await fetch(
+        `${process.env.API_ROOT}/players?team_id=${teamId}&main_only=true`
+      );
+      const data: Player[] = await res.json();
+      setPlayersByTeam((prev) => ({ ...prev, [teamId]: data }));
+    } catch (err) {
+      console.error("Failed to fetch players", err);
+    }
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
 
-  const selectedDivision = divisions.find(d => d.id === selectedDivId);
+  const selectedDivision = divisions.find((d) => d.id === selectedDivId);
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -70,7 +97,7 @@ export default function TeamsByDivision() {
         ))}
       </div>
 
-      {/* Teams Grid with Fade Transition */}
+      {/* Teams Grid */}
       <AnimatePresence mode="wait">
         {selectedDivision && (
           <motion.div
@@ -80,48 +107,77 @@ export default function TeamsByDivision() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {teams.filter(t => t.div === selectedDivision.name).length === 0 ? (
+            {teams.filter((t) => t.div === selectedDivision.name).length === 0 ? (
               <p className="text-center text-gray-500 dark:text-gray-400">
                 No teams in this division.
               </p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {teams
                   .filter((team) => team.div === selectedDivision.name)
                   .map((team) => (
-                    <Card
+                    <div
                       key={team.id}
-                      className="hover:shadow-md transition flex flex-col items-center p-4"
+                      onMouseEnter={() => {
+                        setHoveredTeam(team.id);
+                        fetchPlayers(team.id);
+                      }}
+                      onMouseLeave={() => setHoveredTeam(null)}
+                      className="relative"
                     >
-                      {/* Logo */}
-                      <div className="w-full flex justify-center mb-2">
-                        {team.logo ? (
-                          <Image
-                            src={`${process.env.API_ROOT}/photos/${team.logo}`}
-                            alt={`${team.name} logo`}
-                            width={96}
-                            height={96}
-                            className="object-contain rounded-md"
-                          />
-                        ) : (
-                          <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-md" />
-                        )}
-                      </div>
+                      <Card className="flex flex-col items-center justify-between p-4 h-64 relative overflow-hidden hover:shadow-lg transition">
+                        {/* Team name */}
+                        <h2 className="text-lg font-semibold text-center mb-2">
+                          {team.name}
+                        </h2>
 
-                      {/* Team Name */}
-                      <CardHeader className="w-full flex justify-center">
-                        <div className="text-center w-full">
-                          <CardTitle>{team.name}</CardTitle>
+                        {/* Logo */}
+                        <div className="flex-1 flex items-center justify-center">
+                          {team.logo ? (
+                            <Image
+                              src={`${process.env.API_ROOT}/photos/${team.logo}`}
+                              alt={`${team.name} logo`}
+                              width={96}
+                              height={96}
+                              className="object-contain max-h-24"
+                            />
+                          ) : (
+                            <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-md" />
+                          )}
                         </div>
-                      </CardHeader>
 
-                      {/* Group */}
-                      <CardContent>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                        {/* Group */}
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                           Group: {team.group}
                         </p>
-                      </CardContent>
-                    </Card>
+
+                        {/* Hover Overlay */}
+                        {hoveredTeam === team.id && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white p-4"
+                          >
+                            <h3 className="text-md font-semibold mb-2">
+                              Players
+                            </h3>
+                            {playersByTeam[team.id] &&
+                            playersByTeam[team.id].length > 0 ? (
+                              <ul className="space-y-2 text-base sm:text-lg font-medium text-center">
+                                {playersByTeam[team.id].map((p) => (
+                                  <li key={p.id}>{p.name}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-sm text-gray-300">
+                                No players found
+                              </p>
+                            )}
+                          </motion.div>
+                        )}
+                      </Card>
+                    </div>
                   ))}
               </div>
             )}
