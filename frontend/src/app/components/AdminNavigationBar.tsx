@@ -62,7 +62,7 @@ export default function NavigationBar() {
     <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex items-center justify-between h-16">
         {/* Left logo (desktop & mobile) */}
-        <div className="flex flex-1 items-center ml-4 space-x-3">
+        <Link href='/' className="flex flex-1 items-center ml-4 space-x-3">
           <Image
             src="/XD_Emote.png"
             alt="RegentXD Logo"
@@ -75,7 +75,7 @@ export default function NavigationBar() {
           <div className="hidden sm:block text-xl font-bold dark:text-white">
             RegentXD&apos;s Collegiate CS2 League
           </div>
-        </div>
+        </Link>
 
         {/* Centered nav */}
         <div className="hidden xl:flex justify-center space-x-8">
