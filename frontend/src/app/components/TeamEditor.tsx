@@ -19,11 +19,12 @@ export default function TeamEditor() {
   const [newLogoFile, setNewLogoFile] = useState<File | null>(null);
 
   // Fetch teams
+  const fetchTeams = async () => {
+    const response = await fetch(`${process.env.API_ROOT}/teams`);
+    setTeams(await response.json());
+  };
+
   useEffect(() => {
-    const fetchTeams = async () => {
-      const response = await fetch(`${process.env.API_ROOT}/teams`);
-      setTeams(await response.json());
-    };
     fetchTeams();
   }, []);
 
@@ -39,14 +40,17 @@ export default function TeamEditor() {
         const formData = new FormData();
         formData.append("file", newLogoFile);
 
-        const uploadResponse = await fetch(`${process.env.API_ROOT}/upload?password=${encodeURIComponent(password)}`, {
-          method: "POST",
-          body: formData,
-        });
+        const uploadResponse = await fetch(
+          `${process.env.API_ROOT}/upload?password=${encodeURIComponent(password)}`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
         if (uploadResponse.status == 401) {
-            alert("Wrong password");
-            setUploading(false);
-            return;
+          alert("Wrong password");
+          setUploading(false);
+          return;
         }
 
         if (!uploadResponse.ok) {
@@ -86,9 +90,7 @@ export default function TeamEditor() {
         alert(`Unexpected response: ${response.status}`);
       }
 
-      // Refresh teams list
-      const res = await fetch(`${process.env.API_ROOT}/teams`);
-      setTeams(await res.json());
+      await fetchTeams();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       alert("Error saving team");
@@ -101,6 +103,33 @@ export default function TeamEditor() {
     setEditingTeam(null);
     setPassword("");
     setNewLogoFile(null);
+  };
+
+  // Delete handler
+  const handleDelete = async (teamId: number) => {
+    const pwd = prompt("Enter admin password to delete this team:");
+    if (!pwd) return;
+
+    try {
+      const res = await fetch(
+        `${process.env.API_ROOT}/deleteteam?password=${encodeURIComponent(
+          pwd
+        )}&team_id=${teamId}`,
+        { method: "DELETE" }
+      );
+
+      if (res.status === 401) {
+        alert("Wrong password");
+      } else if (res.ok) {
+        alert("Team deleted!");
+        await fetchTeams();
+      } else {
+        alert(`Failed to delete team. Status: ${res.status}`);
+      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      alert("Error deleting team");
+    }
   };
 
   return (
@@ -132,12 +161,21 @@ export default function TeamEditor() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setEditingTeam({ ...team })}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Edit
-              </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setEditingTeam({ ...team })}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(team.id)}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
