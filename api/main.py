@@ -208,10 +208,13 @@ def edit_player(player: PlayerUpdate, player_id: int, password, response: Respon
     return {"message" : "Created"}
 
 @app.get("/players")
-def get_players(team_id: int | None = None, session: Session = Depends(get_session)) -> List[Player]:
+def get_players(team_id: int | None = None, main_only: bool = False, session: Session = Depends(get_session)) -> List[Player]:
     statement = select(Player)
     if team_id is not None:
-        statement = statement.where(or_(Player.team_id == team_id, Player.team_sub_id == team_id))
+        if main_only:
+            statement = statement.where(Player.team_id == team_id)
+        else:
+            statement = statement.where(or_(Player.team_id == team_id, Player.team_sub_id == team_id))
     players = session.exec(statement).all()
     return players
 
