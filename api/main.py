@@ -233,6 +233,23 @@ def get_teams(div: str | None = None, session: Session = Depends(get_session)) -
     results = session.exec(statement).all()
     return results
 
+@app.post("/editteam", status_code=status.HTTP_201_CREATED)
+def edit_team(team: TeamUpdate, team_id: int, password, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    team_db = session.get(Team, team_id)
+    if not team_db:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"message" : "Team not found"}
+    
+    for key, value in team.model_dump().items():
+        setattr(team_db, key, value)
+    session.add(team_db)
+    session.commit()
+    session.refresh(team_db)
+    return {"message" : "Created"}
+
 @app.get("/standings")
 def get_standings(div: str, group: str, session: Session = Depends(get_session)) -> List[TeamStats]:
     statement = select(Team)
