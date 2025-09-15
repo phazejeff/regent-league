@@ -31,8 +31,9 @@ export default function NavigationBar() {
 
   const links = [
     { href: "/admin/addmatch", label: "Add Match" },
-    { href: "/admin/addteam", label: "Add Team" },
     { href: "/admin/addplayers", label: "Add Players" },
+    { href: "/admin/addteam", label: "Add Team" },
+    { href: "/admin/divisions", label: "Divisions" },
   ];
 
   const renderLink = (href: string, label: string) => {

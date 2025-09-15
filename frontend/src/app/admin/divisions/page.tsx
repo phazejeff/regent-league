@@ -1,13 +1,11 @@
 import AdminNavigationBar from "@/app/components/AdminNavigationBar";
-import AddTeamPage from "../../components/AddTeamPage";
-import TeamEditor from "@/app/components/TeamEditor";
+import DivsAndGroupsEditor from "@/app/components/EditGroups";
 
 export default function Matches() {
   return (
     <div>
       <AdminNavigationBar />
-      <AddTeamPage />
-      <TeamEditor />
+      <DivsAndGroupsEditor />
     </div>
   );
 }
