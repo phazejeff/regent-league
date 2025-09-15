@@ -218,6 +218,13 @@ def get_players(team_id: int | None = None, main_only: bool = False, session: Se
     players = session.exec(statement).all()
     return players
 
+@app.delete("/deleteplayer")
+def delete_player(player_id: int, session: Session = Depends(get_session)):
+    statement = select(Player).where(Player.id == player_id)
+    player = session.exec(statement).first()
+    session.delete(player)
+    return {"message" : "Player removed"}
+
 @app.get("/matches")
 def get_matches(div: str | None = None, group: str | None = None, session: Session = Depends(get_session)) -> List[MatchWithMapsWithStats]:
     statement = select(Match).join(Match.team1)
@@ -235,6 +242,13 @@ def get_teams(div: str | None = None, session: Session = Depends(get_session)) -
         statement = statement.where(Team.div == div)
     results = session.exec(statement).all()
     return results
+
+@app.delete("/deleteteam")
+def delete_team(team_id: int, session: Session = Depends(get_session)):
+    statement = select(Team).where(Team.id == team_id)
+    team = session.exec(statement).first()
+    session.delete(team)
+    return {"message" : "Team removed"}
 
 @app.post("/editteam", status_code=status.HTTP_201_CREATED)
 def edit_team(team: TeamUpdate, team_id: int, password, response: Response, session: Session = Depends(get_session)):
