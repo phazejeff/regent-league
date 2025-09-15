@@ -218,8 +218,11 @@ def get_players(team_id: int | None = None, main_only: bool = False, session: Se
     players = session.exec(statement).all()
     return players
 
-@app.delete("/deleteplayer")
-def delete_player(player_id: int, session: Session = Depends(get_session)):
+@app.delete("/deleteplayer", status_code=status.HTTP_200_OK)
+def delete_player(password, response: Response, player_id: int, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
     statement = select(Player).where(Player.id == player_id)
     player = session.exec(statement).first()
     session.delete(player)
@@ -243,8 +246,11 @@ def get_teams(div: str | None = None, session: Session = Depends(get_session)) -
     results = session.exec(statement).all()
     return results
 
-@app.delete("/deleteteam")
-def delete_team(team_id: int, session: Session = Depends(get_session)):
+@app.delete("/deleteteam", status_code=status.HTTP_200_OK)
+def delete_team(team_id: int, password, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
     statement = select(Team).where(Team.id == team_id)
     team = session.exec(statement).first()
     session.delete(team)
