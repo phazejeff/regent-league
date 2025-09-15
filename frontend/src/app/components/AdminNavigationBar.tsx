@@ -2,10 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
 
-export default function AdminNavigationBar() {
+function DarkModeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+      aria-label="Toggle Dark Mode"
+    >
+      {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+    </button>
+  );
+}
+
+export default function NavigationBar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -39,34 +59,51 @@ export default function AdminNavigationBar() {
 
   return (
     <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16 relative">
-          {/* Left logo */}
-          <Link href='/'>
-          <div className="text-xl font-bold dark:text-white">Regent League</div>
-          </Link>
-          {/* Desktop centered nav */}
-          <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 space-x-8">
-            {links.map((l) => renderLink(l.href, l.label))}
+      <div className="flex items-center justify-between h-16">
+        {/* Left logo (desktop & mobile) */}
+        <div className="flex flex-1 items-center ml-4 space-x-3">
+          <Image
+            src="/XD_Emote.png"
+            alt="RegentXD Logo"
+            width={40}
+            height={40}
+            className="rounded-md"
+            priority
+          />
+          {/* Title disappears on very small screens */}
+          <div className="hidden sm:block text-xl font-bold dark:text-white">
+            RegentXD&apos;s Collegiate CS2 League
           </div>
+        </div>
 
-          {/* Mobile button */}
-          <div className="md:hidden">
-            <button
-              aria-label="Toggle menu"
-              aria-expanded={isOpen}
-              onClick={() => setIsOpen((s) => !s)}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-            >
-              {isOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
+        {/* Centered nav */}
+        <div className="hidden xl:flex justify-center space-x-8">
+          {links.map((l) => renderLink(l.href, l.label))}
+        </div>
+
+        {/* Right side: Dark mode toggle (desktop) */}
+        <div className="flex-1 hidden xl:flex justify-end items-center mr-4">
+          <DarkModeToggle />
+        </div>
+
+        {/* Mobile button */}
+        <div className="xl:hidden flex items-center space-x-2">
+          <button
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen((s) => !s)}
+            className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          <DarkModeToggle />
         </div>
       </div>
 
+
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div className="xl:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
           <div className="flex flex-col px-4 py-3 space-y-2">
             {links.map((l) => (
               <div key={l.href} className="w-full">

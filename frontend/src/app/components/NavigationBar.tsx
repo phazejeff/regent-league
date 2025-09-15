@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 
 function DarkModeToggle() {
   const { theme, setTheme } = useTheme();
@@ -61,9 +62,18 @@ export default function NavigationBar() {
   return (
     <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex items-center justify-between h-16">
-        {/* Left logo (desktop only) */}
-        <div className="hidden xl:flex flex-1 items-center ml-50">
-          <div className="text-xl font-bold dark:text-white">
+        {/* Left logo (desktop & mobile) */}
+        <div className="flex flex-1 items-center ml-4 space-x-3">
+          <Image
+            src="/XD_Emote.png"
+            alt="RegentXD Logo"
+            width={40}
+            height={40}
+            className="rounded-md"
+            priority
+          />
+          {/* Title disappears on very small screens */}
+          <div className="hidden sm:block text-xl font-bold dark:text-white">
             RegentXD&apos;s Collegiate CS2 League
           </div>
         </div>
@@ -74,7 +84,7 @@ export default function NavigationBar() {
         </div>
 
         {/* Right side: Dark mode toggle (desktop) */}
-        <div className="flex-1 hidden xl:flex justify-end items-center mr-50">
+        <div className="flex-1 hidden xl:flex justify-end items-center mr-4">
           <DarkModeToggle />
         </div>
 
