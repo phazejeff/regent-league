@@ -24,8 +24,8 @@ class PlayerBase(SQLModel):
     main: bool
 class Player(PlayerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    team_id: int = Field(foreign_key="team.id")
-    team_sub_id: int | None = Field(foreign_key="team.id", default=None)
+    team_id: Optional[int] = Field(foreign_key="team.id")
+    team_sub_id: Optional[int] = Field(foreign_key="team.id", default=None)
 
     team: Optional["Team"] = Relationship(back_populates="players", sa_relationship_kwargs={"foreign_keys": "[Player.team_id]"})
     team_sub: Optional["Team"] = Relationship(back_populates="sub_players", sa_relationship_kwargs={"foreign_keys": "[Player.team_sub_id]"})
