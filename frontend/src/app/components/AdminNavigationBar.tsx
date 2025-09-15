@@ -59,7 +59,7 @@ export default function NavigationBar() {
   };
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-900 shadow-sm">
+    <nav className="w-full bg-white dark:bg-neutral-900 shadow-sm">
       <div className="flex items-center justify-between h-16">
         {/* Left logo (desktop & mobile) */}
         <Link href='/' className="flex flex-1 items-center ml-4 space-x-3">
