@@ -80,6 +80,10 @@ class TeamUpdate(TeamBase):
     group: str | None
     logo: str | None
 
+class PlayerUpdate(PlayerBase):
+    team_id: int
+    team_sub_id: int | None
+
 def get_session():
     with Session(engine) as session:
         yield session
@@ -184,6 +188,23 @@ def add_players(players: List[Player], password, response: Response, session: Se
         return {"message" : "Incorrect password"}
     session.add_all(players)
     session.commit()
+    return {"message" : "Created"}
+
+@app.post("/editplayer", status_code=status.HTTP_201_CREATED)
+def edit_player(player: PlayerUpdate, player_id: int, password, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    player_db = session.get(Player, player_id)
+    if not player_db:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"message" : "Player not found"}
+    
+    for key, value in player.model_dump().items():
+        setattr(player_db, key, value)
+    session.add(player_db)
+    session.commit()
+    session.refresh(player_db)
     return {"message" : "Created"}
 
 @app.get("/players")
