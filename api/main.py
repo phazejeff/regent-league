@@ -226,6 +226,7 @@ def delete_player(password, response: Response, player_id: int, session: Session
     statement = select(Player).where(Player.id == player_id)
     player = session.exec(statement).first()
     session.delete(player)
+    session.commit()
     return {"message" : "Player removed"}
 
 @app.get("/matches")
@@ -254,6 +255,7 @@ def delete_team(team_id: int, password, response: Response, session: Session = D
     statement = select(Team).where(Team.id == team_id)
     team = session.exec(statement).first()
     session.delete(team)
+    session.commit()
     return {"message" : "Team removed"}
 
 @app.post("/editteam", status_code=status.HTTP_201_CREATED)
