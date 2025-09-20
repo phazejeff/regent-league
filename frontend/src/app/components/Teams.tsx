@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 interface Division {
   id: number;
@@ -166,7 +167,7 @@ export default function TeamsByDivision() {
                             playersByTeam[team.id].length > 0 ? (
                               <ul className="space-y-2 text-base sm:text-lg font-medium text-center">
                                 {playersByTeam[team.id].map((p) => (
-                                  <li key={p.id}>{p.name}</li>
+                                  <li key={p.id}><Link href={`/player/${p.id}`} className="hover:underline">{p.name}</Link></li>
                                 ))}
                               </ul>
                             ) : (
