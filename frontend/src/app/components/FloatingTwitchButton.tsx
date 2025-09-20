@@ -38,8 +38,8 @@ export default function TwitchFloating() {
       ) : (
         <iframe
           src="https://player.twitch.tv/?channel=regent_xd&parent=localhost&parent=regent-league.vercel.app&allowfullscreen=true"
-          height="250"
-          width="400"
+          height="300"
+          width="480"
           allowFullScreen
           className="rounded-xl shadow-lg"
         ></iframe>
