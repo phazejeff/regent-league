@@ -16,7 +16,6 @@ interface Team {
 
 interface Player {
   name: string;
-  age: number | "";
   year: string;
   major: string;
   main: boolean;
@@ -26,7 +25,7 @@ interface Player {
 export default function AddPlayersPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [players, setPlayers] = useState<Player[]>([{ name: "", age: "", year: "", major: "", main: true, team_sub_id: "" }]);
+  const [players, setPlayers] = useState<Player[]>([{ name: "", year: "", major: "", main: true, team_sub_id: "" }]);
   const [password, setPassword] = useState("");
 
   // Load teams
@@ -39,7 +38,7 @@ export default function AddPlayersPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlePlayerChange = (index: number, field: keyof Player, value: any) => {
     const newPlayers = [...players];
-    if (field === "age" || field === "team_sub_id") {
+    if (field === "team_sub_id") {
       newPlayers[index][field] = value === "" ? "" : Number(value);
     } else if (field === "main") {
       newPlayers[index][field] = value;
@@ -51,7 +50,7 @@ export default function AddPlayersPage() {
   };
 
   const addPlayerField = () =>
-    setPlayers([...players, { name: "", age: "", year: "", major: "", main: true, team_sub_id: "" }]);
+    setPlayers([...players, { name: "", year: "", major: "", main: true, team_sub_id: "" }]);
   const removePlayerField = (index: number) =>
     setPlayers(players.filter((_, i) => i !== index));
 
@@ -73,7 +72,7 @@ export default function AddPlayersPage() {
 
     if (response.ok) {
       alert("Players added successfully!");
-      setPlayers([{ name: "", age: "", year: "", major: "", main: true, team_sub_id: "" }]);
+      setPlayers([{ name: "", year: "", major: "", main: true, team_sub_id: "" }]);
       setPassword("");
       setSelectedTeam("");
     } else {
@@ -117,14 +116,6 @@ export default function AddPlayersPage() {
                   required
                 />
                 <div className="flex space-x-2">
-                  <Input
-                    type="number"
-                    value={player.age}
-                    onChange={(e) => handlePlayerChange(index, "age", e.target.value)}
-                    placeholder="Age"
-                    min={0}
-                    required
-                  />
                   <Input
                     value={player.year}
                     onChange={(e) => handlePlayerChange(index, "year", e.target.value)}
