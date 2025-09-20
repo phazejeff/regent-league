@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 interface Player {
   id: number;
   name: string;
-  age: number;
   year: string;
   major: string;
   main: boolean;
@@ -85,7 +84,7 @@ export default function PlayerEditor() {
               <div>
                 <p className="font-semibold">{p.name}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Age {p.age} | {p.year} | {p.major} | Team {p.team_id}
+                  {p.year} | {p.major} | Team {p.team_id}
                 </p>
               </div>
               <button
@@ -112,21 +111,6 @@ export default function PlayerEditor() {
                 value={editingPlayer.name}
                 onChange={(e) =>
                   setEditingPlayer({ ...editingPlayer, name: e.target.value })
-                }
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Age</label>
-              <input
-                type="number"
-                value={editingPlayer.age}
-                onChange={(e) =>
-                  setEditingPlayer({
-                    ...editingPlayer,
-                    age: parseInt(e.target.value, 10),
-                  })
                 }
                 className="w-full p-2 border rounded"
               />
