@@ -18,7 +18,6 @@ class Team(TeamBase, table=True):
 
 class PlayerBase(SQLModel):
     name: str
-    age: int
     year: str
     major: str
     main: bool

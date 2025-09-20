@@ -53,6 +53,16 @@ class PlayerstatsAggregated(BaseModel):
 class PlayerstatsWithPlayer(PlayerstatsBase):
     player: Player | None
 
+class MatchWithTeams(MatchBase):
+    team1: TeamBase
+    team2: TeamBase
+
+class MapWithMatch(MapBase):
+    match: MatchWithTeams
+
+class PlayerstatsWithMap(PlayerstatsBase):
+    map: MapWithMatch
+
 class MapWithStats(MapBase):
     player_stats: List[PlayerstatsWithPlayer]
 
@@ -83,6 +93,12 @@ class TeamUpdate(TeamBase):
 class PlayerUpdate(PlayerBase):
     team_id: int
     team_sub_id: int | None
+
+class PlayerFull(PlayerBase):
+    team: Team
+    team_sub: Team | None
+    map_stats: List[PlayerstatsWithMap]
+
 
 def get_session():
     with Session(engine) as session:
@@ -217,6 +233,12 @@ def get_players(team_id: int | None = None, main_only: bool = False, session: Se
             statement = statement.where(or_(Player.team_id == team_id, Player.team_sub_id == team_id))
     players = session.exec(statement).all()
     return players
+
+@app.get("/player/{player_id}")
+def get_player(player_id: int, session: Session = Depends(get_session)) -> PlayerFull:
+    statement = select(Player).where(Player.id == player_id)
+    player = session.exec(statement).first()
+    return player
 
 @app.delete("/deleteplayer", status_code=status.HTTP_200_OK)
 def delete_player(password, response: Response, player_id: int, session: Session = Depends(get_session)):
