@@ -9,7 +9,7 @@ interface Player {
   major: string;
   main: boolean;
   team_id: number;
-  team_sub_id: number;
+  team_sub_id?: number | string;
 }
 
 interface Team {
@@ -41,6 +41,9 @@ export default function PlayerEditor() {
 
   const handleSave = async () => {
     if (!editingPlayer) return;
+    if (editingPlayer.team_sub_id == 0 || editingPlayer.team_sub_id == "") {
+      editingPlayer.team_sub_id = undefined;
+    }
     const response = await fetch(
       `${process.env.API_ROOT}/editplayer?password=${encodeURIComponent(password)}&player_id=${editingPlayer.id}`,
       {

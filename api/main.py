@@ -92,7 +92,7 @@ class TeamUpdate(TeamBase):
 
 class PlayerUpdate(PlayerBase):
     team_id: int
-    team_sub_id: int | None
+    team_sub_id: int | None = None
 
 class PlayerFull(PlayerBase):
     team: Team
