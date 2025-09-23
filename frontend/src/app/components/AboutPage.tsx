@@ -1,6 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { useRef } from "react";
+import { useInView } from "framer-motion";
 
 const sections = [
   {
@@ -26,41 +29,57 @@ Pushing the effort to uplift collegiate CS further, I hosted my first collegiate
   },
 ];
 
+function Section({
+  section,
+  index,
+}: {
+  section: { title: string; text: string; image: string };
+  index: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <div
+      className={`flex flex-col md:flex-row gap-8 min-h-screen`}
+    >
+      {/* Sticky Image */}
+      <div className="w-full md:w-1/2 relative">
+        <div className="sticky top-24">
+          <Image
+            src={section.image}
+            alt={section.title}
+            width={600}
+            height={400}
+            className="rounded-2xl shadow-lg"
+          />
+        </div>
+      </div>
+
+      {/* Scrolling Text */}
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 50 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="w-full md:w-1/2 flex flex-col text-center md:text-left"
+      >
+        <h2 className="text-2xl font-semibold mb-4">{section.title}</h2>
+        <p className="text-gray-50 whitespace-pre-line">{section.text}</p>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen py-12 px-6">
       <h1 className="text-4xl font-bold text-center mb-12 text-white">
         About Us
       </h1>
-      <div className="space-y-16 max-w-5xl mx-auto text-white">
+      <div className="space-y-32 max-w-6xl mx-auto text-white">
         {sections.map((section, index) => (
-          <div
-            key={index}
-            className={`flex flex-col md:flex-row items-center gap-8 ${
-              index % 2 === 0 ? "" : "md:flex-row-reverse"
-            }`}
-          >
-            {/* Image */}
-            <div className="w-full md:w-1/2">
-              <Image
-                src={section.image}
-                alt={section.title}
-                width={600}
-                height={400}
-                className="rounded-2xl shadow-lg"
-              />
-            </div>
-
-            {/* Text */}
-            <div className="w-full md:w-1/2 text-center md:text-left">
-              <h2 className="text-2xl font-semibold mb-4">
-                {section.title}
-              </h2>
-              <p className="text-gray-50 whitespace-pre-line">
-                {section.text}
-              </p>
-            </div>
-          </div>
+          <Section key={index} section={section} index={index} />
         ))}
       </div>
     </div>
