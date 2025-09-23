@@ -89,15 +89,17 @@ export default function RulesPage() {
             </div>
 
             {/* Embedded doc */}
-            <iframe
-              src={
-                isMobile
-                  ? rulesDocs[selectedDivision.name].mobile
-                  : rulesDocs[selectedDivision.name].view
-              }
-              className="w-full h-[calc(100vh-180px)] rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
-              allowFullScreen
-            />
+            <div className="p-2 border-8 border-black rounded-xl shadow-xl bg-black">
+              <iframe
+                src={
+                  isMobile
+                    ? rulesDocs[selectedDivision.name].mobile
+                    : rulesDocs[selectedDivision.name].view
+                }
+                className="w-full h-[calc(100vh-180px)] rounded-lg shadow-md border"
+                allowFullScreen
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
