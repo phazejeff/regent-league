@@ -165,9 +165,9 @@ export default function PlayerEditor() {
                 }
                 className="w-full p-2 border rounded"
               >
-                <option value={0}>No Team</option>
+                <option value={0} className="dark:text-black">No Team</option>
                 {teams.map((t) => (
-                  <option key={t.id} value={t.id}>
+                  <option key={t.id} value={t.id} className="dark:text-black">
                     {t.name} ({t.div}/{t.group})
                   </option>
                 ))}
@@ -186,9 +186,9 @@ export default function PlayerEditor() {
                 }
                 className="w-full p-2 border rounded"
               >
-                <option value={0}>No Team</option>
+                <option value={0} className="dark:text-black">No Team</option>
                 {teams.map((t) => (
-                  <option key={t.id} value={t.id}>
+                  <option key={t.id} value={t.id} className="dark:text-black">
                     {t.name} ({t.div}/{t.group})
                   </option>
                 ))}
@@ -209,7 +209,7 @@ export default function PlayerEditor() {
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-black"
               >
                 Cancel
               </button>
