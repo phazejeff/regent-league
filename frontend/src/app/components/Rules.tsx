@@ -96,7 +96,7 @@ export default function RulesPage() {
                     ? rulesDocs[selectedDivision.name].mobile
                     : rulesDocs[selectedDivision.name].view
                 }
-                className="w-full h-[calc(100vh-180px)] rounded-lg shadow-md border"
+                className="w-full h-[calc(100vh)] rounded-lg shadow-md border"
                 allowFullScreen
               />
             </div>
