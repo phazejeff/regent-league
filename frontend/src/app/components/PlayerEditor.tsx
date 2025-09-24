@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 interface Player {
   id: number;
   name: string;
+  real_name: string;
   year: string;
   major: string;
   main: boolean;
@@ -114,6 +115,18 @@ export default function PlayerEditor() {
                 value={editingPlayer.name}
                 onChange={(e) =>
                   setEditingPlayer({ ...editingPlayer, name: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">Real Name</label>
+              <input
+                type="text"
+                value={editingPlayer.real_name}
+                onChange={(e) =>
+                  setEditingPlayer({ ...editingPlayer, real_name: e.target.value })
                 }
                 className="w-full p-2 border rounded"
               />

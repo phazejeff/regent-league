@@ -40,6 +40,7 @@ interface MapStats {
 
 interface Player {
   name: string;
+  real_name: string;
   year: string;
   major: string;
   main: boolean;
@@ -110,6 +111,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
       {/* Overview Card */}
       <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 shadow-md text-white">
         <h1 className="text-3xl font-bold">{player.name}</h1>
+        <p className="text-lg text-gray-300">{player.real_name}</p>
         <p className="mt-1 text-sm">
           {player.year} • {player.major}
         </p>
