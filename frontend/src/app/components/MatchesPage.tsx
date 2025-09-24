@@ -23,6 +23,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import Link from "next/link";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -210,7 +211,7 @@ export default function MatchesPage() {
                             <TableBody>
                               {team1Players.map((ps) => (
                                 <TableRow key={ps.player.id}>
-                                  <TableCell>{ps.player.name}</TableCell>
+                                  <TableCell><Link href={`/player/${ps.player.id}`} className="hover:underline">{ps.player.name}</Link></TableCell>
                                   <TableCell>{ps.K}</TableCell>
                                   <TableCell>{ps.A}</TableCell>
                                   <TableCell>{ps.D}</TableCell>
