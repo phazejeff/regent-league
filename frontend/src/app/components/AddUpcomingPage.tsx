@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
+import React, { useEffect, useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
+  SelectValue,
   SelectContent,
   SelectItem,
-  SelectValue,
 } from "@/components/ui/select";
 
 interface Team {
@@ -16,170 +18,253 @@ interface Team {
   name: string;
   div: string;
   group: string;
-  logo: string;
+}
+
+interface Division {
+  id: number;
+  name: string;
+}
+
+interface Stream {
+  name: string;
+  url: string;
 }
 
 export default function AddUpcomingMatch() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [team1, setTeam1] = useState<number | null>(null);
-  const [team2, setTeam2] = useState<number | null>(null);
+  const [divisions, setDivisions] = useState<Division[]>([]);
+
+  const [team1Id, setTeam1Id] = useState<string>("");
+  const [team2Id, setTeam2Id] = useState<string>("");
+  const [divisionId, setDivisionId] = useState<string>("");
+
   const [week, setWeek] = useState<number>(0);
   const [datetime, setDatetime] = useState<string>("");
-  const [division, setDivision] = useState<string>("");
-  const [streams, setStreams] = useState<Record<string, string>>({});
-  const [password, setPassword] = useState<string>("");
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+  const [streams, setStreams] = useState<Stream[]>([
+    { name: "", url: "" },
+  ]);
 
+  const [password, setPassword] = useState("");
+
+  // Load all teams
   useEffect(() => {
-    fetch("/teams")
+    fetch(`${process.env.API_ROOT}/teams`)
       .then((res) => res.json())
-      .then((data) => setTeams(data));
+      .then((data) => setTeams(data))
+      .catch((err) => console.error("Failed to load teams:", err));
   }, []);
 
-  const handleStreamChange = (key: string, value: string) => {
-    setStreams((prev) => ({ ...prev, [key]: value }));
+  // Load all divisions
+  useEffect(() => {
+    fetch(`${process.env.API_ROOT}/divisions`)
+      .then((res) => res.json())
+      .then((data) => setDivisions(data))
+      .catch((err) => console.error("Failed to load divisions:", err));
+  }, []);
+
+  // Add new stream input
+  const addStream = () => {
+    setStreams([...streams, { name: "", url: "" }]);
   };
 
-  const handleSubmit = async () => {
-    setMessage(null);
+  // Handle stream changes
+  const handleStreamChange = (
+    index: number,
+    field: keyof Stream,
+    value: string
+  ) => {
+    const newStreams = [...streams];
+    newStreams[index][field] = value;
+    setStreams(newStreams);
+  };
 
-    if (!team1 || !team2) {
-      setMessage({ type: "error", text: "Please select both teams" });
-      return;
+  // Remove stream
+  const removeStream = (index: number) => {
+    const newStreams = streams.filter((_, i) => i !== index);
+    setStreams(newStreams);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Convert streams to object format
+    const streamsObj: Record<string, string> = {};
+    for (const s of streams) {
+      if (s.name && s.url) {
+        streamsObj[s.name] = s.url;
+      }
     }
-    if (!password) {
-      setMessage({ type: "error", text: "Please enter the password" });
-      return;
-    }
 
-    setLoading(true);
-
-    const body = {
+    const upcoming = {
       week,
       datetime,
-      division,
-      streams,
-      team1_id: team1,
-      team2_id: team2,
+      division: divisionId, // assuming backend expects division name or id
+      streams: streamsObj,
+      team1_id: Number(team1Id),
+      team2_id: Number(team2Id),
     };
 
-    try {
-      const res = await fetch(`/addupcoming?password=${password}`, {
+    const response = await fetch(
+      `${process.env.API_ROOT}/addupcoming?password=${password}`,
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (res.status === 201) {
-        setMessage({ type: "success", text: "Match added successfully!" });
-      } else if (res.status === 401) {
-        setMessage({ type: "error", text: "Incorrect password." });
-      } else {
-        setMessage({ type: "error", text: `Failed to add match (status ${res.status}).` });
+        body: JSON.stringify(upcoming),
       }
-    } catch (err) {
-      console.error(err);
-      setMessage({ type: "error", text: "Network error while submitting." });
-    } finally {
-      setLoading(false);
+    );
+
+    if (response.ok) {
+      alert("Upcoming match added successfully!");
+      setTeam1Id("");
+      setTeam2Id("");
+      setDivisionId("");
+      setWeek(0);
+      setDatetime("");
+      setStreams([{ name: "", url: "" }]);
+      setPassword("");
+    } else {
+      alert("Failed to add upcoming match.");
     }
   };
 
   return (
-    <div className="space-y-4 max-w-md p-4 border rounded-xl shadow">
-      <h2 className="text-xl font-bold">Add Upcoming Match</h2>
+    <Card className="max-w-2xl mx-auto mt-6">
+      <CardHeader>
+        <CardTitle>Add Upcoming Match</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Week */}
+          <div>
+            <Label>Week</Label>
+            <Input
+              type="number"
+              value={week}
+              onChange={(e) => setWeek(Number(e.target.value))}
+            />
+          </div>
 
-      {/* Feedback message */}
-      {message && (
-        <div
-          className={`p-2 rounded text-sm ${
-            message.type === "error"
-              ? "bg-red-100 text-red-700 border border-red-300"
-              : "bg-green-100 text-green-700 border border-green-300"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+          {/* Date/Time */}
+          <div>
+            <Label>Date/Time</Label>
+            <Input
+              type="datetime-local"
+              value={datetime}
+              onChange={(e) => setDatetime(e.target.value)}
+            />
+          </div>
 
-      {/* Password */}
-      <Input
-        type="password"
-        placeholder="Admin Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          {/* Division */}
+          <div>
+            <Label>Division</Label>
+            <Select onValueChange={setDivisionId} value={divisionId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select division" />
+              </SelectTrigger>
+              <SelectContent>
+                {divisions.map((div) => (
+                  <SelectItem key={div.id} value={div.name}>
+                    {div.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Week */}
-      <Input
-        type="number"
-        placeholder="Week"
-        value={week}
-        onChange={(e) => setWeek(Number(e.target.value))}
-      />
+          {/* Teams */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Team 1</Label>
+              <Select onValueChange={setTeam1Id} value={team1Id}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select team 1" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams.map((team) => (
+                    <SelectItem key={team.id} value={team.id.toString()}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* Date & Time */}
-      <Input
-        type="datetime-local"
-        value={datetime}
-        onChange={(e) => setDatetime(e.target.value)}
-      />
+            <div>
+              <Label>Team 2</Label>
+              <Select onValueChange={setTeam2Id} value={team2Id}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select team 2" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams.map((team) => (
+                    <SelectItem key={team.id} value={team.id.toString()}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-      {/* Division */}
-      <Input
-        type="text"
-        placeholder="Division"
-        value={division}
-        onChange={(e) => setDivision(e.target.value)}
-      />
+          {/* Streams */}
+          <div>
+            <Label>Streams</Label>
+            {streams.map((stream, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-3 gap-2 mt-2 items-center"
+              >
+                <Input
+                  placeholder="Stream Name"
+                  value={stream.name}
+                  onChange={(e) =>
+                    handleStreamChange(index, "name", e.target.value)
+                  }
+                />
+                <Input
+                  placeholder="Stream URL"
+                  value={stream.url}
+                  onChange={(e) =>
+                    handleStreamChange(index, "url", e.target.value)
+                  }
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => removeStream(index)}
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              className="mt-3"
+              size="sm"
+              onClick={addStream}
+            >
+              + Add Stream
+            </Button>
+          </div>
 
-      {/* Team 1 */}
-      <Select onValueChange={(val) => setTeam1(Number(val))}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Team 1" />
-        </SelectTrigger>
-        <SelectContent>
-          {teams.map((t) => (
-            <SelectItem key={t.id} value={String(t.id)}>
-              {t.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          {/* Password */}
+          <div>
+            <Label>Password</Label>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-      {/* Team 2 */}
-      <Select onValueChange={(val) => setTeam2(Number(val))}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Team 2" />
-        </SelectTrigger>
-        <SelectContent>
-          {teams.map((t) => (
-            <SelectItem key={t.id} value={String(t.id)}>
-              {t.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {/* Streams */}
-      <div className="space-y-2">
-        <p className="font-medium">Streams</p>
-        {["stream1", "stream2", "stream3"].map((key) => (
-          <Input
-            key={key}
-            type="text"
-            placeholder={`${key} URL`}
-            value={streams[key] || ""}
-            onChange={(e) => handleStreamChange(key, e.target.value)}
-          />
-        ))}
-      </div>
-
-      <Button onClick={handleSubmit} disabled={loading}>
-        {loading ? "Submitting..." : "Add Match"}
-      </Button>
-    </div>
+          <Button type="submit" className="w-full">
+            Add Upcoming Match
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
