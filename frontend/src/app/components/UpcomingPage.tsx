@@ -34,7 +34,7 @@ export default function UpcomingMatchesPage() {
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">Upcoming Matches</h1>
+      <h1 className="text-2xl font-bold mb-4 text-white">Upcoming Matches</h1>
 
       {matches.length > 0 ? (
         matches.map((match, idx) => (
@@ -61,7 +61,7 @@ export default function UpcomingMatchesPage() {
                 </span>
 
                 {/* Match time */}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-200">
                   {new Date(match.datetime).toLocaleString()}
                 </span>
               </CardTitle>
@@ -69,7 +69,7 @@ export default function UpcomingMatchesPage() {
 
             <CardContent>
               {/* Division / Week info */}
-              <div className="mb-2 text-gray-600 text-sm">
+              <div className="mb-2 text-gray-600 text-sm dark:text-gray-300">
                 Division:{" "}
                 <span className="font-medium">{match.division}</span> | Week:{" "}
                 <span className="font-medium">{match.week}</span>
