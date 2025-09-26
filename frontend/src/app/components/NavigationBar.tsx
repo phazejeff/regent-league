@@ -30,12 +30,12 @@ export default function NavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const links = [
-    { href: "/standings", label: "Standings" },
-    { href: "/matches", label: "Matches" },
-    { href: "/playerstats", label: "Player Stats" },
+    { href: "/about", label: "About Us" },
     { href: "/teams", label: "Teams" },
-    { href: "/rules", label: "Rules" },
-    { href: "/about", label: "About" },
+    { href: "/matches", label: "Matches" },
+    { href: "/standings", label: "Standings" },
+    { href: "/playerstats", label: "Player Stats" },
+    { href: "/rules", label: "Ruleset" },
   ];
 
   const renderLink = (href: string, label: string) => {
