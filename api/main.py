@@ -433,6 +433,7 @@ def add_upcoming(upcoming: AddUpcoming, password: str, response: Response, sessi
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
-    session.add(upcoming)
+    upcoming_db = Upcoming.model_validate(upcoming)
+    session.add(upcoming_db)
     session.commit()
     return {"message" : "Created"}

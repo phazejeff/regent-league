@@ -104,8 +104,8 @@ class UpcomingBase(SQLModel):
 
 class Upcoming(UpcomingBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    team1_id: int = Field(foreign_key="team.id", primary_key=True)
-    team2_id: int = Field(foreign_key="team.id", primary_key=True)
+    team1_id: int = Field(foreign_key="team.id")
+    team2_id: int = Field(foreign_key="team.id")
 
     team1: Team = Relationship(back_populates="upcoming_as_team1", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team1_id]"})
     team2: Team = Relationship(back_populates="upcoming_as_team2", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team2_id]"})
