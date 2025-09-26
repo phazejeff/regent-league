@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronUp, ChevronDown, Medal } from "lucide-react";
+import Link from "next/link";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -230,7 +231,7 @@ export default function PlayerStatsPage() {
                       {index === 2 && <Medal className="text-amber-700" />}
                       {index > 2 && index + 1}
                     </td>
-                    <td className="p-3">{p.name}</td>
+                    <td className="p-3 hover:underline"><Link href={`/player/${p.id}`}>{p.name}</Link></td>
                     <td className="p-3">{p.team}</td>
                     <td className="p-3">{p.K}</td>
                     <td className="p-3">{p.D}</td>

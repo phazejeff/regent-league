@@ -26,6 +26,8 @@ export default function PlayerEditor() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [password, setPassword] = useState("");
+  const [deletePassword, setDeletePassword] = useState(""); // 🔹 New
+  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null); // 🔹 New
 
   // Fetch players and teams
   useEffect(() => {
@@ -46,7 +48,9 @@ export default function PlayerEditor() {
       editingPlayer.team_sub_id = undefined;
     }
     const response = await fetch(
-      `${process.env.API_ROOT}/editplayer?password=${encodeURIComponent(password)}&player_id=${editingPlayer.id}`,
+      `${process.env.API_ROOT}/editplayer?password=${encodeURIComponent(
+        password
+      )}&player_id=${editingPlayer.id}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,13 +58,14 @@ export default function PlayerEditor() {
       }
     );
     if (response.status == 401) {
-        alert("Wrong password")
+      alert("Wrong password");
+      return;
     }
 
     if (response.status == 201) {
-        alert("Player updated!")
-        setEditingPlayer(null);
-        setPassword(""); // Clear password after successful save
+      alert("Player updated!");
+      setEditingPlayer(null);
+      setPassword(""); // Clear password after successful save
     }
 
     // refresh player list
@@ -70,7 +75,40 @@ export default function PlayerEditor() {
 
   const handleCancel = () => {
     setEditingPlayer(null);
-    setPassword(""); // Clear password when canceling
+    setPassword("");
+  };
+
+  // 🔹 New: Handle player deletion
+  const handleDelete = async () => {
+    if (!playerToDelete) return;
+
+    const response = await fetch(
+      `${process.env.API_ROOT}/deleteplayer?player_id=${playerToDelete.id}&password=${encodeURIComponent(
+        deletePassword
+      )}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (response.status === 401) {
+      alert("Wrong password");
+      return;
+    }
+
+    if (response.status === 200) {
+      alert(`Deleted player: ${playerToDelete.name}`);
+      setPlayerToDelete(null);
+      setDeletePassword("");
+      // refresh player list
+      const res = await fetch(`${process.env.API_ROOT}/players`);
+      setPlayers(await res.json());
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setPlayerToDelete(null);
+    setDeletePassword("");
   };
 
   return (
@@ -91,12 +129,21 @@ export default function PlayerEditor() {
                   {p.year} | {p.major} | Team {p.team_id}
                 </p>
               </div>
-              <button
-                onClick={() => setEditingPlayer({ ...p })}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Edit
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setEditingPlayer({ ...p })}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                {/* 🔹 New Delete Button */}
+                <button
+                  onClick={() => setPlayerToDelete(p)}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -126,7 +173,10 @@ export default function PlayerEditor() {
                 type="text"
                 value={editingPlayer.real_name}
                 onChange={(e) =>
-                  setEditingPlayer({ ...editingPlayer, real_name: e.target.value })
+                  setEditingPlayer({
+                    ...editingPlayer,
+                    real_name: e.target.value,
+                  })
                 }
                 className="w-full p-2 border rounded"
               />
@@ -162,7 +212,10 @@ export default function PlayerEditor() {
                 type="checkbox"
                 checked={editingPlayer.main}
                 onChange={(e) =>
-                  setEditingPlayer({ ...editingPlayer, main: e.target.checked })
+                  setEditingPlayer({
+                    ...editingPlayer,
+                    main: e.target.checked,
+                  })
                 }
                 className="mr-2"
               />
@@ -181,7 +234,9 @@ export default function PlayerEditor() {
                 }
                 className="w-full p-2 border rounded"
               >
-                <option value={0} className="dark:text-black">No Team</option>
+                <option value={0} className="dark:text-black">
+                  No Team
+                </option>
                 {teams.map((t) => (
                   <option key={t.id} value={t.id} className="dark:text-black">
                     {t.name} ({t.div}/{t.group})
@@ -202,7 +257,9 @@ export default function PlayerEditor() {
                 }
                 className="w-full p-2 border rounded"
               >
-                <option value={0} className="dark:text-black">No Team</option>
+                <option value={0} className="dark:text-black">
+                  No Team
+                </option>
                 {teams.map((t) => (
                   <option key={t.id} value={t.id} className="dark:text-black">
                     {t.name} ({t.div}/{t.group})
@@ -234,6 +291,46 @@ export default function PlayerEditor() {
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🔹 Delete Modal */}
+      {playerToDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
+            <h2 className="text-xl font-bold">
+              Delete {playerToDelete.name}?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              This action cannot be undone.
+            </p>
+
+            <div>
+              <label className="block font-medium mb-1">Admin Password</label>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Enter password to confirm deletion"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={handleDeleteCancel}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-black"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Delete
               </button>
             </div>
           </div>

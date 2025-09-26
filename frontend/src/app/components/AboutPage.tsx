@@ -51,7 +51,7 @@ function Section({
             alt={section.title}
             width={600}
             height={400}
-            className="rounded-2xl shadow-lg"
+            className={`rounded-2xl ${index !== 1 ? "border-15 border-black" : ""}`}
           />
         </div>
       </div>
