@@ -99,6 +99,13 @@ class PlayerFull(PlayerBase):
     team_sub: Team | None
     map_stats: List[PlayerstatsWithMap]
 
+class AddUpcoming(UpcomingBase):
+    team1_id: int
+    team2_id: int
+
+class GetUpcoming(UpcomingBase):
+    team1: Team
+    team2: Team
 
 def get_session():
     with Session(engine) as session:
@@ -412,3 +419,20 @@ def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], pas
 @app.get("/islive")
 def get_is_live() -> bool:
     return twitch.is_channel_live()
+
+@app.get("/getupcoming")
+def get_upcoming(div: str | None = None, session: Session = Depends(get_session)) -> List[GetUpcoming]:
+    statement = select(Upcoming)
+    if div is not None:
+        statement = statement.where(Upcoming.division == div)
+    result = session.exec(statement).all()
+    return result
+
+@app.post("/addupcoming", status_code=status.HTTP_201_CREATED)
+def add_upcoming(upcoming: AddUpcoming, password: str, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    session.add(upcoming)
+    session.commit()
+    return {"message" : "Created"}
