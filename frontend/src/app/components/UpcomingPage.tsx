@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 type Team = {
   name: string;
@@ -11,13 +10,14 @@ type Team = {
   group: string;
   logo: string;
   id: number;
+  mainColor?: string; // (optional — if you extract color)
 };
 
 type UpcomingMatch = {
   week: number;
   datetime: string;
   division: string;
-  streams: Record<string, string>; // dictionary of name -> url
+  streams: Record<string, string>;
   team1: Team;
   team2: Team;
 };
@@ -33,73 +33,83 @@ export default function UpcomingMatchesPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-4 text-white">Upcoming Matches</h1>
+    <div className="w-full max-w-5xl mx-auto mt-6 space-y-8">
+      <h1 className="text-3xl font-bold text-center text-white">
+        Upcoming Matches
+      </h1>
 
       {matches.length > 0 ? (
-        matches.map((match, idx) => (
-          <Card key={idx} className="shadow-lg rounded-2xl border">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center text-lg">
-                {/* Team names */}
-                <span className="font-semibold flex items-center gap-2">
-                  <Image
-                    src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
-                    alt={match.team1.name}
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 rounded"
-                  />
-                    {match.team1.name} vs {match.team2.name}
-                  <Image
-                    src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
-                    alt={match.team2.name}
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 rounded"
-                  />
-                </span>
+        matches.map((match, idx) => {
+          const team1Color = match.team1.mainColor || "#9b1c1c"; // fallback red
+          const team2Color = match.team2.mainColor || "#065f46"; // fallback green
 
-                {/* Match time */}
-                <span className="text-sm text-gray-500 dark:text-gray-200">
-                  {new Date(match.datetime).toLocaleString()}
-                </span>
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              {/* Division / Week info */}
-              <div className="mb-2 text-gray-600 text-sm dark:text-gray-300">
-                Division:{" "}
-                <span className="font-medium">{match.division}</span> | Week:{" "}
-                <span className="font-medium">{match.week}</span>
+          return (
+            <div
+              key={idx}
+              className="relative flex flex-col md:flex-row justify-between items-center text-white rounded-2xl shadow-2xl border-4 border-black overflow-hidden"
+              style={{
+                background: `linear-gradient(90deg, ${team1Color}, ${team2Color})`,
+              }}
+            >
+              {/* Left Side */}
+              <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
+                <h2 className="text-xl font-semibold">{match.team1.name}</h2>
+                <Image
+                  src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
+                  alt={match.team1.name}
+                  width={150}
+                  height={150}
+                  className="rounded-full border-4 border-black bg-white p-2"
+                />
               </div>
 
-              {/* Streams */}
-              {match.streams && Object.keys(match.streams).length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-1">Streams:</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {Object.entries(match.streams).map(([name, url], i) => (
-                      <li key={i}>
-                        <Link
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          {name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+              {/* Center VS Section */}
+              <div className="flex flex-col justify-center items-center text-center p-4 md:w-1/3 bg-black/40 backdrop-blur-sm rounded-2xl mx-2">
+                <div className="text-lg font-semibold">
+                  Group {match.team1.group}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))
+                <div className="text-sm mb-1">Week {match.week}</div>
+                <div className="text-5xl font-extrabold my-2">VS</div>
+                <div className="text-sm font-medium">
+                  Time: {new Date(match.datetime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+                {match.streams && Object.keys(match.streams).length > 0 && (
+                  <div className="mt-2 text-sm">
+                    Twitch:{" "}
+                    {Object.entries(match.streams).map(([name, url], i) => (
+                      <Link
+                        key={i}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-gray-300"
+                      >
+                        {name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Right Side */}
+              <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
+                <h2 className="text-xl font-semibold">{match.team2.name}</h2>
+                <Image
+                  src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
+                  alt={match.team2.name}
+                  width={150}
+                  height={150}
+                  className="rounded-full border-4 border-black bg-white p-2"
+                />
+              </div>
+            </div>
+          );
+        })
       ) : (
-        <p className="text-center text-gray-500">
+        <p className="text-center text-gray-400 text-lg">
           No upcoming matches scheduled.
         </p>
       )}

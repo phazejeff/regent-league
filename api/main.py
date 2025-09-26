@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from .twitch import Twitch
+from colorthief import ColorThief
 
 create_db_and_tables()
 app = FastAPI()
@@ -106,6 +107,9 @@ class AddUpcoming(UpcomingBase):
 class GetUpcoming(UpcomingBase):
     team1: Team
     team2: Team
+
+class TeamWithColor(Team):
+    mainColor: str
 
 def get_session():
     with Session(engine) as session:
@@ -269,12 +273,19 @@ def get_matches(div: str | None = None, group: str | None = None, session: Sessi
     return results
 
 @app.get("/teams")
-def get_teams(div: str | None = None, session: Session = Depends(get_session)) -> List[Team]:
+def get_teams(div: str | None = None, session: Session = Depends(get_session)) -> List[TeamWithColor]:
     statement = select(Team)
     if div is not None:
         statement = statement.where(Team.div == div)
-    results = session.exec(statement).all()
-    return results
+    results: List[Team] = session.exec(statement).all()
+    teams_with_colors = []
+    for team in results:
+        team_with_color = TeamWithColor(**team.model_dump())
+        color_thief = ColorThief(f"photos/{team.logo}")
+        r, g, b = color_thief.get_color(quality=1)
+        team_with_color.mainColor = f"#{r}{g}{b}"
+        teams_with_colors.append(team_with_color)
+    return teams_with_colors
 
 @app.delete("/deleteteam", status_code=status.HTTP_200_OK)
 def delete_team(team_id: int, password, response: Response, session: Session = Depends(get_session)):
