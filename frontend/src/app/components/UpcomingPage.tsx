@@ -10,16 +10,17 @@ type Team = {
   group: string;
   logo: string;
   id: number;
-  mainColor?: string; // (optional — if you extract color)
+  mainColor?: string;
 };
 
 type UpcomingMatch = {
   week: number;
   datetime: string;
   division: string;
-  streams: Record<string, string>;
   team1: Team;
   team2: Team;
+  team1_streams?: Record<string, string>;
+  team2_streams?: Record<string, string>;
 };
 
 export default function UpcomingMatchesPage() {
@@ -61,6 +62,24 @@ export default function UpcomingMatchesPage() {
                   height={150}
                   className="rounded-full border-4 border-black bg-white p-2"
                 />
+                {match.team1_streams && Object.keys(match.team1_streams).length > 0 && (
+                  <div className="mt-2 text-sm">
+                    Streams: <br />
+                    {Object.entries(match.team1_streams).map(([name, url], i) => (
+                      <span key={i}>
+                        <Link
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-gray-300"
+                        >
+                          {name}
+                        </Link>
+                        {i < Object.keys(match.team1_streams!).length - 1 && ", "}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Center VS Section */}
@@ -71,27 +90,23 @@ export default function UpcomingMatchesPage() {
                 <div className="text-sm mb-1">Week {match.week}</div>
                 <div className="text-5xl font-extrabold my-2">VS</div>
                 <div className="text-sm font-medium">
-                  Time: {new Date(match.datetime).toLocaleTimeString([], {
+                  Time:{" "}
+                  {new Date(match.datetime).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </div>
-                {match.streams && Object.keys(match.streams).length > 0 && (
-                  <div className="mt-2 text-sm">
-                    Twitch:{" "}
-                    {Object.entries(match.streams).map(([name, url], i) => (
-                      <Link
-                        key={i}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline hover:text-gray-300"
-                      >
-                        {name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                <div className="mt-2 text-sm">
+                  Main Stream:{" "}
+                  <Link
+                    href="https://twitch.tv/Regent_XD"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-gray-300"
+                  >
+                    RegentXD
+                  </Link>
+                </div>
               </div>
 
               {/* Right Side */}
@@ -104,6 +119,24 @@ export default function UpcomingMatchesPage() {
                   height={150}
                   className="rounded-full border-4 border-black bg-white p-2"
                 />
+                {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
+                  <div className="mt-2 text-sm">
+                    Streams: <br />
+                    {Object.entries(match.team2_streams).map(([name, url], i) => (
+                      <span key={i}>
+                        <Link
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-gray-300"
+                        >
+                          {name}
+                        </Link>
+                        {i < Object.keys(match.team2_streams!).length - 1 && ", "}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );

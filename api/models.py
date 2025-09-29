@@ -100,7 +100,8 @@ class UpcomingBase(SQLModel):
     week: int
     datetime: Optional[datetime]
     division: str
-    streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
+    team1_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
+    team2_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
 
 class Upcoming(UpcomingBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
