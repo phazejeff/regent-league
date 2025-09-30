@@ -1,12 +1,22 @@
 from typing import  Dict, List, Optional
+from pydantic import computed_field
 from sqlmodel import JSON, Column, Field, SQLModel, Relationship
 from datetime import datetime
+from colorthief import ColorThief
 
 class TeamBase(SQLModel):
     name: str
     div: str
     group: str
     logo: str
+    
+    @computed_field
+    @property
+    def mainColor(self) -> str:
+        color_thief = ColorThief(f"photos/{self.logo}")
+        r, g, b = color_thief.get_color()
+        return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+    
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 

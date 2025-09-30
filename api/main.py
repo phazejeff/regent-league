@@ -437,8 +437,8 @@ def get_upcoming(div: str | None = None, session: Session = Depends(get_session)
     statement = select(Upcoming)
     if div is not None:
         statement = statement.where(Upcoming.division == div)
-    result = session.exec(statement).all()
-    return result
+    results = session.exec(statement).all()
+    return results
 
 @app.post("/addupcoming", status_code=status.HTTP_201_CREATED)
 def add_upcoming(upcoming: AddUpcoming, password: str, response: Response, session: Session = Depends(get_session)):
