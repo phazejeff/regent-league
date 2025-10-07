@@ -128,7 +128,7 @@ export default function TeamPage({ team_id }: TeamPageProps) {
           alt={team.name}
           width={150}
           height={150}
-          className="rounded-xl shadow-md object-contain"
+          className="rounded-xl drop-shadow-md object-contain"
         />
         <div>
           <h1 className="text-4xl font-bold text-white">{team.name}</h1>
