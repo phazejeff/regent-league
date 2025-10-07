@@ -169,6 +169,36 @@ export default function TeamPage({ team_id }: TeamPageProps) {
         </CardContent>
       </Card>
 
+      {/* Sub Players */}
+      {team.sub_players.length > 0 && 
+        <Card className="mb-12 border-none shadow-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Substitute Players</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {team.sub_players.map((p) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                viewport={{ once: true }}
+                className="p-4 rounded-lg border bg-card shadow-sm"
+              >
+                <h3 className="text-lg font-semibold hover:underline">
+                  <Link href={`/player/${p.id}`}>
+                    {p.name}
+                  </Link>
+                </h3>
+                {p.real_name && <p className="text-sm text-muted-foreground">{p.real_name}</p>}
+                <p className="text-sm mt-1">Major: {p.major}</p>
+                <p className="text-sm">Year: {p.year}</p>
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+      }
+      
       {/* Upcoming Matches */}
       {upcomingMatches.length > 0 && (
         <Card className="mb-12 border-none shadow-md">
