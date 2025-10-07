@@ -33,6 +33,7 @@ export default function NavigationBar() {
     { href: "/about", label: "About Us" },
     { href: "/teams", label: "Teams" },
     { href: "/matches", label: "Matches" },
+    { href: "/results", label: "Results" },
     { href: "/standings", label: "Standings" },
     { href: "/playerstats", label: "Player Stats" },
     { href: "/rules", label: "Ruleset" },

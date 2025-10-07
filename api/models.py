@@ -1,12 +1,22 @@
-from typing import  List, Optional
-from sqlmodel import Field, SQLModel, Relationship
+from typing import  Dict, List, Optional
+from pydantic import computed_field
+from sqlmodel import JSON, Column, Field, SQLModel, Relationship
 from datetime import datetime
+from colorthief import ColorThief
 
 class TeamBase(SQLModel):
     name: str
     div: str
     group: str
     logo: str
+    
+    @computed_field
+    @property
+    def mainColor(self) -> str:
+        color_thief = ColorThief(f"photos/{self.logo}")
+        r, g, b = color_thief.get_color()
+        return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+    
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
@@ -15,6 +25,8 @@ class Team(TeamBase, table=True):
     sub_players: List["Player"] = Relationship(back_populates="team_sub", sa_relationship_kwargs={"foreign_keys": "[Player.team_sub_id]"})
     matches_as_team1: List["Match"] = Relationship(back_populates="team1", sa_relationship_kwargs={"foreign_keys": "[Match.team1_id]"})
     matches_as_team2: List["Match"] = Relationship(back_populates="team2", sa_relationship_kwargs={"foreign_keys": "[Match.team2_id]"})
+    upcoming_as_team1: List["Upcoming"] = Relationship(back_populates="team1", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team1_id]"})
+    upcoming_as_team2: List["Upcoming"] = Relationship(back_populates="team2", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team2_id]"})
 
 class PlayerBase(SQLModel):
     name: str
@@ -93,3 +105,18 @@ class GroupsBase(SQLModel):
     name: str
 class Groups(GroupsBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+
+class UpcomingBase(SQLModel):
+    week: int
+    datetime: Optional[datetime]
+    division: str
+    team1_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
+    team2_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
+
+class Upcoming(UpcomingBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    team1_id: int = Field(foreign_key="team.id")
+    team2_id: int = Field(foreign_key="team.id")
+
+    team1: Team = Relationship(back_populates="upcoming_as_team1", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team1_id]"})
+    team2: Team = Relationship(back_populates="upcoming_as_team2", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team2_id]"})

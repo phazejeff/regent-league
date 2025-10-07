@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from .twitch import Twitch
+from colorthief import ColorThief
 
 create_db_and_tables()
 app = FastAPI()
@@ -99,6 +100,14 @@ class PlayerFull(PlayerBase):
     team_sub: Team | None
     map_stats: List[PlayerstatsWithMap]
 
+class AddUpcoming(UpcomingBase):
+    team1_id: int
+    team2_id: int
+
+class GetUpcoming(UpcomingBase):
+    id: int
+    team1: Team
+    team2: Team
 
 def get_session():
     with Session(engine) as session:
@@ -423,3 +432,33 @@ def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], pas
 @app.get("/islive")
 def get_is_live() -> bool:
     return twitch.is_channel_live()
+
+@app.get("/getupcoming")
+def get_upcoming(div: str | None = None, session: Session = Depends(get_session)) -> List[GetUpcoming]:
+    statement = select(Upcoming)
+    if div is not None:
+        statement = statement.where(Upcoming.division == div)
+    statement = statement.order_by(Upcoming.datetime)
+    results = session.exec(statement).all()
+    return results
+
+@app.post("/addupcoming", status_code=status.HTTP_201_CREATED)
+def add_upcoming(upcoming: AddUpcoming, password: str, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    upcoming_db = Upcoming.model_validate(upcoming)
+    session.add(upcoming_db)
+    session.commit()
+    return {"message" : "Created"}
+
+@app.delete("/deleteupcoming", status_code=status.HTTP_200_OK)
+def delete_upcoming(upcoming_id: int, password, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    statement = select(Upcoming).where(Upcoming.id == upcoming_id)
+    upcoming = session.exec(statement).first()
+    session.delete(upcoming)
+    session.commit()
+    return {"message" : "Upcoming removed"}

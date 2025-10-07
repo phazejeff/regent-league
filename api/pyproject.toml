@@ -5,6 +5,7 @@ description = "API for Regent League"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "colorthief>=0.2.1",
     "fastapi[standard]>=0.116.1",
     "requests>=2.32.5",
     "sqlmodel>=0.0.24",
