@@ -66,10 +66,12 @@ class PlayerstatsWithMap(PlayerstatsBase):
 
 class MapWithStats(MapBase):
     player_stats: List[PlayerstatsWithPlayer]
+    winner_id: int
 
 class MatchWithMapsWithStats(MatchBase):
     team1: Team
     team2: Team
+    winner_id: int
     maps: List[MapWithStats]
 
 class PlayerstatsCreate(PlayerstatsBase):
@@ -108,6 +110,15 @@ class GetUpcoming(UpcomingBase):
     id: int
     team1: Team
     team2: Team
+
+class TeamFull(TeamBase):
+    id: int
+    players: List[Player]
+    sub_players: List[Player]
+    matches_as_team1: List[MatchWithMapsWithStats]
+    matches_as_team2: List[MatchWithMapsWithStats]
+    upcoming_as_team1: List[GetUpcoming]
+    upcoming_as_team2: List[GetUpcoming]
 
 def get_session():
     with Session(engine) as session:
@@ -288,6 +299,12 @@ def get_teams(div: str | None = None, session: Session = Depends(get_session)) -
         statement = statement.where(Team.div == div)
     results = session.exec(statement).all()
     return results
+
+@app.get("/team/{team_id}")
+def get_team(team_id: int, session: Session = Depends(get_session)) -> TeamFull:
+    statement = select(Team).where(Team.id == team_id)
+    team = session.exec(statement).first()
+    return team
 
 @app.delete("/deleteteam", status_code=status.HTTP_200_OK)
 def delete_team(team_id: int, password, response: Response, session: Session = Depends(get_session)):
