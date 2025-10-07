@@ -24,6 +24,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import Link from "next/link";
+import Image from "next/image";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -48,7 +49,7 @@ type MapStats = {
   player_stats: PlayerStats[];
 };
 
-type Team = { name: string; div: string; group: string; id: number };
+type Team = { name: string; div: string; group: string; id: number; logo: string; };
 
 type Match = {
   score1: number;
@@ -148,13 +149,38 @@ export default function ResultsPage() {
           <Card key={idx} className="shadow-lg rounded-2xl border">
             <CardHeader>
               <CardTitle className="flex justify-between items-center text-lg">
-                <span className="font-semibold">
-                  <Link className="hover:underline" href={`/team/${match.team1.id}`}>{match.team1.name}</Link>{" "}
-                  <span className="font-bold text-blue-600">{match.score1}</span>{" "}
-                  -{" "}
-                  <span className="font-bold text-red-600">{match.score2}</span>{" "}
-                  <Link className="hover:underline" href={`/team/${match.team2.id}`}>{match.team2.name}</Link>
-                </span>
+                <div className="flex items-center gap-2">
+                  {/* Team 1 */}
+                  <Link href={`/team/${match.team1.id}`} className="flex items-center gap-2 hover:underline">
+                    <Image
+                      src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
+                      alt={match.team1.name}
+                      width={28}
+                      height={28}
+                      className="rounded-full border"
+                    />
+                    <span className="font-semibold">{match.team1.name}</span>
+                  </Link>
+
+                  {/* Score */}
+                  <span className="mx-2 font-bold">
+                    <span className="text-blue-600">{match.score1}</span>
+                    {" - "}
+                    <span className="text-red-600">{match.score2}</span>
+                  </span>
+
+                  {/* Team 2 */}
+                  <Link href={`/team/${match.team2.id}`} className="flex items-center gap-2 hover:underline">
+                    <span className="font-semibold">{match.team2.name}</span>
+                    <Image
+                      src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
+                      alt={match.team2.name}
+                      width={28}
+                      height={28}
+                      className="rounded-full border"
+                    />
+                  </Link>
+                </div>
                 <span className="text-sm text-gray-500">
                   {new Date(match.datetime).toLocaleString()}
                 </span>
