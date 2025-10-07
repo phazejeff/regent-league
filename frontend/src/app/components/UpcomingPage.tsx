@@ -43,15 +43,25 @@ export default function UpcomingMatchesPage() {
         matches.map((match, idx) => {
           const team1Color = match.team1.mainColor || "#9b1c1c"; // fallback red
           const team2Color = match.team2.mainColor || "#065f46"; // fallback green
+          const isLive = new Date() >= new Date(match.datetime);
 
           return (
             <div
               key={idx}
-              className="relative flex flex-col md:flex-row justify-between items-center text-white rounded-2xl shadow-2xl border-4 border-black overflow-hidden"
+              className={`relative flex flex-col md:flex-row justify-between items-center text-white rounded-2xl shadow-2xl overflow-hidden border-4 ${
+                isLive ? "border-red-600 animate-pulse" : "border-black"
+              }`}
               style={{
                 background: `linear-gradient(90deg, ${team1Color}, ${team2Color})`,
               }}
             >
+              {/* LIVE Badge */}
+              {isLive && (
+                <div className="absolute top-2 right-2 bg-red-600 text-white font-bold px-3 py-1 rounded-full shadow-md text-sm">
+                  LIVE
+                </div>
+              )}
+
               {/* Left Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
                 <h2 className="text-xl font-semibold">{match.team1.name}</h2>
