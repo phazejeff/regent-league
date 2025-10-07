@@ -11,11 +11,11 @@ on:
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
     paths:
-      - 'backend/**'
+      - 'api/**'
   pull_request:
     branches: [ "main" ]
     paths:
-      - 'backend/**'
+      - 'api/**'
 
 env:
   # Use docker.io for Docker Hub if empty
