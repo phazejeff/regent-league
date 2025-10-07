@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Loader2, Trophy } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
-type Team = { id: number; name: string; div: string; group: string };
+type Team = { id: number; name: string; div: string; group: string; logo: string };
 
 type Standing = {
   team: Team;
@@ -127,50 +128,58 @@ export default function StandingsPage() {
               key={s.team.id}
               className="p-4 shadow-md hover:shadow-lg transition rounded-xl"
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-center gap-6">
                 {/* Rank / Trophy */}
-                <div className="flex-shrink-0 w-8 text-center">
-                  {index === 0 && <Trophy className="text-yellow-500" size={24} />}
-                  {index === 1 && <Trophy className="text-gray-400" size={24} />}
-                  {index === 2 && <Trophy className="text-amber-700" size={24} />}
+                <div className="flex-shrink-0 w-12 text-center">
+                  {index === 0 && <Trophy className="text-yellow-500" size={32} />}
+                  {index === 1 && <Trophy className="text-gray-400" size={32} />}
+                  {index === 2 && <Trophy className="text-amber-700" size={32} />}
                   {index > 2 && (
-                    <span className="text-lg font-bold text-gray-600 dark:text-gray-300">
+                    <span className="text-xl font-bold text-gray-600 dark:text-gray-300">
                       {index + 1}
                     </span>
                   )}
                 </div>
 
-                {/* Team Info */}
-                <div className="flex-grow">
-                  <h3 className="text-lg font-semibold"><Link className="hover:underline" href={`/team/${s.team.id}`}>{s.team.name}</Link></h3>
-                  <div className="grid grid-cols-3 gap-6 mt-3 text-sm">
-                    <div>
-                      <p className="font-medium">Matches</p>
-                      <p>
-                        {s.match_wins}W - {s.match_losses}L
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        {getWinRate(s.match_wins, s.match_losses)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Maps</p>
-                      <p>
-                        {s.map_wins}W - {s.map_losses}L
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        Diff: {getDiff(s.map_wins, s.map_losses)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Rounds</p>
-                      <p>
-                        {s.round_wins}W - {s.round_losses}L
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        Diff: {getDiff(s.round_wins, s.round_losses)}
-                      </p>
-                    </div>
+                {/* Team Logo + Name */}
+                <div className="flex flex-col items-center w-24">
+                  <h3 className="text-lg font-semibold text-center">
+                    <Link className="hover:underline" href={`/team/${s.team.id}`}>
+                      {s.team.name}
+                    </Link>
+                  </h3>
+                  <div className="w-20 h-20 relative mt-2">
+                    <Image
+                      src={`${process.env.API_ROOT}/photos/${s.team.logo}`}
+                      alt={s.team.name}
+                      fill
+                      className="object-contain rounded-lg"
+                    />
+                  </div>
+                </div>
+
+                {/* Team Stats */}
+                <div className="flex-grow grid grid-cols-3 gap-6 text-sm">
+                  <div>
+                    <p className="font-medium">Matches</p>
+                    <p>{s.match_wins}W - {s.match_losses}L</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {getWinRate(s.match_wins, s.match_losses)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Maps</p>
+                    <p>{s.map_wins}W - {s.map_losses}L</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Diff: {getDiff(s.map_wins, s.map_losses)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Rounds</p>
+                    <p>{s.round_wins}W - {s.round_losses}L</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Diff: {getDiff(s.round_wins, s.round_losses)}
+                    </p>
                   </div>
                 </div>
               </div>
