@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Team {
   id: number;
@@ -127,7 +128,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
                 className="rounded"
               />
             )}
-            <span className="font-semibold">{player.team.name}</span>
+            <span className="font-semibold"><Link href={`/team/${player.team.id}`} className="hover:underline">{player.team.name}</Link></span>
           </div>
 
           {/* Sub Team (optional) */}
@@ -142,7 +143,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
                   className="rounded"
                 />
               )}
-              <span className="font-semibold">{player.team_sub.name} (sub)</span>
+              <span className="font-semibold"><Link href={`/team/${player.team_sub.id}`} className="hover:underline">{player.team_sub.name}</Link> (sub)</span>
             </div>
           )}
         </div>
