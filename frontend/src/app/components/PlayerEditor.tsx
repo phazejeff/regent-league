@@ -126,7 +126,7 @@ export default function PlayerEditor() {
               <div>
                 <p className="font-semibold">{p.name}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {p.year} | {p.major} | Team {p.team_id}
+                  {p.real_name ? p.real_name + " |" : ""} {p.year} | {p.major} | Team {p.team_id}
                 </p>
               </div>
               <div className="flex gap-2">

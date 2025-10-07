@@ -16,6 +16,7 @@ interface Team {
 
 interface Player {
   name: string;
+  real_name?: string;
   year: string;
   major: string;
   main: boolean;
@@ -25,7 +26,7 @@ interface Player {
 export default function AddPlayersPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [players, setPlayers] = useState<Player[]>([{ name: "", year: "", major: "", main: true, team_sub_id: "" }]);
+  const [players, setPlayers] = useState<Player[]>([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "" }]);
   const [password, setPassword] = useState("");
 
   // Load teams
@@ -50,7 +51,7 @@ export default function AddPlayersPage() {
   };
 
   const addPlayerField = () =>
-    setPlayers([...players, { name: "", year: "", major: "", main: true, team_sub_id: "" }]);
+    setPlayers([...players, { name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "" }]);
   const removePlayerField = (index: number) =>
     setPlayers(players.filter((_, i) => i !== index));
 
@@ -72,7 +73,7 @@ export default function AddPlayersPage() {
 
     if (response.ok) {
       alert("Players added successfully!");
-      setPlayers([{ name: "", year: "", major: "", main: true, team_sub_id: "" }]);
+      setPlayers([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "" }]);
       setPassword("");
       setSelectedTeam("");
     } else {
@@ -114,6 +115,11 @@ export default function AddPlayersPage() {
                   onChange={(e) => handlePlayerChange(index, "name", e.target.value)}
                   placeholder="Enter player name"
                   required
+                />
+                <Input
+                  value={player.real_name}
+                  onChange={(e) => handlePlayerChange(index, "real_name", e.target.value)}
+                  placeholder="Enter real name"
                 />
                 <div className="flex space-x-2">
                   <Input
