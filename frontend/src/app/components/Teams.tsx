@@ -99,7 +99,7 @@ export default function TeamsByDivision() {
           className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white p-4 pointer-events-none"
         >
           <h3 className="text-md font-semibold mb-2 hover:underline pointer-events-auto">
-            {!isMobile ? <Link href={`/team/${team.id}`}>{team.name}</Link> : team.name}
+            <Link href={`/team/${team.id}`}>{team.name}</Link>
           </h3>
           {playersByTeam[team.id]?.length ? (
             <ul className="space-y-2 text-base sm:text-lg font-medium text-center pointer-events-auto">
