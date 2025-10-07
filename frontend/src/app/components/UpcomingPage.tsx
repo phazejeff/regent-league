@@ -101,7 +101,10 @@ export default function UpcomingMatchesPage() {
                 <div className="text-5xl font-extrabold my-2">VS</div>
                 <div className="text-sm font-medium">
                   Time:{" "}
-                  {new Date(match.datetime).toLocaleTimeString([], {
+                  {new Date(match.datetime).toLocaleString([], {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
                   })}

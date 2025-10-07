@@ -3,7 +3,7 @@ from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, Fil
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine
 from .models import *
-from sqlmodel import Session, select, func, or_
+from sqlmodel import Session, desc, select, func, or_
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -438,6 +438,7 @@ def get_upcoming(div: str | None = None, session: Session = Depends(get_session)
     statement = select(Upcoming)
     if div is not None:
         statement = statement.where(Upcoming.division == div)
+    statement = statement.order_by(Upcoming.datetime)
     results = session.exec(statement).all()
     return results
 
