@@ -1,11 +1,11 @@
-import MatchesPage from "../components/MatchesPage";
 import NavigationBar from "../components/NavigationBar";
+import UpcomingMatchesPage from "../components/UpcomingPage";
 
-export default function Matches() {
+export default function Upcoming() {
   return (
     <div>
       <NavigationBar />
-      <MatchesPage />
+      <UpcomingMatchesPage />
     </div>
   );
 }

@@ -59,7 +59,7 @@ type Match = {
   maps: MapStats[];
 };
 
-export default function MatchesPage() {
+export default function ResultsPage() {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
