@@ -3,7 +3,7 @@ from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, Fil
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine
 from .models import *
-from sqlmodel import Session, select, func, or_
+from sqlmodel import Session, select, func, or_, and_
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -228,7 +228,7 @@ def get_players(team_id: int | None = None, main_only: bool = False, session: Se
     statement = select(Player)
     if team_id is not None:
         if main_only:
-            statement = statement.where(Player.team_id == team_id)
+            statement = statement.where(and_(Player.team_id == team_id, Player.main == True))
         else:
             statement = statement.where(or_(Player.team_id == team_id, Player.team_sub_id == team_id))
     players = session.exec(statement).all()
