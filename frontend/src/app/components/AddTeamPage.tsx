@@ -5,7 +5,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 interface Division {
   id: number;
@@ -24,6 +30,8 @@ export default function AddTeamPage() {
   const [selectedDiv, setSelectedDiv] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<string>("");
   const [teamName, setTeamName] = useState("");
+  const [address, setAddress] = useState("");
+  const [school, setSchool] = useState("");
   const [password, setPassword] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
@@ -66,7 +74,6 @@ export default function AddTeamPage() {
       }
 
       const fileName = await uploadRes.json();
-      // Assume your /upload returns { filename: "xyz.png" }
       logoFilename = fileName;
     }
 
@@ -76,6 +83,8 @@ export default function AddTeamPage() {
       div: selectedDiv,
       group: selectedGroup,
       logo: logoFilename,
+      address,
+      school,
     };
 
     const response = await fetch(
@@ -92,6 +101,8 @@ export default function AddTeamPage() {
       setTeamName("");
       setSelectedDiv("");
       setSelectedGroup("");
+      setAddress("");
+      setSchool("");
       setPassword("");
       setLogoFile(null);
     } else {
@@ -114,6 +125,30 @@ export default function AddTeamPage() {
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Enter team name"
+              required
+            />
+          </div>
+
+          {/* Address */}
+          <div>
+            <Label htmlFor="address">Address</Label>
+            <Input
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter team address"
+              required
+            />
+          </div>
+
+          {/* School */}
+          <div>
+            <Label htmlFor="school">School</Label>
+            <Input
+              id="school"
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
+              placeholder="Enter school name"
               required
             />
           </div>
@@ -166,6 +201,7 @@ export default function AddTeamPage() {
               onChange={(e) =>
                 setLogoFile(e.target.files ? e.target.files[0] : null)
               }
+              required
             />
           </div>
 

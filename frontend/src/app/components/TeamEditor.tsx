@@ -9,6 +9,8 @@ interface Team {
   div: string;
   group: string;
   logo: string;
+  address: string;
+  school: string;
 }
 
 export default function TeamEditor() {
@@ -75,6 +77,8 @@ export default function TeamEditor() {
             div: editingTeam.div,
             group: editingTeam.group,
             logo: logoFilename,
+            address: editingTeam.address,
+            school: editingTeam.school,
           }),
         }
       );
@@ -91,7 +95,6 @@ export default function TeamEditor() {
       }
 
       await fetchTeams();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       alert("Error saving team");
     } finally {
@@ -126,7 +129,6 @@ export default function TeamEditor() {
       } else {
         alert(`Failed to delete team. Status: ${res.status}`);
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       alert("Error deleting team");
     }
@@ -158,6 +160,12 @@ export default function TeamEditor() {
                   <p className="font-semibold">{team.name}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Division: {team.div} | Group: {team.group}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    School: {team.school}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Address: {team.address}
                   </p>
                 </div>
               </div>
@@ -220,6 +228,34 @@ export default function TeamEditor() {
                   setEditingTeam({ ...editingTeam, group: e.target.value })
                 }
                 className="w-full p-2 border rounded"
+              />
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block font-medium mb-1">Address</label>
+              <input
+                type="text"
+                value={editingTeam.address}
+                onChange={(e) =>
+                  setEditingTeam({ ...editingTeam, address: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+                placeholder="Enter address"
+              />
+            </div>
+
+            {/* School */}
+            <div>
+              <label className="block font-medium mb-1">School</label>
+              <input
+                type="text"
+                value={editingTeam.school}
+                onChange={(e) =>
+                  setEditingTeam({ ...editingTeam, school: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+                placeholder="Enter school name"
               />
             </div>
 

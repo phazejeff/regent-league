@@ -9,6 +9,8 @@ class TeamBase(SQLModel):
     div: str
     group: str
     logo: str
+    address: Optional[str]
+    school: Optional[str]
     
     @computed_field
     @property
