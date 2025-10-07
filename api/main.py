@@ -311,6 +311,8 @@ def edit_team(team: TeamUpdate, team_id: int, password, response: Response, sess
         return {"message" : "Team not found"}
     
     for key, value in team.model_dump().items():
+        if key == "mainColor":
+            continue
         setattr(team_db, key, value)
     session.add(team_db)
     session.commit()
