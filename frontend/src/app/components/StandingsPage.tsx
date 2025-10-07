@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Loader2, Trophy } from "lucide-react";
+import Link from "next/link";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -141,7 +142,7 @@ export default function StandingsPage() {
 
                 {/* Team Info */}
                 <div className="flex-grow">
-                  <h3 className="text-lg font-semibold">{s.team.name}</h3>
+                  <h3 className="text-lg font-semibold"><Link className="hover:underline" href={`/team/${s.team.id}`}>{s.team.name}</Link></h3>
                   <div className="grid grid-cols-3 gap-6 mt-3 text-sm">
                     <div>
                       <p className="font-medium">Matches</p>

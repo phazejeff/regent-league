@@ -64,7 +64,7 @@ export default function UpcomingMatchesPage() {
 
               {/* Left Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
-                <h2 className="text-xl font-semibold">{match.team1.name}</h2>
+                <h2 className="text-xl font-semibold"><Link className="hover:underline" href={`/team/${match.team1.id}`}>{match.team1.name}</Link></h2>
                 <Image
                   src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
                   alt={match.team1.name}
@@ -124,7 +124,7 @@ export default function UpcomingMatchesPage() {
 
               {/* Right Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
-                <h2 className="text-xl font-semibold">{match.team2.name}</h2>
+                <h2 className="text-xl font-semibold"><Link className="hover:underline" href={`/team/${match.team1.id}`}>{match.team2.name}</Link></h2>
                 <Image
                   src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
                   alt={match.team2.name}

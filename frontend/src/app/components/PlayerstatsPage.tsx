@@ -231,7 +231,7 @@ export default function PlayerStatsPage() {
                       {index === 2 && <Medal className="text-amber-700" />}
                       {index > 2 && index + 1}
                     </td>
-                    <td className="p-3 hover:underline"><Link href={`/player/${p.id}`}>{p.name}</Link></td>
+                    <td className="p-3"><Link className="hover:underline" href={`/player/${p.id}`}>{p.name}</Link></td>
                     <td className="p-3">{p.team}</td>
                     <td className="p-3">{p.K}</td>
                     <td className="p-3">{p.D}</td>

@@ -126,58 +126,62 @@ export default function TeamsByDivision() {
                       onMouseLeave={() => setHoveredTeam(null)}
                       className="relative"
                     >
-                      <Card className="flex flex-col items-center justify-between p-4 h-64 relative overflow-hidden hover:shadow-lg transition">
-                        {/* Team name */}
-                        <h2 className="text-lg font-semibold text-center mb-2">
-                          {team.name}
-                        </h2>
+                      <Link href={`/team/${team.id}`}>
+                        <Card className="flex flex-col items-center justify-between p-4 h-64 relative overflow-hidden hover:shadow-lg transition">
+                          {/* Team name */}
+                          <h2 className="text-lg font-semibold text-center mb-2">
+                            {team.name}
+                          </h2>
 
-                        {/* Logo */}
-                        <div className="flex-1 flex items-center justify-center">
-                          {team.logo ? (
-                            <Image
-                              src={`${process.env.API_ROOT}/photos/${team.logo}`}
-                              alt={`${team.name} logo`}
-                              width={96}
-                              height={96}
-                              className="object-contain max-h-24"
-                            />
-                          ) : (
-                            <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-md" />
-                          )}
-                        </div>
-
-                        {/* Group */}
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                          Group: {team.group}
-                        </p>
-
-                        {/* Hover Overlay */}
-                        {hoveredTeam === team.id && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white p-4"
-                          >
-                            <h3 className="text-md font-semibold mb-2">
-                              Players
-                            </h3>
-                            {playersByTeam[team.id] &&
-                            playersByTeam[team.id].length > 0 ? (
-                              <ul className="space-y-2 text-base sm:text-lg font-medium text-center">
-                                {playersByTeam[team.id].map((p) => (
-                                  <li key={p.id}><Link href={`/player/${p.id}`} className="hover:underline">{p.name}</Link></li>
-                                ))}
-                              </ul>
+                          {/* Logo */}
+                          <div className="flex-1 flex items-center justify-center">
+                            {team.logo ? (
+                              <Image
+                                src={`${process.env.API_ROOT}/photos/${team.logo}`}
+                                alt={`${team.name} logo`}
+                                width={96}
+                                height={96}
+                                className="object-contain max-h-24"
+                              />
                             ) : (
-                              <p className="text-sm text-gray-300">
-                                No players found
-                              </p>
+                              <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-md" />
                             )}
-                          </motion.div>
-                        )}
-                      </Card>
+                          </div>
+
+                          {/* Group */}
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            Group: {team.group}
+                          </p>
+
+                          {/* Hover Overlay */}
+                          {hoveredTeam === team.id && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white p-4"
+                            >
+                              <h3 className="text-md font-semibold mb-2 hover:underline">
+                                <Link href={`/team/${team.id}`}>
+                                  {team.name}
+                                </Link>
+                              </h3>
+                              {playersByTeam[team.id] &&
+                              playersByTeam[team.id].length > 0 ? (
+                                <ul className="space-y-2 text-base sm:text-lg font-medium text-center">
+                                  {playersByTeam[team.id].map((p) => (
+                                    <li key={p.id}><Link href={`/player/${p.id}`} className="hover:underline">{p.name}</Link></li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-gray-300">
+                                  No players found
+                                </p>
+                              )}
+                            </motion.div>
+                          )}
+                        </Card>
+                      </Link>
                     </div>
                   ))}
               </div>

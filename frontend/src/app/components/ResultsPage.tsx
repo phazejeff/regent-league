@@ -149,11 +149,11 @@ export default function ResultsPage() {
             <CardHeader>
               <CardTitle className="flex justify-between items-center text-lg">
                 <span className="font-semibold">
-                  {match.team1.name}{" "}
+                  <Link className="hover:underline" href={`/team/${match.team1.id}`}>{match.team1.name}</Link>{" "}
                   <span className="font-bold text-blue-600">{match.score1}</span>{" "}
                   -{" "}
                   <span className="font-bold text-red-600">{match.score2}</span>{" "}
-                  {match.team2.name}
+                  <Link className="hover:underline" href={`/team/${match.team2.id}`}>{match.team2.name}</Link>
                 </span>
                 <span className="text-sm text-gray-500">
                   {new Date(match.datetime).toLocaleString()}
