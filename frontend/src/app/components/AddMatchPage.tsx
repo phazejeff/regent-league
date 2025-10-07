@@ -40,16 +40,30 @@ interface MapData {
   player_stats: PlayerStat[];
 }
 
-export default function AddMatchPage() {
+type AddMatchPageProps = {
+  _team1Id?: string;
+  _team2Id?: string;
+  _datetime?: string;
+  _upcomingId?: number;
+  onSubmit?: () => void;
+}
+
+export default function AddMatchPage({
+  _team1Id,
+  _team2Id,
+  _datetime,
+  _upcomingId,
+  onSubmit
+}: AddMatchPageProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [team1Id, setTeam1Id] = useState<string>("");
-  const [team2Id, setTeam2Id] = useState<string>("");
+  const [team1Id, setTeam1Id] = useState<string>(_team1Id || "");
+  const [team2Id, setTeam2Id] = useState<string>(_team2Id || "");
   const [winnerId, setWinnerId] = useState<string>("");
 
   const [score1, setScore1] = useState<number>(0);
   const [score2, setScore2] = useState<number>(0);
-  const [datetime, setDatetime] = useState<string>("");
+  const [datetime, setDatetime] = useState<string>(_datetime || "");
 
   const [maps, setMaps] = useState<MapData[]>([
     {
@@ -152,6 +166,8 @@ export default function AddMatchPage() {
     });
 
     if (response.ok) {
+      if (_upcomingId !== undefined)
+        await fetch(`${process.env.API_ROOT}/deleteupcoming?upcoming_id=${_upcomingId}&password=${password}`, {method: "DELETE"});
       alert("Match added successfully!");
       setScore1(0);
       setScore2(0);
@@ -171,6 +187,8 @@ export default function AddMatchPage() {
         },
       ]);
       setPassword("");
+      if (onSubmit !== undefined)
+        onSubmit();
     } else {
       alert("Failed to add match.");
     }

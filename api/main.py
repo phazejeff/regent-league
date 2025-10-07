@@ -105,6 +105,7 @@ class AddUpcoming(UpcomingBase):
     team2_id: int
 
 class GetUpcoming(UpcomingBase):
+    id: int
     team1: Team
     team2: Team
 
@@ -449,3 +450,14 @@ def add_upcoming(upcoming: AddUpcoming, password: str, response: Response, sessi
     session.add(upcoming_db)
     session.commit()
     return {"message" : "Created"}
+
+@app.delete("/deleteupcoming", status_code=status.HTTP_200_OK)
+def delete_upcoming(upcoming_id: int, password, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    statement = select(Upcoming).where(Upcoming.id == upcoming_id)
+    upcoming = session.exec(statement).first()
+    session.delete(upcoming)
+    session.commit()
+    return {"message" : "Upcoming removed"}

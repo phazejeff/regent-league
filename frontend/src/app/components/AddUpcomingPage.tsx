@@ -30,7 +30,11 @@ interface Stream {
   url: string;
 }
 
-export default function AddUpcomingMatch() {
+type AddUpcomingMatchProps = {
+  onSubmit?: () => void;
+}
+
+export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const [divisions, setDivisions] = useState<Division[]>([]);
 
@@ -136,6 +140,9 @@ export default function AddUpcomingMatch() {
       setTeam1Streams([{ name: "", url: "" }]);
       setTeam2Streams([{ name: "", url: "" }]);
       setPassword("");
+      if (onSubmit !== undefined)
+        onSubmit();
+      window.location.reload();
     } else {
       alert("Failed to add upcoming match.");
     }
