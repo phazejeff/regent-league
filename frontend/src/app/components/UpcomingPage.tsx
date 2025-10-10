@@ -17,6 +17,7 @@ type UpcomingMatch = {
   week: number;
   datetime: string;
   division: string;
+  casted: boolean;
   team1: Team;
   team2: Team;
   team1_streams?: Record<string, string>;
@@ -110,7 +111,7 @@ export default function UpcomingMatchesPage() {
                   })}
                 </div>
                 <div className="mt-2 text-sm">
-                  Main Stream:{" "}
+                  {match.casted && <>Main Stream:{" "}
                   <Link
                     href="https://twitch.tv/Regent_XD"
                     target="_blank"
@@ -118,7 +119,7 @@ export default function UpcomingMatchesPage() {
                     className="underline hover:text-gray-300"
                   >
                     RegentXD
-                  </Link>
+                  </Link></>}
                 </div>
               </div>
 

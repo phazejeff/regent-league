@@ -32,9 +32,9 @@ interface Stream {
 
 type AddUpcomingMatchProps = {
   onSubmit?: () => void;
-}
+};
 
-export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
+export default function AddUpcomingMatch({ onSubmit }: AddUpcomingMatchProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const [divisions, setDivisions] = useState<Division[]>([]);
 
@@ -44,6 +44,8 @@ export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
 
   const [week, setWeek] = useState<number>(0);
   const [datetime, setDatetime] = useState<string>("");
+
+  const [casted, setCasted] = useState<boolean>(false);
 
   // Separate streams per team
   const [team1Streams, setTeam1Streams] = useState<Stream[]>([
@@ -72,10 +74,9 @@ export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
   }, []);
 
   // Generic helper functions for managing streams
-  const addStream = (
-    team: "team1" | "team2",
-  ) => {
-    if (team === "team1") setTeam1Streams([...team1Streams, { name: "", url: "" }]);
+  const addStream = (team: "team1" | "team2") => {
+    if (team === "team1")
+      setTeam1Streams([...team1Streams, { name: "", url: "" }]);
     else setTeam2Streams([...team2Streams, { name: "", url: "" }]);
   };
 
@@ -87,7 +88,9 @@ export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
   ) => {
     const targetStreams = team === "team1" ? [...team1Streams] : [...team2Streams];
     targetStreams[index][field] = value;
-    team === "team1" ? setTeam1Streams(targetStreams) : setTeam2Streams(targetStreams);
+    team === "team1"
+      ? setTeam1Streams(targetStreams)
+      : setTeam2Streams(targetStreams);
   };
 
   const removeStream = (team: "team1" | "team2", index: number) => {
@@ -119,6 +122,7 @@ export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
       team2_id: Number(team2Id),
       team1_streams: team1StreamsObj,
       team2_streams: team2StreamsObj,
+      casted,
     };
 
     const response = await fetch(
@@ -139,9 +143,9 @@ export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
       setDatetime("");
       setTeam1Streams([{ name: "", url: "" }]);
       setTeam2Streams([{ name: "", url: "" }]);
+      setCasted(false);
       setPassword("");
-      if (onSubmit !== undefined)
-        onSubmit();
+      if (onSubmit) onSubmit();
       window.location.reload();
     } else {
       alert("Failed to add upcoming match.");
@@ -225,6 +229,18 @@ export default function AddUpcomingMatch({onSubmit}: AddUpcomingMatchProps) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Casted checkbox */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="casted"
+              checked={casted}
+              onChange={(e) => setCasted(e.target.checked)}
+              className="w-4 h-4"
+            />
+            <Label htmlFor="casted">Casted</Label>
           </div>
 
           {/* Team 1 Streams */}
