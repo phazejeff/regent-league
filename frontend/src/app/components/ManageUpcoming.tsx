@@ -18,6 +18,7 @@ interface Match {
   week: number;
   datetime: string;
   division: string;
+  casted: boolean;
   team1_streams: StreamMap;
   team2_streams: StreamMap;
   team1: Team;
@@ -27,6 +28,8 @@ interface Match {
 export default function ManageUpcoming() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [editMatch, setEditMatch] = useState<Match | null>(null);
+  const [password, setPassword] = useState("");
 
   const fetchMatches = async () => {
     try {
@@ -37,10 +40,46 @@ export default function ManageUpcoming() {
       console.error("Failed to fetch matches:", err);
     }
   };
-  
+
   useEffect(() => {
     fetchMatches();
   }, []);
+
+  const handleEditSubmit = async () => {
+    if (!editMatch) return;
+
+    // Convert Match → API format
+    const payload = {
+      id: editMatch.id,
+      week: editMatch.week,
+      datetime: editMatch.datetime,
+      division: editMatch.division,
+      casted: editMatch.casted,
+      team1_id: editMatch.team1.id,
+      team2_id: editMatch.team2.id,
+      team1_streams: editMatch.team1_streams,
+      team2_streams: editMatch.team2_streams,
+    };
+
+    try {
+      const res = await fetch(
+        `${process.env.API_ROOT}/editupcoming?password=${encodeURIComponent(password)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) throw new Error(await res.text());
+
+      setEditMatch(null);
+      fetchMatches();
+    } catch (err) {
+      console.error("Failed to edit match:", err);
+      alert("Failed to edit match. Check console for details.");
+    }
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -74,52 +113,161 @@ export default function ManageUpcoming() {
                 <p className="text-gray-600 dark:text-gray-300">
                   Week {match.week} · {match.division}
                 </p>
+                {match.casted && (
+                  <p className="text-blue-500 font-medium">🎥 Casted</p>
+                )}
               </div>
 
-              <button
-                onClick={() => setSelectedMatch(match)}
-                className="mt-3 md:mt-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-              >
-                Finalize Results
-              </button>
+              <div className="flex gap-2 mt-3 md:mt-0">
+                <button
+                  onClick={() => setSelectedMatch(match)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                >
+                  Finalize
+                </button>
+                <button
+                  onClick={() => setEditMatch({ ...match })}
+                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl"
+                >
+                  Edit
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Floating Box Modal */}
+      {/* Finalize Modal */}
       {selectedMatch && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
-          {/* Sticky header so close button always visible */}
-          <div className="sticky top-0 bg-white dark:bg-gray-950 p-2 border-b rounded-t-2xl flex justify-between items-center">
-            <h2 className="text-xl font-semibold">
-            Finalize: {selectedMatch.team1.name} vs {selectedMatch.team2.name}
-            </h2>
-            <button
-            onClick={() => setSelectedMatch(null)}
-            className="text-red-600 hover:text-red-800 text-3xl"
-            >
-            ✕
-            </button>
-          </div>
+            <div className="sticky top-0 bg-white dark:bg-gray-950 p-2 border-b rounded-t-2xl flex justify-between items-center">
+              <h2 className="text-xl font-semibold">
+                Finalize: {selectedMatch.team1.name} vs {selectedMatch.team2.name}
+              </h2>
+              <button
+                onClick={() => setSelectedMatch(null)}
+                className="text-red-600 hover:text-red-800 text-3xl"
+              >
+                ✕
+              </button>
+            </div>
 
-          {/* Content area */}
-          <div className="p-6">
-            <AddMatchPage 
-            _team1Id={selectedMatch.team1.id.toString()} 
-            _team2Id={selectedMatch.team2.id.toString()}
-            _datetime={selectedMatch.datetime}
-            _upcomingId={selectedMatch.id}
-            onSubmit={() => {
-              setSelectedMatch(null);
-              fetchMatches();
-            }}
-            />
-          </div>
+            <div className="p-6">
+              <AddMatchPage
+                _team1Id={selectedMatch.team1.id.toString()}
+                _team2Id={selectedMatch.team2.id.toString()}
+                _datetime={selectedMatch.datetime}
+                _upcomingId={selectedMatch.id}
+                onSubmit={() => {
+                  setSelectedMatch(null);
+                  fetchMatches();
+                }}
+              />
+            </div>
           </div>
         </div>
-        )}
+      )}
+
+      {/* Edit Modal */}
+      {editMatch && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg max-w-lg w-full p-6 relative">
+            <div className="sticky top-0 bg-white dark:bg-gray-950 p-2 border-b rounded-t-2xl flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">
+                Edit Match: {editMatch.team1.name} vs {editMatch.team2.name}
+              </h2>
+              <button
+                onClick={() => setEditMatch(null)}
+                className="text-red-600 hover:text-red-800 text-3xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-gray-700 dark:text-gray-300">Week</span>
+                <input
+                  type="number"
+                  value={editMatch.week}
+                  onChange={(e) =>
+                    setEditMatch({ ...editMatch, week: parseInt(e.target.value) })
+                  }
+                  className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700 dark:text-gray-300">Division</span>
+                <input
+                  type="text"
+                  value={editMatch.division}
+                  onChange={(e) =>
+                    setEditMatch({ ...editMatch, division: e.target.value })
+                  }
+                  className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700 dark:text-gray-300">Date & Time</span>
+                <input
+                  type="datetime-local"
+                  value={new Date(editMatch.datetime).toISOString().slice(0, 16)}
+                  onChange={(e) =>
+                    setEditMatch({
+                      ...editMatch,
+                      datetime: new Date(e.target.value).toISOString(),
+                    })
+                  }
+                  className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
+                />
+              </label>
+
+              {/* ✅ Casted Checkbox */}
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editMatch.casted}
+                  onChange={(e) =>
+                    setEditMatch({ ...editMatch, casted: e.target.checked })
+                  }
+                  className="w-5 h-5 accent-blue-600"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Casted (Has Stream)
+                </span>
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700 dark:text-gray-300">Password</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
+                />
+              </label>
+
+              <div className="flex justify-end gap-3 pt-3">
+                <button
+                  onClick={() => setEditMatch(null)}
+                  className="px-4 py-2 rounded-xl bg-gray-400 hover:bg-gray-500 text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditSubmit}
+                  className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

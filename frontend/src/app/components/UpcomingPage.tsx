@@ -111,7 +111,7 @@ export default function UpcomingMatchesPage() {
                   })}
                 </div>
                 <div className="mt-2 text-sm">
-                  {match.casted && <>Main Stream:{" "}
+                  {match.casted && <>🎥 Main Stream:{" "}
                   <Link
                     href="https://twitch.tv/Regent_XD"
                     target="_blank"

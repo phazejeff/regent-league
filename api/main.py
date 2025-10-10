@@ -119,6 +119,11 @@ class GetUpcoming(UpcomingBase):
     team1: Team
     team2: Team
 
+class EditUpcoming(UpcomingBase):
+    id: int
+    team1_id: int
+    team2_id: int
+
 class TeamFull(TeamBase):
     id: int
     players: List[Player]
@@ -271,17 +276,6 @@ def get_player(player_id: int, session: Session = Depends(get_session)) -> Playe
 
 @app.delete("/deleteplayer", status_code=status.HTTP_200_OK)
 def delete_player(player_id: int, password, response: Response, session: Session = Depends(get_session)):
-    if password != PASSWORD:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {"message" : "Incorrect password"}
-    statement = select(Player).where(Player.id == player_id)
-    player = session.exec(statement).first()
-    session.delete(player)
-    session.commit()
-    return {"message" : "Player removed"}
-
-@app.delete("/deleteplayer", status_code=status.HTTP_200_OK)
-def delete_player(password, response: Response, player_id: int, session: Session = Depends(get_session)):
     if password != PASSWORD:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
@@ -491,3 +485,18 @@ def delete_upcoming(upcoming_id: int, password, response: Response, session: Ses
     session.delete(upcoming)
     session.commit()
     return {"message" : "Upcoming removed"}
+
+@app.post("/editupcoming", status_code=status.HTTP_201_CREATED)
+def edit_upcoming(upcoming: EditUpcoming, password, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message" : "Incorrect password"}
+    upcoming_db = session.get(Upcoming, upcoming.id)
+    for key, value in upcoming.model_dump(exclude_unset=True).items():
+        if key == "id":
+            continue
+        setattr(upcoming_db, key, value)
+    session.add(upcoming_db)
+    session.commit()
+    session.refresh(upcoming_db)
+    return {"message" : "Created"}
