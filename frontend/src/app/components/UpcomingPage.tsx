@@ -71,7 +71,7 @@ export default function UpcomingMatchesPage() {
                   alt={match.team1.name}
                   width={150}
                   height={150}
-                  className="rounded-full border-4 border-black bg-white p-2"
+                  className="rounded-full"
                 />
                 {match.team1_streams && Object.keys(match.team1_streams).length > 0 && (
                   <div className="mt-2 text-sm">
@@ -131,7 +131,7 @@ export default function UpcomingMatchesPage() {
                   alt={match.team2.name}
                   width={150}
                   height={150}
-                  className="rounded-full border-4 border-black bg-white p-2"
+                  className="rounded-full"
                 />
                 {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
                   <div className="mt-2 text-sm">
