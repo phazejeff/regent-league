@@ -11,13 +11,8 @@ class TeamBase(SQLModel):
     logo: str
     address: Optional[str]
     school: Optional[str]
+    mainColor: Optional[str]
     
-    @computed_field
-    @property
-    def mainColor(self) -> str:
-        color_thief = ColorThief(f"photos/{self.logo}")
-        r, g, b = color_thief.get_color(quality=10)
-        return f"#{r:02X}{g:02X}{b:02X}"
     
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

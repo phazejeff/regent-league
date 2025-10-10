@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, File, UploadFile
 from fastapi.staticfiles import StaticFiles
-from .database import create_db_and_tables, engine
+from .database import create_db_and_tables, engine, getMainColor
 from .models import *
 from sqlmodel import Session, select, func, or_, and_
 from pydantic import BaseModel
@@ -30,6 +30,14 @@ app.add_middleware(
 )
 
 app.mount("/photos", StaticFiles(directory="photos"), name="photos")
+
+with Session(engine) as session:
+    statement = select(Team)
+    teams = session.exec(statement).all()
+    for team in teams:
+        team.mainColor = getMainColor(team.logo)
+    session.add_all(teams)
+    session.commit()
 
 class TeamStats(BaseModel):
     team: Team | None = None
@@ -202,6 +210,7 @@ def add_team(team: TeamBase, password, response: Response, session: Session = De
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
     team_db = Team.model_validate(team)
+    team_db.mainColor = getMainColor(team_db.logo)
     session.add(team_db)
     session.commit()
     return {"message" : "Created"}
@@ -331,6 +340,7 @@ def edit_team(team: TeamUpdate, team_id: int, password, response: Response, sess
         if key == "mainColor":
             continue
         setattr(team_db, key, value)
+    team_db.mainColor = getMainColor(team_db.logo)
     session.add(team_db)
     session.commit()
     session.refresh(team_db)
