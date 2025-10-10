@@ -17,7 +17,7 @@ class TeamBase(SQLModel):
     def mainColor(self) -> str:
         color_thief = ColorThief(f"photos/{self.logo}")
         r, g, b = color_thief.get_color()
-        return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+        return f"#{r:02X}{g:02X}{b:02X}"
     
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
