@@ -48,7 +48,6 @@ export default function ManageUpcoming() {
   const handleEditSubmit = async () => {
     if (!editMatch) return;
 
-    // Convert Match → API format
     const payload = {
       id: editMatch.id,
       week: editMatch.week,
@@ -78,6 +77,33 @@ export default function ManageUpcoming() {
     } catch (err) {
       console.error("Failed to edit match:", err);
       alert("Failed to edit match. Check console for details.");
+    }
+  };
+
+  const handleDelete = async (match: Match) => {
+    const confirmed = confirm(
+      `Are you sure you want to delete the match:\n${match.team1.name} vs ${match.team2.name}?`
+    );
+    if (!confirmed) return;
+
+    const pw = prompt("Enter admin password to confirm deletion:");
+    if (!pw) return;
+
+    try {
+      const res = await fetch(
+        `${process.env.API_ROOT}/deleteupcoming?password=${encodeURIComponent(
+          pw
+        )}&upcoming_id=${match.id}`,
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) throw new Error(await res.text());
+
+      alert("Match deleted successfully.");
+      fetchMatches();
+    } catch (err) {
+      console.error("Failed to delete match:", err);
+      alert("Failed to delete match. Check console for details.");
     }
   };
 
@@ -130,6 +156,12 @@ export default function ManageUpcoming() {
                   className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl"
                 >
                   Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(match)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -270,4 +302,4 @@ export default function ManageUpcoming() {
       )}
     </div>
   );
-};
+}
