@@ -107,6 +107,7 @@ class UpcomingBase(SQLModel):
     week: int
     datetime: Optional[datetime]
     division: str
+    casted: bool = Field(default=False)
     team1_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
     team2_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
 
