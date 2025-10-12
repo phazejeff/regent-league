@@ -77,6 +77,7 @@ export default function AddTeamPage() {
       logoFilename = fileName;
     }
 
+    const mainColor = "";
     // Step 2: submit team info
     const team = {
       name: teamName,
@@ -85,6 +86,7 @@ export default function AddTeamPage() {
       logo: logoFilename,
       address,
       school,
+      mainColor
     };
 
     const response = await fetch(

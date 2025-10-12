@@ -79,6 +79,7 @@ export default function TeamEditor() {
             logo: logoFilename,
             address: editingTeam.address,
             school: editingTeam.school,
+            mainColor: ""
           }),
         }
       );
