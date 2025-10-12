@@ -130,7 +130,6 @@ export default function UpcomingMatchesPage() {
                   alt={match.team2.name}
                   width={150}
                   height={150}
-                  className="rounded-full"
                 />
                 {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
                   <div className="mt-2 text-sm">
