@@ -11,6 +11,7 @@ type Team = {
   logo: string;
   id: number;
   mainColor?: string;
+  secondColor?: string;
 };
 
 type UpcomingMatch = {
@@ -42,8 +43,10 @@ export default function UpcomingMatchesPage() {
 
       {matches.length > 0 ? (
         matches.map((match, idx) => {
-          const team1Color = match.team1.mainColor || "#9b1c1c"; // fallback red
-          const team2Color = match.team2.mainColor || "#065f46"; // fallback green
+          const team1Color = match.team1.mainColor || "#9b1c1c";
+          const team2Color = match.team2.mainColor || "#065f46";
+          const team1Secondary = match.team1.secondColor || "#000000";
+          const team2Secondary = match.team2.secondColor || "#000000";
           const isLive = new Date() >= new Date(match.datetime);
 
           return (
@@ -65,13 +68,29 @@ export default function UpcomingMatchesPage() {
 
               {/* Left Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
-                <h2 className="text-xl font-semibold"><Link className="hover:underline" href={`/team/${match.team1.id}`}>{match.team1.name}</Link></h2>
-                <Image
-                  src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
-                  alt={match.team1.name}
-                  width={150}
-                  height={150}
-                />
+                <h2 className="text-xl font-semibold">
+                  <Link className="hover:underline" href={`/team/${match.team1.id}`}>
+                    {match.team1.name}
+                  </Link>
+                </h2>
+
+                {/* Circular logo container */}
+                <div
+                  className="w-[150px] h-[150px] rounded-full border-4 flex items-center justify-center overflow-hidden"
+                  style={{
+                    backgroundColor: team1Secondary,
+                    borderColor: "black",
+                  }}
+                >
+                  <Image
+                    src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
+                    alt={match.team1.name}
+                    width={130}
+                    height={130}
+                    className="object-contain"
+                  />
+                </div>
+
                 {match.team1_streams && Object.keys(match.team1_streams).length > 0 && (
                   <div className="mt-2 text-sm">
                     Streams: <br />
@@ -110,27 +129,47 @@ export default function UpcomingMatchesPage() {
                   })}
                 </div>
                 <div className="mt-2 text-sm">
-                  {match.casted && <>🎥 Main Stream:{" "}
-                  <Link
-                    href="https://twitch.tv/Regent_XD"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:text-gray-300"
-                  >
-                    RegentXD
-                  </Link></>}
+                  {match.casted && (
+                    <>
+                      🎥 Main Stream:{" "}
+                      <Link
+                        href="https://twitch.tv/Regent_XD"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-gray-300"
+                      >
+                        RegentXD
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Right Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
-                <h2 className="text-xl font-semibold"><Link className="hover:underline" href={`/team/${match.team1.id}`}>{match.team2.name}</Link></h2>
-                <Image
-                  src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
-                  alt={match.team2.name}
-                  width={150}
-                  height={150}
-                />
+                <h2 className="text-xl font-semibold">
+                  <Link className="hover:underline" href={`/team/${match.team2.id}`}>
+                    {match.team2.name}
+                  </Link>
+                </h2>
+
+                {/* Circular logo container */}
+                <div
+                  className="w-[150px] h-[150px] rounded-full border-4 flex items-center justify-center overflow-hidden"
+                  style={{
+                    backgroundColor: team2Secondary,
+                    borderColor: "black",
+                  }}
+                >
+                  <Image
+                    src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
+                    alt={match.team2.name}
+                    width={130}
+                    height={130}
+                    className="object-contain"
+                  />
+                </div>
+
                 {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
                   <div className="mt-2 text-sm">
                     Streams: <br />
