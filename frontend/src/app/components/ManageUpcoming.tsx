@@ -218,6 +218,7 @@ export default function ManageUpcoming() {
             </div>
 
             <div className="space-y-3">
+              {/* Week */}
               <label className="block">
                 <span className="text-gray-700 dark:text-gray-300">Week</span>
                 <input
@@ -230,6 +231,7 @@ export default function ManageUpcoming() {
                 />
               </label>
 
+              {/* Division */}
               <label className="block">
                 <span className="text-gray-700 dark:text-gray-300">Division</span>
                 <input
@@ -242,6 +244,7 @@ export default function ManageUpcoming() {
                 />
               </label>
 
+              {/* Date/Time */}
               <label className="block">
                 <span className="text-gray-700 dark:text-gray-300">Date & Time</span>
                 <input
@@ -254,7 +257,7 @@ export default function ManageUpcoming() {
                   onChange={(e) =>
                     setEditMatch({
                       ...editMatch,
-                      datetime: e.target.value, // store literally what the user enters
+                      datetime: e.target.value,
                     })
                   }
                   className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
@@ -276,7 +279,148 @@ export default function ManageUpcoming() {
                 </span>
               </label>
 
-              <label className="block">
+              {/* Stream Editing Section */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-lg font-semibold mb-2">
+                  {editMatch.team1.name} Streams
+                </h3>
+                {Object.entries(editMatch.team1_streams || {}).map(
+                  ([key, value], idx) => (
+                    <div key={idx} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Stream Name"
+                        value={key}
+                        onChange={(e) => {
+                          const newStreams = { ...editMatch.team1_streams };
+                          const val = newStreams[key];
+                          delete newStreams[key];
+                          newStreams[e.target.value] = val;
+                          setEditMatch({
+                            ...editMatch,
+                            team1_streams: newStreams,
+                          });
+                        }}
+                        className="flex-1 p-2 border rounded-lg dark:bg-gray-900"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Stream URL"
+                        value={value}
+                        onChange={(e) => {
+                          setEditMatch({
+                            ...editMatch,
+                            team1_streams: {
+                              ...editMatch.team1_streams,
+                              [key]: e.target.value,
+                            },
+                          });
+                        }}
+                        className="flex-[2] p-2 border rounded-lg dark:bg-gray-900"
+                      />
+                      <button
+                        onClick={() => {
+                          const newStreams = { ...editMatch.team1_streams };
+                          delete newStreams[key];
+                          setEditMatch({
+                            ...editMatch,
+                            team1_streams: newStreams,
+                          });
+                        }}
+                        className="px-3 py-1 bg-red-500 text-white rounded-lg"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )
+                )}
+                <button
+                  onClick={() => {
+                    const newStreams = { ...editMatch.team1_streams };
+                    newStreams[`NewStream${Object.keys(newStreams).length + 1}`] = "";
+                    setEditMatch({
+                      ...editMatch,
+                      team1_streams: newStreams,
+                    });
+                  }}
+                  className="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
+                  + Add Stream
+                </button>
+              </div>
+
+              {/* Team 2 Streams */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-lg font-semibold mb-2">
+                  {editMatch.team2.name} Streams
+                </h3>
+                {Object.entries(editMatch.team2_streams || {}).map(
+                  ([key, value], idx) => (
+                    <div key={idx} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Stream Name"
+                        value={key}
+                        onChange={(e) => {
+                          const newStreams = { ...editMatch.team2_streams };
+                          const val = newStreams[key];
+                          delete newStreams[key];
+                          newStreams[e.target.value] = val;
+                          setEditMatch({
+                            ...editMatch,
+                            team2_streams: newStreams,
+                          });
+                        }}
+                        className="flex-1 p-2 border rounded-lg dark:bg-gray-900"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Stream URL"
+                        value={value}
+                        onChange={(e) => {
+                          setEditMatch({
+                            ...editMatch,
+                            team2_streams: {
+                              ...editMatch.team2_streams,
+                              [key]: e.target.value,
+                            },
+                          });
+                        }}
+                        className="flex-[2] p-2 border rounded-lg dark:bg-gray-900"
+                      />
+                      <button
+                        onClick={() => {
+                          const newStreams = { ...editMatch.team2_streams };
+                          delete newStreams[key];
+                          setEditMatch({
+                            ...editMatch,
+                            team2_streams: newStreams,
+                          });
+                        }}
+                        className="px-3 py-1 bg-red-500 text-white rounded-lg"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )
+                )}
+                <button
+                  onClick={() => {
+                    const newStreams = { ...editMatch.team2_streams };
+                    newStreams[`NewStream${Object.keys(newStreams).length + 1}`] = "";
+                    setEditMatch({
+                      ...editMatch,
+                      team2_streams: newStreams,
+                    });
+                  }}
+                  className="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
+                  + Add Stream
+                </button>
+              </div>
+
+              {/* Password */}
+              <label className="block mt-4">
                 <span className="text-gray-700 dark:text-gray-300">Password</span>
                 <input
                   type="password"
@@ -286,6 +430,7 @@ export default function ManageUpcoming() {
                 />
               </label>
 
+              {/* Actions */}
               <div className="flex justify-end gap-3 pt-3">
                 <button
                   onClick={() => setEditMatch(null)}
@@ -303,7 +448,8 @@ export default function ManageUpcoming() {
             </div>
           </div>
         </div>
-      )}
+)}
+
     </div>
   );
 }
