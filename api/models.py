@@ -12,7 +12,7 @@ class TeamBase(SQLModel):
     address: Optional[str]
     school: Optional[str]
     mainColor: Optional[str]
-    
+    secondColor: Optional[str]
     
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

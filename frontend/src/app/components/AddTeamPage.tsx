@@ -34,6 +34,8 @@ export default function AddTeamPage() {
   const [school, setSchool] = useState("");
   const [password, setPassword] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [mainColor, setMainColor] = useState("#000000");
+  const [secondColor, setSecondColor] = useState("#ffffff");
 
   // Load divisions
   useEffect(() => {
@@ -77,7 +79,6 @@ export default function AddTeamPage() {
       logoFilename = fileName;
     }
 
-    const mainColor = "";
     // Step 2: submit team info
     const team = {
       name: teamName,
@@ -86,7 +87,8 @@ export default function AddTeamPage() {
       logo: logoFilename,
       address,
       school,
-      mainColor
+      mainColor,
+      secondColor,
     };
 
     const response = await fetch(
@@ -107,6 +109,8 @@ export default function AddTeamPage() {
       setSchool("");
       setPassword("");
       setLogoFile(null);
+      setMainColor("#000000");
+      setSecondColor("#ffffff");
     } else {
       alert("Failed to add team.");
     }
@@ -205,6 +209,46 @@ export default function AddTeamPage() {
               }
               required
             />
+          </div>
+
+          {/* Main Color */}
+          <div>
+            <Label>Main Color</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                type="color"
+                value={mainColor}
+                onChange={(e) => setMainColor(e.target.value)}
+                className="w-12 h-10 p-1 border rounded"
+              />
+              <Input
+                type="text"
+                value={mainColor}
+                onChange={(e) => setMainColor(e.target.value)}
+                placeholder="#000000"
+                className="flex-1"
+              />
+            </div>
+          </div>
+
+          {/* Secondary Color */}
+          <div>
+            <Label>Secondary Color</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                type="color"
+                value={secondColor}
+                onChange={(e) => setSecondColor(e.target.value)}
+                className="w-12 h-10 p-1 border rounded"
+              />
+              <Input
+                type="text"
+                value={secondColor}
+                onChange={(e) => setSecondColor(e.target.value)}
+                placeholder="#ffffff"
+                className="flex-1"
+              />
+            </div>
           </div>
 
           {/* Password */}

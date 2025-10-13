@@ -11,6 +11,8 @@ interface Team {
   logo: string;
   address: string;
   school: string;
+  mainColor: string;
+  secondColor: string;
 }
 
 export default function TeamEditor() {
@@ -61,10 +63,10 @@ export default function TeamEditor() {
           return;
         }
 
-        logoFilename = await uploadResponse.json(); // API should return filename
+        logoFilename = await uploadResponse.json(); // API returns filename
       }
 
-      // Then update the team with the uploaded filename
+      // Update team info
       const response = await fetch(
         `${process.env.API_ROOT}/editteam?password=${encodeURIComponent(
           password
@@ -79,7 +81,8 @@ export default function TeamEditor() {
             logo: logoFilename,
             address: editingTeam.address,
             school: editingTeam.school,
-            mainColor: ""
+            mainColor: editingTeam.mainColor,
+            secondColor: editingTeam.secondColor,
           }),
         }
       );
@@ -168,6 +171,10 @@ export default function TeamEditor() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Address: {team.address}
                   </p>
+                  <div className="flex gap-2 mt-1">
+                    <div className="w-5 h-5 rounded" style={{ backgroundColor: team.mainColor }} />
+                    <div className="w-5 h-5 rounded" style={{ backgroundColor: team.secondColor }} />
+                  </div>
                 </div>
               </div>
 
@@ -196,6 +203,7 @@ export default function TeamEditor() {
           <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-4">
             <h2 className="text-xl font-bold mb-2">Edit Team</h2>
 
+            {/* Name */}
             <div>
               <label className="block font-medium mb-1">Team Name</label>
               <input
@@ -208,6 +216,7 @@ export default function TeamEditor() {
               />
             </div>
 
+            {/* Division */}
             <div>
               <label className="block font-medium mb-1">Division</label>
               <input
@@ -220,6 +229,7 @@ export default function TeamEditor() {
               />
             </div>
 
+            {/* Group */}
             <div>
               <label className="block font-medium mb-1">Group</label>
               <input
@@ -242,7 +252,6 @@ export default function TeamEditor() {
                   setEditingTeam({ ...editingTeam, address: e.target.value })
                 }
                 className="w-full p-2 border rounded"
-                placeholder="Enter address"
               />
             </div>
 
@@ -256,10 +265,64 @@ export default function TeamEditor() {
                   setEditingTeam({ ...editingTeam, school: e.target.value })
                 }
                 className="w-full p-2 border rounded"
-                placeholder="Enter school name"
               />
             </div>
 
+            {/* Main Color */}
+            <div>
+              <label className="block font-medium mb-1">Main Color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={editingTeam.mainColor || "#000000"}
+                  onChange={(e) =>
+                    setEditingTeam({ ...editingTeam, mainColor: e.target.value })
+                  }
+                  className="w-12 h-10 border rounded"
+                />
+                <input
+                  type="text"
+                  value={editingTeam.mainColor}
+                  onChange={(e) =>
+                    setEditingTeam({ ...editingTeam, mainColor: e.target.value })
+                  }
+                  className="flex-1 p-2 border rounded"
+                  placeholder="#000000"
+                />
+              </div>
+            </div>
+
+            {/* Secondary Color */}
+            <div>
+              <label className="block font-medium mb-1">Secondary Color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={editingTeam.secondColor || "#ffffff"}
+                  onChange={(e) =>
+                    setEditingTeam({
+                      ...editingTeam,
+                      secondColor: e.target.value,
+                    })
+                  }
+                  className="w-12 h-10 border rounded"
+                />
+                <input
+                  type="text"
+                  value={editingTeam.secondColor}
+                  onChange={(e) =>
+                    setEditingTeam({
+                      ...editingTeam,
+                      secondColor: e.target.value,
+                    })
+                  }
+                  className="flex-1 p-2 border rounded"
+                  placeholder="#ffffff"
+                />
+              </div>
+            </div>
+
+            {/* Logo */}
             <div>
               <label className="block font-medium mb-1">Logo</label>
               {editingTeam.logo && (
@@ -284,7 +347,7 @@ export default function TeamEditor() {
               />
             </div>
 
-            {/* Password field */}
+            {/* Password */}
             <div>
               <label className="block font-medium mb-1">Admin Password</label>
               <input
@@ -296,6 +359,7 @@ export default function TeamEditor() {
               />
             </div>
 
+            {/* Buttons */}
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={handleCancel}

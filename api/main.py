@@ -215,7 +215,6 @@ def add_team(team: TeamBase, password, response: Response, session: Session = De
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message" : "Incorrect password"}
     team_db = Team.model_validate(team)
-    team_db.mainColor = getMainColor(team_db.logo)
     session.add(team_db)
     session.commit()
     return {"message" : "Created"}
@@ -331,10 +330,7 @@ def edit_team(team: TeamUpdate, team_id: int, password, response: Response, sess
         return {"message" : "Team not found"}
     
     for key, value in team.model_dump().items():
-        if key == "mainColor":
-            continue
         setattr(team_db, key, value)
-    team_db.mainColor = getMainColor(team_db.logo)
     session.add(team_db)
     session.commit()
     session.refresh(team_db)
