@@ -25,15 +25,57 @@ type UpcomingMatch = {
   team2_streams?: Record<string, string>;
 };
 
+type Division = {
+  id: number;
+  name: string;
+};
+
 export default function UpcomingMatchesPage() {
   const [matches, setMatches] = useState<UpcomingMatch[]>([]);
+  const [divisions, setDivisions] = useState<Division[]>([]);
+  const [selectedDivId, setSelectedDivId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMatches = async (divName?: string) => {
+    try {
+      const url = divName
+        ? `${process.env.API_ROOT}/getupcoming?div=${encodeURIComponent(divName)}`
+        : `${process.env.API_ROOT}/getupcoming`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setMatches(data);
+    } catch (err) {
+      console.error("Failed to fetch upcoming matches:", err);
+    }
+  };
 
   useEffect(() => {
-    fetch(`${process.env.API_ROOT}/getupcoming`)
-      .then((res) => res.json())
-      .then(setMatches)
-      .catch((err) => console.error("Failed to fetch upcoming matches:", err));
+    const fetchDivisions = async () => {
+      try {
+        const res = await fetch(`${process.env.API_ROOT}/divisions`);
+        const data: Division[] = await res.json();
+        setDivisions(data);
+        if (data.length > 0) {
+          setSelectedDivId(data[0].id);
+          fetchMatches(data[0].name);
+        } else {
+          fetchMatches();
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDivisions();
   }, []);
+
+  const selectedDivision = divisions.find((d) => d.id === selectedDivId);
+
+  const handleDivisionClick = (div: Division) => {
+    setSelectedDivId(div.id);
+    fetchMatches(div.name);
+  };
+
+  if (loading) return <div className="p-4 text-center text-white">Loading...</div>;
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-6 space-y-8">
@@ -41,6 +83,25 @@ export default function UpcomingMatchesPage() {
         Upcoming Matches
       </h1>
 
+      {/* Division Buttons */}
+      <div className="flex flex-wrap gap-4 mb-6 justify-center">
+        {divisions.map((div) => (
+          <button
+            key={div.id}
+            onClick={() => handleDivisionClick(div)}
+            className={`px-6 py-3 rounded-lg text-lg font-semibold transition
+              ${
+                selectedDivId === div.id
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-blue-500 hover:text-white"
+              }`}
+          >
+            {div.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Matches List */}
       {matches.length > 0 ? (
         matches.map((match, idx) => {
           const team1Color = match.team1.mainColor || "#9b1c1c";
@@ -194,7 +255,7 @@ export default function UpcomingMatchesPage() {
         })
       ) : (
         <p className="text-center text-gray-400 text-lg">
-          No upcoming matches scheduled.
+          No upcoming matches scheduled{selectedDivision ? ` for ${selectedDivision.name}` : ""}.
         </p>
       )}
     </div>
