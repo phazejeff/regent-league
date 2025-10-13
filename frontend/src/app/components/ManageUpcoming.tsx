@@ -246,18 +246,22 @@ export default function ManageUpcoming() {
                 <span className="text-gray-700 dark:text-gray-300">Date & Time</span>
                 <input
                   type="datetime-local"
-                  value={new Date(editMatch.datetime).toISOString().slice(0, 16)}
+                  value={
+                    editMatch.datetime.length > 16
+                      ? editMatch.datetime.slice(0, 16)
+                      : editMatch.datetime
+                  }
                   onChange={(e) =>
                     setEditMatch({
                       ...editMatch,
-                      datetime: new Date(e.target.value).toISOString(),
+                      datetime: e.target.value, // store literally what the user enters
                     })
                   }
                   className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
                 />
               </label>
 
-              {/* ✅ Casted Checkbox */}
+              {/* Casted Checkbox */}
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"

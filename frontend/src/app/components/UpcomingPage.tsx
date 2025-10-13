@@ -188,7 +188,7 @@ export default function UpcomingMatchesPage() {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
-                </div>
+                </div> PST
                 <div className="mt-2 text-sm">
                   {match.casted && (
                     <>
