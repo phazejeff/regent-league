@@ -74,18 +74,19 @@ export default function TeamsByDivision() {
 
         {/* Logo */}
         <div className="flex-1 flex items-center justify-center">
-          {team.logo ? (
-            <Image
-              src={`${process.env.API_ROOT}/photos/${team.logo}`}
-              alt={`${team.name} logo`}
-              width={96}
-              height={96}
-              className="object-contain max-h-24"
-              priority
-            />
-          ) : (
-            <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-md" />
-          )}
+          <div className="relative w-[96px] h-[96px] flex items-center justify-center">
+            {team.logo ? (
+              <Image
+                src={`${process.env.API_ROOT}/photos/${team.logo}`}
+                alt={`${team.name} logo`}
+                fill
+                className="object-contain"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-md" />
+            )}
+          </div>
         </div>
 
         {/* Group */}
