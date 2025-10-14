@@ -152,14 +152,16 @@ export default function UpcomingMatchesPage() {
                     borderColor: "black",
                   }}
                 >
-                  <Image
-                    src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
-                    alt={match.team1.name}
-                    fill
-                    className="object-contain p-4"
-                    sizes="150px"
-                    priority
-                  />
+                  <Link href={`/team/${match.team1.id}`}>
+                    <Image
+                      src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
+                      alt={match.team1.name}
+                      fill
+                      className="object-contain p-4"
+                      sizes="150px"
+                      priority
+                    />
+                  </Link>
                 </div>
                 {match.team1_streams && Object.keys(match.team1_streams).length > 0 && (
                   <div className="mt-2 text-sm">
@@ -231,14 +233,16 @@ export default function UpcomingMatchesPage() {
                     borderColor: "black",
                   }}
                 >
-                  <Image
-                    src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
-                    alt={match.team2.name}
-                    fill
-                    className="object-contain p-4"
-                    sizes="150px"
-                    priority
-                  />
+                  <Link href={`/team/${match.team2.id}`}>
+                    <Image
+                      src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
+                      alt={match.team2.name}
+                      fill
+                      className="object-contain p-4"
+                      sizes="150px"
+                      priority
+                    />
+                  </Link>
                 </div>
                 {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
                   <div className="mt-2 text-sm">
