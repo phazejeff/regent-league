@@ -75,6 +75,15 @@ export default function UpcomingMatchesPage() {
     fetchMatches(div.name);
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (loading) return <div className="p-4 text-center text-white">Loading...</div>;
 
   return (
@@ -117,7 +126,7 @@ export default function UpcomingMatchesPage() {
                 isLive ? "border-red-600 animate-pulse" : "border-black"
               }`}
               style={{
-                background: `linear-gradient(90deg, ${team1Color}, ${team2Color})`,
+                background: `linear-gradient(${isMobile ? "180deg" : "90deg"}, ${team1Color}, ${team2Color})`,
               }}
             >
               {/* LIVE Badge */}
