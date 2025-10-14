@@ -123,7 +123,8 @@ export default function UpcomingMatchesPage() {
             <div
               key={idx}
               className={`relative flex flex-col md:flex-row justify-between items-center text-white rounded-2xl shadow-2xl overflow-hidden border-4 ${
-                isLive ? "border-red-600 animate-pulse" : "border-black"
+                isLive ? "border-red-600 animate-pulse" : 
+                match.casted ? "border-purple-600" : "border-black"
               }`}
               style={{
                 background: `linear-gradient(${isMobile ? "180deg" : "90deg"}, ${team1Color}, ${team2Color})`,
