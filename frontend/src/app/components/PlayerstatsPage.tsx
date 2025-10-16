@@ -119,16 +119,16 @@ export default function PlayerStatsPage() {
 
   const getStatClass = (column: keyof PlayerStats, value: number) => {
     if (column === "ADR") {
-      if (value >= 90) return "text-green-600 font-semibold";
-      if (value <= 50) return "text-red-500 font-semibold";
+      if (value >= 80) return "text-green-600 font-semibold";
+      if (value < 60) return "text-red-500 font-semibold";
     }
     if (column === "HS") {
-      if (value >= 70) return "text-green-600 font-semibold";
-      if (value <= 20) return "text-red-500 font-semibold";
+      if (value >= 50) return "text-green-600 font-semibold";
+      if (value < 30) return "text-red-500 font-semibold";
     }
     if (column === "accuracy") {
       if (value >= 60) return "text-green-600 font-semibold";
-      if (value <= 15) return "text-red-500 font-semibold";
+      if (value < 15) return "text-red-500 font-semibold";
     }
     return "";
   };
