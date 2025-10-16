@@ -87,6 +87,19 @@ export default function UpcomingMatchesPage() {
 
   if (loading) return <div className="p-4 text-center text-white">Loading...</div>;
 
+  function TwitchChatEmbed() {
+    return (
+      <div className="w-full h-[500px] mt-4 mb-4 mr-4 rounded-2xl overflow-hidden border border-gray-700">
+        <iframe
+          src="https://www.twitch.tv/embed/shroud/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol"
+          height="100%"
+          width="100%"
+          allowFullScreen
+        ></iframe>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-5xl mx-auto mt-6 space-y-8">
       <h1 className="text-3xl font-bold text-center text-white">
@@ -266,6 +279,7 @@ export default function UpcomingMatchesPage() {
                   </div>
                 )}
               </div>
+              {isLive && match.casted && !isMobile && <TwitchChatEmbed />}
             </div>
           );
         })
