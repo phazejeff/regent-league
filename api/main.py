@@ -368,7 +368,7 @@ def get_standings(div: str, group: str, session: Session = Depends(get_session))
                     team_stats.round_losses += map.team2_score
                 else:
                     team_stats.round_wins += map.team2_score
-                    team_stats.round_losses += map.team2_score
+                    team_stats.round_losses += map.team1_score
         all_team_stats.append(team_stats)
 
     all_team_stats = sorted(
