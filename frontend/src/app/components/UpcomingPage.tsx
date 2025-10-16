@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { DateTime } from "luxon";
 
 type Team = {
   name: string;
@@ -117,7 +118,8 @@ export default function UpcomingMatchesPage() {
           const team2Color = match.team2.mainColor || "#065f46";
           const team1Secondary = match.team1.secondColor || "#000000";
           const team2Secondary = match.team2.secondColor || "#000000";
-          const isLive = new Date() >= new Date(match.datetime);
+          const matchtime = DateTime.fromISO(match.datetime, { zone: "America/Los_Angeles" });
+          const isLive = DateTime.now() >= matchtime;
 
           return (
             <div
