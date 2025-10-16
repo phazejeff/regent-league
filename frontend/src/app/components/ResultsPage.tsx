@@ -204,7 +204,10 @@ export default function ResultsPage() {
                           <span>
                             Map {map.map_num}: {map.map_name}
                             <span className="ml-2 text-sm text-gray-500">
-                              (Picked by {map.map_picker_name === "team1" ? match.team1.name : match.team2.name})
+                              (Picked by {
+                                map.map_picker_name === "team1" ? match.team1.name : 
+                                map.map_picker_name === "team2" ? match.team2.name :
+                                "decider"})
                             </span>
                           </span>
 
