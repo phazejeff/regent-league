@@ -62,7 +62,7 @@ export default function NavigationBar() {
   };
 
   return (
-    <nav className="w-full bg-white dark:bg-neutral-900 shadow-sm">
+    <nav className="sticky top-0 z-50 w-full bg-white dark:bg-neutral-900 shadow-sm">
       <div className="flex items-center justify-between h-16">
         {/* Left logo (desktop & mobile) */}
         <div className="flex flex-1 items-center ml-4 space-x-3">
