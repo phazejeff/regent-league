@@ -91,7 +91,7 @@ export default function UpcomingMatchesPage() {
     return (
       <div className="w-full h-[500px] mt-4 mb-4 mr-4 rounded-2xl overflow-hidden border border-gray-700">
         <iframe
-          src="https://www.twitch.tv/embed/shroud/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol"
+          src="https://www.twitch.tv/embed/regent_xd/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol"
           height="100%"
           width="100%"
           allowFullScreen
