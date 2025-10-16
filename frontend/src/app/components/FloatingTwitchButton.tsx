@@ -69,7 +69,7 @@ export default function TwitchFloating() {
 
           {/* Twitch Embed */}
           <iframe
-            src="https://player.twitch.tv/?channel=regent_xd&parent=localhost&parent=regent-league.vercel.app&allowfullscreen=true&muted=true"
+            src="https://player.twitch.tv/?channel=regent_xd&parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol&allowfullscreen=true&muted=true"
             height="300"
             width="480"
             allowFullScreen
