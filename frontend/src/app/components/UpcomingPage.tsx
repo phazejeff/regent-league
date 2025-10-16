@@ -36,6 +36,7 @@ export default function UpcomingMatchesPage() {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [selectedDivId, setSelectedDivId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isStreamOn, setIsStreamOn] = useState(false);
 
   const fetchMatches = async (divName?: string) => {
     try {
@@ -67,6 +68,19 @@ export default function UpcomingMatchesPage() {
       }
     };
     fetchDivisions();
+
+    const checkIsStreamOn = async () => {
+      try {
+        const response = await fetch(`${process.env.API_ROOT}/islive`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        setIsStreamOn(await response.json());
+      } catch (err) {
+        console.error("Error fetching live status:", err);
+      }
+    };
+    checkIsStreamOn();
   }, []);
 
   const selectedDivision = divisions.find((d) => d.id === selectedDivId);
@@ -279,7 +293,7 @@ export default function UpcomingMatchesPage() {
                   </div>
                 )}
               </div>
-              {isLive && match.casted && !isMobile && <TwitchChatEmbed />}
+              {isLive && match.casted && !isMobile && isStreamOn && <TwitchChatEmbed />}
             </div>
           );
         })
