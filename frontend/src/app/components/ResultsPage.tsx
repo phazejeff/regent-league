@@ -29,7 +29,7 @@ import Image from "next/image";
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
 
-type Player = { name: string; id: number; team_id: number };
+type Player = { name: string; id: number; team_id: number; team_sub_id: number };
 type PlayerStats = {
   K: number;
   A: number;
@@ -190,10 +190,10 @@ export default function ResultsPage() {
               <Accordion type="single" collapsible className="w-full">
                 {match.maps.map((map) => {
                   const team1Players = map.player_stats.filter(
-                    (ps) => ps.player.team_id === match.team1.id
+                    (ps) => ps.player.team_id === match.team1.id || ps.player.team_sub_id === match.team1.id
                   );
                   const team2Players = map.player_stats.filter(
-                    (ps) => ps.player.team_id === match.team2.id
+                    (ps) => ps.player.team_id === match.team2.id || ps.player.team_sub_id === match.team2.id
                   );
 
                   return (
