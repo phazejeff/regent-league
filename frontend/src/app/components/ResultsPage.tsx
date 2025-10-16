@@ -270,7 +270,7 @@ export default function ResultsPage() {
                             <TableBody>
                               {team2Players.map((ps) => (
                                 <TableRow key={ps.player.id}>
-                                  <TableCell>{ps.player.name}</TableCell>
+                                  <TableCell><Link href={`/player/${ps.player.id}`} className="hover:underline">{ps.player.name}</Link></TableCell>
                                   <TableCell>{ps.K}</TableCell>
                                   <TableCell>{ps.A}</TableCell>
                                   <TableCell>{ps.D}</TableCell>
