@@ -8,6 +8,7 @@ export default function TwitchFloating() {
   const [isMobile, setIsMobile] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
+  const [streamUsername, setStreamUsername] = useState("regent_xd");
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
@@ -18,7 +19,18 @@ export default function TwitchFloating() {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        setIsLive(await response.json());
+        const isRegentStreamOn = await response.json();
+        if (isRegentStreamOn) {
+          setIsLive(await response.json());
+          return;
+        }
+
+        const responseAlphaOwl = await fetch(`${process.env.API_ROOT}/islive?username=alpherowl`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        setIsLive(await responseAlphaOwl.json());
+        setStreamUsername("alpherowl");
       } catch (err) {
         console.error("Error fetching live status:", err);
       }
@@ -69,7 +81,7 @@ export default function TwitchFloating() {
 
           {/* Twitch Embed */}
           <iframe
-            src="https://player.twitch.tv/?channel=regent_xd&parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol&allowfullscreen=true&muted=true"
+            src={`https://player.twitch.tv/?channel=${streamUsername}&parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol&allowfullscreen=true&muted=true`}
             height="300"
             width="480"
             allowFullScreen

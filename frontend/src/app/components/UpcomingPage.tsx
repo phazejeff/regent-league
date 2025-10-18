@@ -75,7 +75,17 @@ export default function UpcomingMatchesPage() {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        setIsStreamOn(await response.json());
+        const isRegentStreamOn = await response.json();
+        if (isRegentStreamOn) {
+          setIsStreamOn(await response.json());
+          return;
+        }
+
+        const responseAlphaOwl = await fetch(`${process.env.API_ROOT}/islive?username=alpherowl`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        setIsStreamOn(await responseAlphaOwl.json());
       } catch (err) {
         console.error("Error fetching live status:", err);
       }
@@ -105,7 +115,7 @@ export default function UpcomingMatchesPage() {
     return (
       <div className="w-full h-[500px] mt-4 mb-4 mr-4 rounded-2xl overflow-hidden border border-gray-700">
         <iframe
-          src="https://www.twitch.tv/embed/regent_xd/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol"
+          src={`https://www.twitch.tv/embed/${selectedDivId === 1 ? 'regent_xd' : 'alpherowl'}/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol`}
           height="100%"
           width="100%"
           allowFullScreen

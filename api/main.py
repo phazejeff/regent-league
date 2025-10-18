@@ -449,8 +449,8 @@ def set_divs_and_groups(divs: List[DivisionsBase], groups: List[GroupsBase], pas
 
 
 @app.get("/islive")
-def get_is_live() -> bool:
-    return twitch.is_channel_live()
+def get_is_live(username: str | None = "regent_xd") -> bool:
+    return twitch.is_channel_live(username)
 
 @app.get("/getupcoming")
 def get_upcoming(div: str | None = None, session: Session = Depends(get_session)) -> List[GetUpcoming]:
