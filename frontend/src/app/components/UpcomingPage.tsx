@@ -235,12 +235,12 @@ export default function UpcomingMatchesPage() {
                     <>
                       🎥 Main Stream:{" "}
                       <Link
-                        href="https://twitch.tv/Regent_XD"
+                        href={selectedDivId === 1 ? "https://twitch.tv/Regent_XD" : "https://twitch.tv/AlpherOwl"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline hover:text-gray-300"
                       >
-                        RegentXD
+                        {selectedDivId === 1 ? "RegentXD" : "AlphaOwl"}
                       </Link>
                     </>
                   )}
