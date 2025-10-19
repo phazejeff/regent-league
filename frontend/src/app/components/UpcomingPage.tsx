@@ -73,27 +73,47 @@ export default function UpcomingMatchesPage() {
 
     const checkIsStreamOn = async () => {
       try {
-        const response = await fetch(`${process.env.API_ROOT}/islive`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        const isRegentStreamOn = await response.json();
-        if (isRegentStreamOn) {
-          setIsStreamOn(await response.json());
-          return;
+        // Get all matches first
+        const res = await fetch(`${process.env.API_ROOT}/getupcoming`);
+        const upcomingMatches: UpcomingMatch[] = await res.json();
+
+        // Extract Twitch usernames
+        const usernames = upcomingMatches
+          .filter((m) => m.casted)
+          .map((m) =>
+            m.main_stream_url
+              ?.replace("https://www.twitch.tv/", "")
+              ?.replace("https://twitch.tv/", "")
+              ?.split("/")[0]
+          )
+          .filter(Boolean);
+
+        // Check each username's live status
+        for (const username of usernames) {
+          const response = await fetch(
+            `${process.env.API_ROOT}/islive?username=${encodeURIComponent(username!)}`,
+            {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+          const isLive = await response.json();
+          if (isLive) {
+            setIsStreamOn(true);
+            return;
+          }
         }
 
-        const responseAlphaOwl = await fetch(`${process.env.API_ROOT}/islive?username=alpherowl`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        setIsStreamOn(await responseAlphaOwl.json());
+        setIsStreamOn(false);
       } catch (err) {
         console.error("Error fetching live status:", err);
+        setIsStreamOn(false);
       }
     };
+
     checkIsStreamOn();
   }, []);
+
 
   const selectedDivision = divisions.find((d) => d.id === selectedDivId);
 

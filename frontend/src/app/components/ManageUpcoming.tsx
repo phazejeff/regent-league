@@ -23,6 +23,8 @@ interface Match {
   team2_streams: StreamMap;
   team1: Team;
   team2: Team;
+  main_stream_name: string;
+  main_stream_url: string;
 }
 
 export default function ManageUpcoming() {
@@ -58,6 +60,8 @@ export default function ManageUpcoming() {
       team2_id: editMatch.team2.id,
       team1_streams: editMatch.team1_streams,
       team2_streams: editMatch.team2_streams,
+      main_stream_name: editMatch.main_stream_name || "RegentXD",
+      main_stream_url: editMatch.main_stream_url || "https://twitch.tv/regent_xd",
     };
 
     try {
@@ -277,6 +281,31 @@ export default function ManageUpcoming() {
                 <span className="text-gray-700 dark:text-gray-300">
                   Casted (Has Stream)
                 </span>
+              </label>
+
+              {/* Main Stream Section */}
+              <label className="block">
+                <span className="text-gray-700 dark:text-gray-300">Main Stream Name</span>
+                <input
+                  type="text"
+                  value={editMatch.main_stream_name || "RegentXD"}
+                  onChange={(e) =>
+                    setEditMatch({ ...editMatch, main_stream_name: e.target.value })
+                  }
+                  className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-gray-700 dark:text-gray-300">Main Stream URL</span>
+                <input
+                  type="text"
+                  value={editMatch.main_stream_url || "https://twitch.tv/regent_xd"}
+                  onChange={(e) =>
+                    setEditMatch({ ...editMatch, main_stream_url: e.target.value })
+                  }
+                  className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
+                />
               </label>
 
               {/* Stream Editing Section */}
