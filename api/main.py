@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from .twitch import Twitch
-from datetime import datetime
+from datetime import datetime, timedelta
 
 create_db_and_tables()
 app = FastAPI()
@@ -464,7 +464,7 @@ def get_upcoming(div: str | None = None, session: Session = Depends(get_session)
 
 @app.get("/getcurrentlycasted")
 def get_currently_casted(div: str | None = None, session: Session = Depends(get_session)) -> List[GetUpcoming]:
-    statement = select(Upcoming).where(and_(Upcoming.casted == True, Upcoming.datetime <= datetime.now(tz=ZoneInfo("America/Los_Angeles"))))
+    statement = select(Upcoming).where(and_(Upcoming.casted == True, Upcoming.datetime <= datetime.now(tz=ZoneInfo("America/Los_Angeles")) + timedelta(minutes=10)))
     if div is not None:
         statement = statement.where(Upcoming.division == div)
     statement = statement.order_by(Upcoming.datetime, desc(Upcoming.casted))
