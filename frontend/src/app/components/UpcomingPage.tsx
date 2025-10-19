@@ -38,7 +38,7 @@ export default function UpcomingMatchesPage() {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [selectedDivId, setSelectedDivId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isStreamOn, setIsStreamOn] = useState(false);
+  const [liveStreams, setLiveStreams] = useState<Record<string, boolean>>({});
 
   const fetchMatches = async (divName?: string) => {
     try {
@@ -73,13 +73,11 @@ export default function UpcomingMatchesPage() {
 
     const checkIsStreamOn = async () => {
       try {
-        // Get all matches first
         const res = await fetch(`${process.env.API_ROOT}/getupcoming`);
         const upcomingMatches: UpcomingMatch[] = await res.json();
 
-        // Extract Twitch usernames
         const usernames = upcomingMatches
-          .filter((m) => m.casted)
+          .filter((m) => m.casted && m.main_stream_url)
           .map((m) =>
             m.main_stream_url
               ?.replace("https://www.twitch.tv/", "")
@@ -88,28 +86,22 @@ export default function UpcomingMatchesPage() {
           )
           .filter(Boolean);
 
-        // Check each username's live status
+        const statusMap: Record<string, boolean> = {};
+
         for (const username of usernames) {
           const response = await fetch(
-            `${process.env.API_ROOT}/islive?username=${encodeURIComponent(username!)}`,
-            {
-              method: "GET",
-              headers: { "Content-Type": "application/json" },
-            }
+            `${process.env.API_ROOT}/islive?username=${encodeURIComponent(username!)}`
           );
           const isLive = await response.json();
-          if (isLive) {
-            setIsStreamOn(true);
-            return;
-          }
+          statusMap[username!] = !!isLive;
         }
 
-        setIsStreamOn(false);
+        setLiveStreams(statusMap);
       } catch (err) {
-        console.error("Error fetching live status:", err);
-        setIsStreamOn(false);
+        console.error("Error fetching live statuses:", err);
       }
     };
+
 
     checkIsStreamOn();
   }, []);
@@ -327,7 +319,16 @@ export default function UpcomingMatchesPage() {
                   </div>
                 )}
               </div>
-              {isLive && match.casted && !isMobile && isStreamOn && <TwitchChatEmbed streamUrl={match.main_stream_url}/>}
+              {isLive &&
+                match.casted &&
+                !isMobile &&
+                (() => {
+                  const username = match.main_stream_url
+                    ?.replace("https://www.twitch.tv/", "")
+                    ?.replace("https://twitch.tv/", "")
+                    ?.split("/")[0];
+                  return username && liveStreams[username];
+                })() && <TwitchChatEmbed streamUrl={match.main_stream_url} />}
             </div>
           );
         })
