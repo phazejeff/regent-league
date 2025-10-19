@@ -8,41 +8,50 @@ export default function TwitchFloating() {
   const [isMobile, setIsMobile] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
-  const [streamUsername, setStreamUsername] = useState("regent_xd");
+  const [streamUsername, setStreamUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
 
-    const checkIsLive = async () => {
+    const fetchCurrentlyCasted = async () => {
       try {
-        const response = await fetch(`${process.env.API_ROOT}/islive`, {
+        const response = await fetch(`${process.env.API_ROOT}/getcurrentlycasted`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        const isRegentStreamOn = await response.json();
-        if (isRegentStreamOn) {
-          setIsLive(await response.json());
-          return;
-        }
+        const matches = await response.json();
 
-        const responseAlphaOwl = await fetch(`${process.env.API_ROOT}/islive?username=alpherowl`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        setIsLive(await responseAlphaOwl.json());
-        setStreamUsername("alpherowl");
+        if (Array.isArray(matches) && matches.length > 0) {
+          const match = matches[0];
+          if (match.main_stream_url) {
+            const username = match.main_stream_url
+              .replace("https://www.twitch.tv/", "")
+              .replace("https://twitch.tv/", "")
+              .split("/")[0];
+            setStreamUsername(username);
+            setIsLive(true);
+          }
+        } else {
+          setIsLive(false);
+        }
       } catch (err) {
-        console.error("Error fetching live status:", err);
+        console.error("Error fetching current casted matches:", err);
       }
     };
 
     checkMobile();
-    checkIsLive();
+    fetchCurrentlyCasted();
     window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+
+    const interval = setInterval(fetchCurrentlyCasted, 60000); // refresh every 60s
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      clearInterval(interval);
+    };
   }, []);
 
-  if (isMobile || !isLive) {
+  // Show compact Twitch button if no live match or on mobile
+  if (isMobile || !isLive || !streamUsername) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <a

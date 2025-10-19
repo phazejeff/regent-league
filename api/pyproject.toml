@@ -9,4 +9,5 @@ dependencies = [
     "fastapi[standard]>=0.116.1",
     "requests>=2.32.5",
     "sqlmodel>=0.0.24",
+    "tzdata>=2025.2",
 ]

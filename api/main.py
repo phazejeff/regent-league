@@ -1,4 +1,5 @@
 from typing import List
+from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine, getMainColor
@@ -8,7 +9,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from .twitch import Twitch
-from colorthief import ColorThief
+from datetime import datetime
 
 create_db_and_tables()
 app = FastAPI()
@@ -455,6 +456,15 @@ def get_is_live(username: str | None = "regent_xd") -> bool:
 @app.get("/getupcoming")
 def get_upcoming(div: str | None = None, session: Session = Depends(get_session)) -> List[GetUpcoming]:
     statement = select(Upcoming)
+    if div is not None:
+        statement = statement.where(Upcoming.division == div)
+    statement = statement.order_by(Upcoming.datetime, desc(Upcoming.casted))
+    results = session.exec(statement).all()
+    return results
+
+@app.get("/getcurrentlycasted")
+def get_currently_casted(div: str | None = None, session: Session = Depends(get_session)) -> List[GetUpcoming]:
+    statement = select(Upcoming).where(and_(Upcoming.casted == True, Upcoming.datetime <= datetime.now(tz=ZoneInfo("America/Los_Angeles"))))
     if div is not None:
         statement = statement.where(Upcoming.division == div)
     statement = statement.order_by(Upcoming.datetime, desc(Upcoming.casted))
