@@ -24,6 +24,8 @@ type UpcomingMatch = {
   team2: Team;
   team1_streams?: Record<string, string>;
   team2_streams?: Record<string, string>;
+  main_stream_name: string;
+  main_stream_url: string;
 };
 
 type Division = {
@@ -111,11 +113,12 @@ export default function UpcomingMatchesPage() {
 
   if (loading) return <div className="p-4 text-center text-white">Loading...</div>;
 
-  function TwitchChatEmbed() {
+  function TwitchChatEmbed({ streamUrl }: { streamUrl: string }) {
+    const twitchUsername = streamUrl.replace("https://twitch.tv/", "").replace("/", "");
     return (
       <div className="w-full h-[500px] mt-4 mb-4 mr-4 rounded-2xl overflow-hidden border border-gray-700">
         <iframe
-          src={`https://www.twitch.tv/embed/${selectedDivId === 1 ? 'regent_xd' : 'alpherowl'}/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol`}
+          src={`https://www.twitch.tv/embed/${twitchUsername}/chat?parent=localhost&parent=regent-league.vercel.app&parent=regentsleague.poopdealer.lol`}
           height="100%"
           width="100%"
           allowFullScreen
@@ -123,6 +126,7 @@ export default function UpcomingMatchesPage() {
       </div>
     );
   }
+
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-6 space-y-8">
@@ -245,12 +249,12 @@ export default function UpcomingMatchesPage() {
                     <>
                       🎥 Main Stream:{" "}
                       <Link
-                        href={selectedDivId === 1 ? "https://twitch.tv/Regent_XD" : "https://twitch.tv/AlpherOwl"}
+                        href={match.main_stream_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline hover:text-gray-300"
                       >
-                        {selectedDivId === 1 ? "RegentXD" : "AlphaOwl"}
+                        {match.main_stream_name}
                       </Link>
                     </>
                   )}
@@ -303,7 +307,7 @@ export default function UpcomingMatchesPage() {
                   </div>
                 )}
               </div>
-              {isLive && match.casted && !isMobile && isStreamOn && <TwitchChatEmbed />}
+              {isLive && match.casted && !isMobile && isStreamOn && <TwitchChatEmbed streamUrl={match.main_stream_url}/>}
             </div>
           );
         })

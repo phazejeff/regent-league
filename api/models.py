@@ -108,6 +108,8 @@ class UpcomingBase(SQLModel):
     datetime: Optional[datetime]
     division: str
     casted: bool = Field(default=False)
+    main_stream_name: str = Field(default='RegentXD')
+    main_stream_url: str = Field(default='https://twitch.tv/regent_xd')
     team1_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
     team2_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
 
