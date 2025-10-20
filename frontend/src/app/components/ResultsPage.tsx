@@ -28,7 +28,6 @@ import Image from "next/image";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
-
 type Player = { name: string; id: number; team_id: number; team_sub_id: number };
 type PlayerStats = {
   K: number;
@@ -39,7 +38,6 @@ type PlayerStats = {
   accuracy: number;
   player: Player;
 };
-
 type MapStats = {
   map_num: number;
   map_name: string;
@@ -48,9 +46,7 @@ type MapStats = {
   map_picker_name: string;
   player_stats: PlayerStats[];
 };
-
-type Team = { name: string; div: string; group: string; id: number; logo: string; };
-
+type Team = { name: string; div: string; group: string; id: number; logo: string };
 type Match = {
   score1: number;
   score2: number;
@@ -68,14 +64,18 @@ export default function ResultsPage() {
   const [selectedDiv, setSelectedDiv] = useState<string>("All");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
 
-  // Load divisions
+  // Track sort state per map
+  const [sortConfig, setSortConfig] = useState<
+    Record<string, { key: keyof PlayerStats; direction: "asc" | "desc" }>
+  >({});
+
+  // Fetch divisions/groups/matches
   useEffect(() => {
     fetch(`${process.env.API_ROOT}/divisions`)
       .then((res) => res.json())
       .then(setDivisions);
   }, []);
 
-  // Load groups for selected division
   useEffect(() => {
     if (!selectedDiv || selectedDiv === "All") {
       setGroups([]);
@@ -86,7 +86,6 @@ export default function ResultsPage() {
       .then(setGroups);
   }, [selectedDiv]);
 
-  // Load matches
   useEffect(() => {
     let url = `${process.env.API_ROOT}/matches`;
     const params = new URLSearchParams();
@@ -100,6 +99,55 @@ export default function ResultsPage() {
       .then((res) => res.json())
       .then(setMatches);
   }, [selectedDiv, selectedGroup]);
+
+  // Sorting logic
+  const handleSort = (mapKey: string, key: keyof PlayerStats) => {
+    setSortConfig((prev) => {
+      const current = prev[mapKey];
+      let direction: "asc" | "desc" = "desc";
+      if (current && current.key === key && current.direction === "desc") direction = "asc";
+      return { ...prev, [mapKey]: { key, direction } };
+    });
+  };
+
+  const sortPlayers = (players: PlayerStats[], mapKey: string): PlayerStats[] => {
+    const config = sortConfig[mapKey] || { key: "K", direction: "desc" };
+    return [...players].sort((a, b) => {
+      const valA = a[config.key];
+      const valB = b[config.key];
+      if (valA < valB) return config.direction === "asc" ? -1 : 1;
+      if (valA > valB) return config.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  };
+
+  // Renders sortable header
+  const renderHeader = (
+    label: string,
+    field: keyof PlayerStats | "Player",
+    mapKey: string
+  ) => {
+    const config = sortConfig[mapKey] || { key: "K", direction: "desc" };
+    const isActive = config.key === field;
+    const direction = config.direction;
+
+    if (field === "Player")
+      return <TableHead key={field}>{label}</TableHead>;
+
+    return (
+      <TableHead
+        key={field}
+        onClick={() => handleSort(mapKey, field as keyof PlayerStats)}
+        className={`cursor-pointer select-none transition-colors ${
+          isActive ? "text-blue-600 font-semibold" : "hover:text-gray-700"
+        }`}
+      >
+        <div className="flex items-center gap-1">
+          {label}
+        </div>
+      </TableHead>
+    );
+  };
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-6 space-y-6">
@@ -143,15 +191,17 @@ export default function ResultsPage() {
         </CardContent>
       </Card>
 
-      {/* Matches List */}
+      {/* Matches */}
       {matches.length > 0 ? (
         matches.map((match, idx) => (
           <Card key={idx} className="shadow-lg rounded-2xl border">
             <CardHeader>
               <CardTitle className="flex justify-between items-center text-lg">
                 <div className="flex items-center gap-2">
-                  {/* Team 1 */}
-                  <Link href={`/team/${match.team1.id}`} className="flex items-center gap-2 hover:underline">
+                  <Link
+                    href={`/team/${match.team1.id}`}
+                    className="flex items-center gap-2 hover:underline"
+                  >
                     <Image
                       src={`${process.env.API_ROOT}/photos/${match.team1.logo}`}
                       alt={match.team1.name}
@@ -162,15 +212,15 @@ export default function ResultsPage() {
                     <span className="font-semibold">{match.team1.name}</span>
                   </Link>
 
-                  {/* Score */}
                   <span className="mx-2 font-bold">
-                    <span className="text-blue-600">{match.score1}</span>
-                    {" - "}
+                    <span className="text-blue-600">{match.score1}</span> -{" "}
                     <span className="text-red-600">{match.score2}</span>
                   </span>
 
-                  {/* Team 2 */}
-                  <Link href={`/team/${match.team2.id}`} className="flex items-center gap-2 hover:underline">
+                  <Link
+                    href={`/team/${match.team2.id}`}
+                    className="flex items-center gap-2 hover:underline"
+                  >
                     <span className="font-semibold">{match.team2.name}</span>
                     <Image
                       src={`${process.env.API_ROOT}/photos/${match.team2.logo}`}
@@ -186,41 +236,53 @@ export default function ResultsPage() {
                 </span>
               </CardTitle>
             </CardHeader>
+
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
                 {match.maps.map((map) => {
-                  const team1Players = map.player_stats.filter(
-                    (ps) => ps.player.team_id === match.team1.id || ps.player.team_sub_id === match.team1.id
+                  const mapKey = `${idx}-${map.map_num}`;
+                  const team1Players = sortPlayers(
+                    map.player_stats.filter(
+                      (ps) =>
+                        ps.player.team_id === match.team1.id ||
+                        ps.player.team_sub_id === match.team1.id
+                    ),
+                    mapKey
                   );
-                  const team2Players = map.player_stats.filter(
-                    (ps) => ps.player.team_id === match.team2.id || ps.player.team_sub_id === match.team2.id
+                  const team2Players = sortPlayers(
+                    map.player_stats.filter(
+                      (ps) =>
+                        ps.player.team_id === match.team2.id ||
+                        ps.player.team_sub_id === match.team2.id
+                    ),
+                    mapKey
                   );
 
                   return (
                     <AccordionItem key={map.map_num} value={`map-${map.map_num}`}>
                       <AccordionTrigger>
                         <div className="flex justify-between w-full items-center">
-                          {/* Map name + picker */}
                           <span>
-                            Map {map.map_num}: {map.map_name}
+                            Map {map.map_num}: {map.map_name}{" "}
                             <span className="ml-2 text-sm text-gray-500">
-                              (Picked by {
-                                map.map_picker_name === "team1" ? match.team1.name : 
-                                map.map_picker_name === "team2" ? match.team2.name :
-                                "decider"})
+                              (Picked by{" "}
+                              {map.map_picker_name === "team1"
+                                ? match.team1.name
+                                : map.map_picker_name === "team2"
+                                ? match.team2.name
+                                : "decider"}
+                              )
                             </span>
                           </span>
-
-                          {/* Score block */}
                           <span className="font-semibold">
-                            <span className="text-blue-600">{map.team1_score}</span>
-                            <span className="mx-1">-</span>
+                            <span className="text-blue-600">{map.team1_score}</span>-
                             <span className="text-red-600">{map.team2_score}</span>
                           </span>
                         </div>
                       </AccordionTrigger>
+
                       <AccordionContent>
-                        {/* Team 1 Players */}
+                        {/* Team 1 */}
                         <div className="mb-6">
                           <h3 className="font-semibold text-blue-600 mb-2">
                             {match.team1.name}
@@ -228,19 +290,26 @@ export default function ResultsPage() {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead>Player</TableHead>
-                                <TableHead>K</TableHead>
-                                <TableHead>A</TableHead>
-                                <TableHead>D</TableHead>
-                                <TableHead>ADR</TableHead>
-                                <TableHead>HS%</TableHead>
-                                <TableHead>Accuracy</TableHead>
+                                {renderHeader("Player", "Player", mapKey)}
+                                {renderHeader("K", "K", mapKey)}
+                                {renderHeader("A", "A", mapKey)}
+                                {renderHeader("D", "D", mapKey)}
+                                {renderHeader("ADR", "ADR", mapKey)}
+                                {renderHeader("HS%", "hs_percent", mapKey)}
+                                {renderHeader("Accuracy", "accuracy", mapKey)}
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {team1Players.map((ps) => (
                                 <TableRow key={ps.player.id}>
-                                  <TableCell><Link href={`/player/${ps.player.id}`} className="hover:underline">{ps.player.name}</Link></TableCell>
+                                  <TableCell>
+                                    <Link
+                                      href={`/player/${ps.player.id}`}
+                                      className="hover:underline"
+                                    >
+                                      {ps.player.name}
+                                    </Link>
+                                  </TableCell>
                                   <TableCell>{ps.K}</TableCell>
                                   <TableCell>{ps.A}</TableCell>
                                   <TableCell>{ps.D}</TableCell>
@@ -253,7 +322,7 @@ export default function ResultsPage() {
                           </Table>
                         </div>
 
-                        {/* Team 2 Players */}
+                        {/* Team 2 */}
                         <div>
                           <h3 className="font-semibold text-red-600 mb-2">
                             {match.team2.name}
@@ -261,19 +330,26 @@ export default function ResultsPage() {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead>Player</TableHead>
-                                <TableHead>K</TableHead>
-                                <TableHead>A</TableHead>
-                                <TableHead>D</TableHead>
-                                <TableHead>ADR</TableHead>
-                                <TableHead>HS%</TableHead>
-                                <TableHead>Accuracy</TableHead>
+                                {renderHeader("Player", "Player", mapKey)}
+                                {renderHeader("K", "K", mapKey)}
+                                {renderHeader("A", "A", mapKey)}
+                                {renderHeader("D", "D", mapKey)}
+                                {renderHeader("ADR", "ADR", mapKey)}
+                                {renderHeader("HS%", "hs_percent", mapKey)}
+                                {renderHeader("Accuracy", "accuracy", mapKey)}
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {team2Players.map((ps) => (
                                 <TableRow key={ps.player.id}>
-                                  <TableCell><Link href={`/player/${ps.player.id}`} className="hover:underline">{ps.player.name}</Link></TableCell>
+                                  <TableCell>
+                                    <Link
+                                      href={`/player/${ps.player.id}`}
+                                      className="hover:underline"
+                                    >
+                                      {ps.player.name}
+                                    </Link>
+                                  </TableCell>
                                   <TableCell>{ps.K}</TableCell>
                                   <TableCell>{ps.A}</TableCell>
                                   <TableCell>{ps.D}</TableCell>
