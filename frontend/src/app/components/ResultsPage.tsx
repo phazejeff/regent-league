@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -144,6 +145,12 @@ export default function ResultsPage() {
       >
         <div className="flex items-center gap-1">
           {label}
+          {isActive &&
+            (direction === "asc" ? (
+              <ArrowUp size={14} />
+            ) : (
+              <ArrowDown size={14} />
+          ))}
         </div>
       </TableHead>
     );
@@ -287,7 +294,17 @@ export default function ResultsPage() {
                           <h3 className="font-semibold text-blue-600 mb-2">
                             {match.team1.name}
                           </h3>
-                          <Table>
+                          <Table className="w-full table-fixed">
+                            <colgroup>
+                              <col className="w-2/6" /> {/* Player */}
+                              <col className="w-1/12" /> {/* K */}
+                              <col className="w-1/12" /> {/* A */}
+                              <col className="w-1/12" /> {/* D */}
+                              <col className="w-1/12" /> {/* ADR */}
+                              <col className="w-1/12" /> {/* HS% */}
+                              <col className="w-1/12" /> {/* Accuracy */}
+                            </colgroup>
+
                             <TableHeader>
                               <TableRow>
                                 {renderHeader("Player", "Player", mapKey)}
@@ -299,14 +316,12 @@ export default function ResultsPage() {
                                 {renderHeader("Accuracy", "accuracy", mapKey)}
                               </TableRow>
                             </TableHeader>
+
                             <TableBody>
                               {team1Players.map((ps) => (
                                 <TableRow key={ps.player.id}>
-                                  <TableCell>
-                                    <Link
-                                      href={`/player/${ps.player.id}`}
-                                      className="hover:underline"
-                                    >
+                                  <TableCell className="truncate">
+                                    <Link href={`/player/${ps.player.id}`} className="hover:underline">
                                       {ps.player.name}
                                     </Link>
                                   </TableCell>
@@ -327,7 +342,16 @@ export default function ResultsPage() {
                           <h3 className="font-semibold text-red-600 mb-2">
                             {match.team2.name}
                           </h3>
-                          <Table>
+                          <Table className="w-full table-fixed">
+                            <colgroup>
+                              <col className="w-2/6" /> {/* Player */}
+                              <col className="w-1/12" /> {/* K */}
+                              <col className="w-1/12" /> {/* A */}
+                              <col className="w-1/12" /> {/* D */}
+                              <col className="w-1/12" /> {/* ADR */}
+                              <col className="w-1/12" /> {/* HS% */}
+                              <col className="w-1/12" /> {/* Accuracy */}
+                            </colgroup>
                             <TableHeader>
                               <TableRow>
                                 {renderHeader("Player", "Player", mapKey)}
@@ -339,14 +363,12 @@ export default function ResultsPage() {
                                 {renderHeader("Accuracy", "accuracy", mapKey)}
                               </TableRow>
                             </TableHeader>
+
                             <TableBody>
                               {team2Players.map((ps) => (
                                 <TableRow key={ps.player.id}>
-                                  <TableCell>
-                                    <Link
-                                      href={`/player/${ps.player.id}`}
-                                      className="hover:underline"
-                                    >
+                                  <TableCell className="truncate">
+                                    <Link href={`/player/${ps.player.id}`} className="hover:underline">
                                       {ps.player.name}
                                     </Link>
                                   </TableCell>
