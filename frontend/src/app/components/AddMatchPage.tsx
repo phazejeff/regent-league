@@ -205,7 +205,7 @@ export default function AddMatchPage({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Team 1</Label>
-              <Select onValueChange={setTeam1Id} value={team1Id}>
+              <Select onValueChange={setTeam1Id} value={team1Id} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select team 1" />
                 </SelectTrigger>
@@ -222,11 +222,12 @@ export default function AddMatchPage({
                 type="number"
                 value={score1}
                 onChange={(e) => setScore1(Number(e.target.value))}
+                required
               />
             </div>
             <div>
               <Label>Team 2</Label>
-              <Select onValueChange={setTeam2Id} value={team2Id}>
+              <Select onValueChange={setTeam2Id} value={team2Id} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select team 2" />
                 </SelectTrigger>
@@ -243,6 +244,7 @@ export default function AddMatchPage({
                 type="number"
                 value={score2}
                 onChange={(e) => setScore2(Number(e.target.value))}
+                required
               />
             </div>
           </div>
@@ -253,12 +255,13 @@ export default function AddMatchPage({
               type="datetime-local"
               value={datetime}
               onChange={(e) => setDatetime(e.target.value)}
+              required
             />
           </div>
 
           <div>
             <Label>Winner</Label>
-            <Select onValueChange={setWinnerId} value={winnerId}>
+            <Select onValueChange={setWinnerId} value={winnerId} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select winner" />
               </SelectTrigger>
@@ -295,6 +298,7 @@ export default function AddMatchPage({
             onChange={(e) =>
               handleMapChange(mapIndex, "map_name", e.target.value)
             }
+            required
           />
         </div>
 
@@ -305,6 +309,7 @@ export default function AddMatchPage({
               handleMapChange(mapIndex, "map_picker_name", v)
             }
             value={map.map_picker_name || ""}
+            required
           >
             <SelectTrigger>
               <SelectValue placeholder="Select picker" />
@@ -325,6 +330,7 @@ export default function AddMatchPage({
             onChange={(e) =>
               handleMapChange(mapIndex, "team1_score", Number(e.target.value))
             }
+            required
           />
         </div>
 
@@ -336,6 +342,7 @@ export default function AddMatchPage({
             onChange={(e) =>
               handleMapChange(mapIndex, "team2_score", Number(e.target.value))
             }
+            required
           />
         </div>
       </div>
@@ -347,6 +354,7 @@ export default function AddMatchPage({
             handleMapChange(mapIndex, "winner_id", Number(v))
           }
           value={map.winner_id ? map.winner_id.toString() : ""}
+          required
         >
           <SelectTrigger>
             <SelectValue placeholder="Select winner" />
@@ -365,8 +373,6 @@ export default function AddMatchPage({
           </SelectContent>
         </Select>
       </div>
-
-
                 {/* Player Stats */}
                 <div>
                   <Label>Player Stats</Label>
