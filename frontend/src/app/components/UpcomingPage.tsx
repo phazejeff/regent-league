@@ -220,7 +220,7 @@ export default function UpcomingMatchesPage() {
                   </Link>
                 </div>
                 {match.team1_streams && Object.keys(match.team1_streams).length > 0 && (
-                  <div className="mt-2 text-sm">
+                  <div className="mt-2 text-sm bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
                     Streams: <br />
                     {Object.entries(match.team1_streams).map(([name, url], i) => (
                       <span key={i}>
@@ -301,7 +301,7 @@ export default function UpcomingMatchesPage() {
                   </Link>
                 </div>
                 {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
-                  <div className="mt-2 text-sm">
+                  <div className="mt-2 text-sm bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
                     Streams: <br />
                     {Object.entries(match.team2_streams).map(([name, url], i) => (
                       <span key={i}>
