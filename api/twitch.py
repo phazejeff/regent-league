@@ -19,7 +19,7 @@ class Twitch:
         data = resp.json()
         self.access_token = data['access_token']
 
-    def is_channel_live(self):
+    def is_channel_live(self, username = "regent_xd"):
         # Using the "Get Streams" endpoint
         url = 'https://api.twitch.tv/helix/streams'
         headers = {
@@ -27,7 +27,7 @@ class Twitch:
             'Authorization': f'Bearer {self.access_token}'
         }
         params = {
-            'user_login': TWITCH_USERNAME
+            'user_login': username
         }
         resp = requests.get(url, headers=headers, params=params)
         data = resp.json()
