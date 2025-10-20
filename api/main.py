@@ -288,6 +288,7 @@ def delete_player(player_id: int, password, response: Response, session: Session
 @app.get("/matches")
 def get_matches(div: str | None = None, group: str | None = None, session: Session = Depends(get_session)) -> List[MatchWithMapsWithStats]:
     statement = select(Match).join(Match.team1)
+    statement = statement.order_by(desc(Match.datetime))
     if div is not None:
         statement = statement.where(Team.div == div)
     if group is not None:
