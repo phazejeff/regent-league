@@ -195,7 +195,7 @@ export default function AddMatchPage({
   };
 
   return (
-    <Card className="max-w-3xl mx-auto mt-6">
+    <Card className="max-w-6xl mx-auto mt-6">
       <CardHeader>
         <CardTitle>Add Match</CardTitle>
       </CardHeader>

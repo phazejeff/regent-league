@@ -176,7 +176,7 @@ export default function ManageUpcoming() {
       {/* Finalize Modal */}
       {selectedMatch && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+          <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto relative">
             <div className="sticky top-0 bg-white dark:bg-gray-950 p-2 border-b rounded-t-2xl flex justify-between items-center">
               <h2 className="text-xl font-semibold">
                 Finalize: {selectedMatch.team1.name} vs {selectedMatch.team2.name}
@@ -208,7 +208,7 @@ export default function ManageUpcoming() {
       {/* Edit Modal */}
       {editMatch && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg max-w-lg w-full p-6 relative">
+          <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg max-w-6xl w-full p-6 relative">
             <div className="sticky top-0 bg-white dark:bg-gray-950 p-2 border-b rounded-t-2xl flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">
                 Edit Match: {editMatch.team1.name} vs {editMatch.team2.name}
