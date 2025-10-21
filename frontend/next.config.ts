@@ -24,7 +24,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       new URL('http://127.0.0.1:8000/photos/*'),
       new URL('https://*.poopdealer.lol/photos/*')
-    ]
+    ],
+    minimumCacheTTL: 2678400
   }
 };
 
