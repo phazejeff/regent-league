@@ -150,7 +150,7 @@ export default function UpcomingMatchesPage() {
   if (loading) return <div className="p-4 text-center text-white">Loading...</div>;
 
   function TwitchChatEmbed({ streamUrl }: { streamUrl: string }) {
-    const twitchUsername = streamUrl.replace("https://twitch.tv/", "").replace("/", "");
+    const twitchUsername = streamUrl.replace("www.", "").replace("https://twitch.tv/", "").replace("/", "");
     return (
       <div className="w-full h-[500px] mt-4 mb-4 mr-4 rounded-2xl overflow-hidden border border-gray-700">
         <iframe
