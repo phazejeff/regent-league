@@ -201,7 +201,7 @@ export default function UpcomingMatchesPage() {
           return (
             <div
               key={idx}
-              className={`relative flex flex-col md:flex-row justify-between items-center text-white rounded-2xl shadow-2xl overflow-hidden border-4 ${
+              className={`relative flex flex-col md:flex-row justify-between items-start text-white rounded-2xl shadow-2xl overflow-hidden border-4 ${
                 isLive ? "border-red-600 animate-pulse" : 
                 match.casted ? "border-purple-600" : "border-black"
               }`}
@@ -280,7 +280,7 @@ export default function UpcomingMatchesPage() {
               </div>
 
               {/* Center VS Section */}
-              <div className="flex flex-col justify-center items-center text-center p-4 md:w-1/3 bg-black/40 backdrop-blur-sm rounded-2xl mx-2">
+              <div className="flex flex-col justify-center self-center items-center text-center p-4 md:w-1/3 bg-black/40 backdrop-blur-sm rounded-2xl mx-2">
                 <div className="text-lg font-semibold">
                   Group {match.team1.group}
                 </div>
