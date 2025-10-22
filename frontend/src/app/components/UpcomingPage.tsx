@@ -39,6 +39,10 @@ export default function UpcomingMatchesPage() {
   const [selectedDivId, setSelectedDivId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [liveStreams, setLiveStreams] = useState<Record<string, boolean>>({});
+  const [standings, setStandings] = useState<
+    Record<number, { rank: number; matchRecord: string }>
+  >({});
+
 
   const fetchMatches = async (divName?: string) => {
     try {
@@ -48,10 +52,30 @@ export default function UpcomingMatchesPage() {
       const res = await fetch(url);
       const data = await res.json();
       setMatches(data);
+
+      // Fetch standings for same division
+      const standingsUrl = divName
+        ? `${process.env.API_ROOT}/standings?div=${encodeURIComponent(divName)}&group=A`
+        : `${process.env.API_ROOT}/standings`;
+      const standingsRes = await fetch(standingsUrl);
+      const standingsData = await standingsRes.json();
+
+      // Convert standings into a lookup table for quick access
+      const standingsMap: Record<number, { rank: number; matchRecord: string }> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      standingsData.forEach((entry: any, index: number) => {
+        standingsMap[entry.team.id] = {
+          rank: index + 1,
+          matchRecord: `${entry.match_wins}-${entry.match_losses}`,
+        };
+      });
+
+      setStandings(standingsMap);
     } catch (err) {
-      console.error("Failed to fetch upcoming matches:", err);
+      console.error("Failed to fetch upcoming matches or standings:", err);
     }
   };
+
 
   useEffect(() => {
     const fetchDivisions = async () => {
@@ -194,15 +218,29 @@ export default function UpcomingMatchesPage() {
 
               {/* Left Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
-                <h2 className="text-xl font-semibold">
-                  <Link className="hover:underline" href={`/team/${match.team1.id}`}>
-                    {match.team1.name}
-                  </Link>
-                </h2>
+                <div className="flex flex-col items-center gap-1">
+                  {/* Container for rank + team name */}
+                  <div className="relative flex items-center justify-center">
+                    <Link
+                      className="text-xl font-semibold hover:underline text-white text-center"
+                      href={`/team/${match.team1.id}`}
+                    >
+                    {standings[match.team1.id]?.rank && `(#${standings[match.team1.id].rank})`} {match.team1.name}
+                    </Link>
+                  </div>
 
-                {/* Circular logo container */}
+                  {standings[match.team1.id] && (
+                  <div className="flex items-center justify-center gap-2 mt-1">
+                    <p className="text-sm text-gray-200 bg-black/40 px-2 py-[2px] rounded">
+                      ({standings[match.team1.id].matchRecord})
+                    </p>
+                  </div>
+                )}
+                </div>
+
+                {/* Add space before logo */}
                 <div
-                  className="relative w-[150px] h-[150px] rounded-full border-4 flex items-center justify-center overflow-hidden"
+                  className="relative w-[150px] h-[150px] rounded-full border-4 flex items-center justify-center overflow-hidden mt-3"
                   style={{
                     backgroundColor: team1Secondary,
                     borderColor: "black",
@@ -219,6 +257,8 @@ export default function UpcomingMatchesPage() {
                     />
                   </Link>
                 </div>
+
+                {/* Streams */}
                 {match.team1_streams && Object.keys(match.team1_streams).length > 0 && (
                   <div className="mt-2 text-sm bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
                     Streams: <br />
@@ -275,15 +315,29 @@ export default function UpcomingMatchesPage() {
 
               {/* Right Side */}
               <div className="flex flex-col items-center justify-center p-4 md:w-1/3 text-center space-y-3">
-                <h2 className="text-xl font-semibold">
-                  <Link className="hover:underline" href={`/team/${match.team2.id}`}>
-                    {match.team2.name}
-                  </Link>
-                </h2>
+                <div className="flex flex-col items-center gap-1">
+                  {/* Container for rank + team name */}
+                  <div className="relative flex items-center justify-center">
+                    <Link
+                      className="text-xl font-semibold hover:underline text-white text-center"
+                      href={`/team/${match.team2.id}`}
+                    >
+                      {standings[match.team2.id]?.rank && `(#${standings[match.team2.id].rank})`} {match.team2.name}
+                    </Link>
+                  </div>
 
-                {/* Circular logo container */}
+                  {standings[match.team2.id] && (
+                  <div className="flex items-center justify-center gap-2 mt-1">
+                    {/* Record box */}
+                    <p className="text-sm text-gray-200 bg-black/40 px-2 py-[2px] rounded">
+                      ({standings[match.team2.id].matchRecord})
+                    </p>
+                  </div>
+                )}
+                </div>
+
                 <div
-                  className="relative w-[150px] h-[150px] rounded-full border-4 flex items-center justify-center overflow-hidden"
+                  className="relative w-[150px] h-[150px] rounded-full border-4 flex items-center justify-center overflow-hidden mt-3"
                   style={{
                     backgroundColor: team2Secondary,
                     borderColor: "black",
@@ -300,6 +354,8 @@ export default function UpcomingMatchesPage() {
                     />
                   </Link>
                 </div>
+
+                {/* Streams */}
                 {match.team2_streams && Object.keys(match.team2_streams).length > 0 && (
                   <div className="mt-2 text-sm bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
                     Streams: <br />
