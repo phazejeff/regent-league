@@ -4,7 +4,7 @@ from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, Fil
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine, getMainColor
 from .models import *
-from sqlmodel import Session, desc, select, func, or_, and_
+from sqlmodel import Session, delete, desc, select, func, or_, and_
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -82,6 +82,9 @@ class MatchWithMapsWithStats(MatchBase):
     team2: Team
     winner_id: int
     maps: List[MapWithStats]
+
+class MatchWithMapsWithStatsId(MatchWithMapsWithStats):
+    id: int
 
 class PlayerstatsCreate(PlayerstatsBase):
     player_id: int
@@ -210,6 +213,86 @@ def add_match(match_data: MatchCreate, password, response: Response, session: Se
     session.refresh(match)
     return {"message" : "Created"}
 
+@app.post("/editmatch/{match_id}", status_code=status.HTTP_200_OK)
+def edit_match(match_id: int, match_data: MatchCreate, password: str, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message": "Incorrect password"}
+
+    match = session.get(Match, match_id)
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+
+    team1 = session.get(Team, match_data.team1_id)
+    team2 = session.get(Team, match_data.team2_id)
+    if not team1 or not team2:
+        raise HTTPException(status_code=404, detail="One or both teams not found")
+
+    match.team1_id = match_data.team1_id
+    match.team2_id = match_data.team2_id
+    match.score1 = match_data.score1
+    match.score2 = match_data.score2
+    match.datetime = match_data.datetime
+    match.winner_id = match_data.winner_id
+
+    existing_maps = session.exec(select(Map).where(Map.match_id == match.id)).all()
+    for map_obj in existing_maps:
+        session.exec(delete(Playerstats).where(Playerstats.map_id == map_obj.id))
+        session.exec(delete(MapPlayer).where(MapPlayer.map_id == map_obj.id))
+        session.delete(map_obj)
+    session.flush()
+
+    for map_data in match_data.maps:
+        new_map = Map(
+            map_num=map_data.map_num,
+            map_name=map_data.map_name,
+            team1_score=map_data.team1_score,
+            team2_score=map_data.team2_score,
+            winner_id=map_data.winner_id,
+            match_id=match.id,
+            map_picker_name=map_data.map_picker_name,
+        )
+        session.add(new_map)
+        session.flush()
+
+        # Add Player Stats for each map
+        for ps in map_data.player_stats:
+            player = session.get(Player, ps.player_id)
+            if not player:
+                raise HTTPException(status_code=404, detail=f"Player {ps.player_id} not found")
+
+            # MapPlayer
+            mp = MapPlayer(
+                map_id=new_map.id,
+                player_id=ps.player_id,
+                team_id=player.team_id,
+            )
+            session.add(mp)
+
+            # Playerstats
+            stats = Playerstats(
+                player_id=ps.player_id,
+                map_id=new_map.id,
+                K=ps.K,
+                A=ps.A,
+                D=ps.D,
+                ADR=ps.ADR,
+                hs_percent=ps.hs_percent,
+                accuracy=ps.accuracy,
+            )
+            session.add(stats)
+
+    session.commit()
+    session.refresh(match)
+
+    return {"message": "Match updated successfully"}
+
+@app.get("/match/{match_id}")
+def get_match(match_id: int, session: Session = Depends(get_session)) -> MatchWithMapsWithStatsId:
+    statement = select(Match).where(Match.id == match_id)
+    result = session.exec(statement).first()
+    return result
+
 @app.post("/addteam", status_code=status.HTTP_201_CREATED)
 def add_team(team: TeamBase, password, response: Response, session: Session = Depends(get_session)):
     if password != PASSWORD:
@@ -286,7 +369,7 @@ def delete_player(player_id: int, password, response: Response, session: Session
     return {"message" : "Player removed"}
 
 @app.get("/matches")
-def get_matches(div: str | None = None, group: str | None = None, session: Session = Depends(get_session)) -> List[MatchWithMapsWithStats]:
+def get_matches(div: str | None = None, group: str | None = None, session: Session = Depends(get_session)) -> List[MatchWithMapsWithStatsId]:
     statement = select(Match).join(Match.team1)
     statement = statement.order_by(desc(Match.datetime))
     if div is not None:
