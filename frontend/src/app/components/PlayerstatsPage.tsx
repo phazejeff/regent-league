@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronUp, ChevronDown, Medal } from "lucide-react";
+import { ChevronUp, ChevronDown, Medal, Search } from "lucide-react";
 import Link from "next/link";
 
 type Division = { id: number; name: string };
@@ -36,6 +36,7 @@ export default function PlayerStatsPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const [displayTotals, setDisplayTotals] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Load divisions
   useEffect(() => {
@@ -85,11 +86,11 @@ export default function PlayerStatsPage() {
     }
   };
 
+  // Compute sorted players first (based on sortBy, sortOrder, totals)
   const sortedPlayers = [...players].sort((a, b) => {
     let valueA: number | string = a[sortBy];
     let valueB: number | string = b[sortBy];
 
-    // Convert K/D/A to per-game if sorting by them and toggle is off
     if (!displayTotals && (sortBy === "K" || sortBy === "D" || sortBy === "A")) {
       valueA = a[sortBy] / a.games;
       valueB = b[sortBy] / b.games;
@@ -107,6 +108,17 @@ export default function PlayerStatsPage() {
 
     return 0;
   });
+
+  // Map each player ID to their leaderboard rank
+  const playerRanks = sortedPlayers.reduce<Record<number, number>>((acc, p, idx) => {
+    acc[p.id] = idx + 1; // 1-based rank
+    return acc;
+  }, {});
+
+  // Then filter by search query
+  const filteredPlayers = sortedPlayers.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const SortableHeader: React.FC<{ column: keyof PlayerStats; label: string }> = ({
     column,
@@ -222,6 +234,18 @@ export default function PlayerStatsPage() {
                 ))}
             </select>
 
+            {/* Search Bar */}
+            <div className="relative flex items-center">
+              <Search className="absolute left-3 text-gray-400" size={16} />
+              <input
+                type="text"
+                placeholder="Search player..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 border rounded p-2 bg-white dark:bg-gray-900"
+              />
+            </div>
+
             {/* Toggle for totals */}
             <label className="flex items-center gap-2">
               <input
@@ -242,25 +266,34 @@ export default function PlayerStatsPage() {
                   <th className="p-3 text-left">Rank</th>
                   <th className="p-3 text-left">Player</th>
                   <th className="p-3 text-left">Team</th>
-                  <SortableHeader column="K" label={displayTotals ? "Kills Total" : "Kills Per Game"} />
-                  <SortableHeader column="D" label={displayTotals ? "Deaths Total" : "Deaths Per Game"} />
-                  <SortableHeader column="A" label={displayTotals ? "Assists Total" : "Assists Per Game"} />
+                  <SortableHeader
+                    column="K"
+                    label={displayTotals ? "Kills Total" : "Kills Per Game"}
+                  />
+                  <SortableHeader
+                    column="D"
+                    label={displayTotals ? "Deaths Total" : "Deaths Per Game"}
+                  />
+                  <SortableHeader
+                    column="A"
+                    label={displayTotals ? "Assists Total" : "Assists Per Game"}
+                  />
                   <SortableHeader column="ADR" label="ADR" />
                   <SortableHeader column="HS" label="HS%" />
                   <SortableHeader column="accuracy" label="Accuracy%" />
                 </tr>
               </thead>
               <tbody>
-                {sortedPlayers.map((p, index) => (
+                {filteredPlayers.map((p) => (
                   <tr
                     key={p.id}
                     className="border-b hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     <td className="p-3">
-                      {index === 0 && <Medal className="text-yellow-500" />}
-                      {index === 1 && <Medal className="text-gray-400" />}
-                      {index === 2 && <Medal className="text-amber-700" />}
-                      {index > 2 && index + 1}
+                      {playerRanks[p.id] === 1 && <Medal className="text-yellow-500" />}
+                      {playerRanks[p.id] === 2 && <Medal className="text-gray-400" />}
+                      {playerRanks[p.id] === 3 && <Medal className="text-amber-700" />}
+                      {playerRanks[p.id] > 3 && playerRanks[p.id] + 1}
                     </td>
                     <td className="p-3">
                       <Link className="hover:underline" href={`/player/${p.id}`}>
@@ -268,13 +301,28 @@ export default function PlayerStatsPage() {
                       </Link>
                     </td>
                     <td className="p-3">{p.team}</td>
-                    <td className={`p-3 ${getStatClass("K", displayTotals ? p.K : p.K / p.games)}`}>
+                    <td
+                      className={`p-3 ${getStatClass(
+                        "K",
+                        displayTotals ? p.K : p.K / p.games
+                      )}`}
+                    >
                       {(displayTotals ? p.K : p.K / p.games).toFixed(2)}
                     </td>
-                    <td className={`p-3 ${getStatClass("D", displayTotals ? p.D : p.D / p.games)}`}>
+                    <td
+                      className={`p-3 ${getStatClass(
+                        "D",
+                        displayTotals ? p.D : p.D / p.games
+                      )}`}
+                    >
                       {(displayTotals ? p.D : p.D / p.games).toFixed(2)}
                     </td>
-                    <td className={`p-3 ${getStatClass("A", displayTotals ? p.A : p.A / p.games)}`}>
+                    <td
+                      className={`p-3 ${getStatClass(
+                        "A",
+                        displayTotals ? p.A : p.A / p.games
+                      )}`}
+                    >
                       {(displayTotals ? p.A : p.A / p.games).toFixed(2)}
                     </td>
                     <td className={`p-3 ${getStatClass("ADR", p.ADR)}`}>
