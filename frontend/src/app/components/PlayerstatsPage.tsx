@@ -237,13 +237,13 @@ export default function PlayerStatsPage() {
                     <td className="p-3">{p.D}</td>
                     <td className="p-3">{p.A}</td>
                     <td className={`p-3 ${getStatClass("ADR", p.ADR)}`}>
-                      {p.ADR.toFixed(2)}
+                      {p.ADR.toFixed(2) || undefined}
                     </td>
                     <td className={`p-3 ${getStatClass("HS", p.HS)}`}>
-                      {p.HS.toFixed(2)}%
+                      {p.HS ? p.HS.toFixed(2) : undefined}%
                     </td>
                     <td className={`p-3 ${getStatClass("accuracy", p.accuracy)}`}>
-                      {p.accuracy.toFixed(2)}%
+                      {p.accuracy ? p.accuracy.toFixed(2) : undefined}%
                     </td>
                   </tr>
                 ))}
