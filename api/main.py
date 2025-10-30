@@ -59,6 +59,7 @@ class PlayerstatsAggregated(BaseModel):
     ADR: float
     HS: Optional[float]
     accuracy: Optional[float]
+    games: int
 
 class PlayerstatsWithPlayer(PlayerstatsBase):
     player: Player | None
@@ -479,7 +480,8 @@ def get_playerstats(div: str | None = None, group: str | None = None, team_id: i
             func.sum(Playerstats.D).label("D"),
             func.avg(Playerstats.ADR).label("ADR"),
             func.coalesce(func.avg(Playerstats.hs_percent), None).label("HS"),
-            func.coalesce(func.avg(Playerstats.accuracy), None).label("accuracy")
+            func.coalesce(func.avg(Playerstats.accuracy), None).label("accuracy"),
+            func.count().label("games")
         )
         .join(Playerstats, Player.id == Playerstats.player_id)
         .join(Team, Player.team_id == Team.id)  # Join with Team table

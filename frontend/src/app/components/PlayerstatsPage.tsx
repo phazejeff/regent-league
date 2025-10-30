@@ -19,6 +19,7 @@ type PlayerStats = {
   ADR: number;
   HS: number;
   accuracy: number;
+  games: number;
 };
 
 export default function PlayerStatsPage() {
@@ -83,19 +84,28 @@ export default function PlayerStatsPage() {
   };
 
   const sortedPlayers = [...players].sort((a, b) => {
-    const valueA = a[sortBy];
-    const valueB = b[sortBy];
+    let valueA: number | string = a[sortBy];
+    let valueB: number | string = b[sortBy];
+
+    // Convert K/D/A to per-game if sorting by them
+    if (sortBy === "K" || sortBy === "D" || sortBy === "A") {
+      valueA = a[sortBy] / a.games;
+      valueB = b[sortBy] / b.games;
+    }
 
     if (typeof valueA === "number" && typeof valueB === "number") {
       return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
     }
+
     if (typeof valueA === "string" && typeof valueB === "string") {
       return sortOrder === "asc"
         ? valueA.localeCompare(valueB)
         : valueB.localeCompare(valueA);
     }
+
     return 0;
   });
+
 
   const SortableHeader: React.FC<{ column: keyof PlayerStats; label: string }> = ({
     column,
@@ -129,6 +139,14 @@ export default function PlayerStatsPage() {
     if (column === "accuracy") {
       if (value >= 60) return "text-green-600 font-semibold";
       if (value < 15) return "text-red-500 font-semibold";
+    }
+    if (column === "K") {
+      if (value >= 22) return "text-green-600 font-semibold";
+      if (value < 12) return "text-red-500 font-semibold";
+    }
+    if (column === "D") {
+      if (value <= 12) return "text-green-600 font-semibold";
+      if (value > 20) return "text-red-500 font-semibold";
     }
     return "";
   };
@@ -211,9 +229,9 @@ export default function PlayerStatsPage() {
                   <th className="p-3 text-left">Rank</th>
                   <th className="p-3 text-left">Player</th>
                   <th className="p-3 text-left">Team</th>
-                  <SortableHeader column="K" label="Kills" />
-                  <SortableHeader column="D" label="Deaths" />
-                  <SortableHeader column="A" label="Assists" />
+                  <SortableHeader column="K" label="Kills Per Game" />
+                  <SortableHeader column="D" label="Deaths Per Game" />
+                  <SortableHeader column="A" label="Assists Per Game" />
                   <SortableHeader column="ADR" label="ADR" />
                   <SortableHeader column="HS" label="HS%" />
                   <SortableHeader column="accuracy" label="Accuracy%" />
@@ -233,9 +251,15 @@ export default function PlayerStatsPage() {
                     </td>
                     <td className="p-3"><Link className="hover:underline" href={`/player/${p.id}`}>{p.name}</Link></td>
                     <td className="p-3">{p.team}</td>
-                    <td className="p-3">{p.K}</td>
-                    <td className="p-3">{p.D}</td>
-                    <td className="p-3">{p.A}</td>
+                    <td className={`p-3 ${getStatClass("K", p.K / p.games)}`}>
+                      {(p.K / p.games).toFixed(2)}
+                    </td>
+                    <td className={`p-3 ${getStatClass("D", p.D / p.games)}`}>
+                      {(p.D / p.games).toFixed(2)}
+                    </td>
+                    <td className={`p-3 ${getStatClass("A", p.A / p.games)}`}>
+                      {(p.A / p.games).toFixed(2)}
+                    </td>
                     <td className={`p-3 ${getStatClass("ADR", p.ADR)}`}>
                       {p.ADR.toFixed(2) || undefined}
                     </td>
