@@ -35,6 +35,8 @@ export default function PlayerStatsPage() {
   const [sortBy, setSortBy] = useState<keyof PlayerStats>("K");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
+  const [displayTotals, setDisplayTotals] = useState(false);
+
   // Load divisions
   useEffect(() => {
     fetch(`${process.env.API_ROOT}/divisions`)
@@ -87,8 +89,8 @@ export default function PlayerStatsPage() {
     let valueA: number | string = a[sortBy];
     let valueB: number | string = b[sortBy];
 
-    // Convert K/D/A to per-game if sorting by them
-    if (sortBy === "K" || sortBy === "D" || sortBy === "A") {
+    // Convert K/D/A to per-game if sorting by them and toggle is off
+    if (!displayTotals && (sortBy === "K" || sortBy === "D" || sortBy === "A")) {
       valueA = a[sortBy] / a.games;
       valueB = b[sortBy] / b.games;
     }
@@ -105,7 +107,6 @@ export default function PlayerStatsPage() {
 
     return 0;
   });
-
 
   const SortableHeader: React.FC<{ column: keyof PlayerStats; label: string }> = ({
     column,
@@ -141,12 +142,16 @@ export default function PlayerStatsPage() {
       if (value < 15) return "text-red-500 font-semibold";
     }
     if (column === "K") {
-      if (value >= 22) return "text-green-600 font-semibold";
-      if (value < 12) return "text-red-500 font-semibold";
+      if (!displayTotals) {
+        if (value >= 22) return "text-green-600 font-semibold";
+        if (value < 12) return "text-red-500 font-semibold";
+      }
     }
     if (column === "D") {
-      if (value <= 12) return "text-green-600 font-semibold";
-      if (value > 20) return "text-red-500 font-semibold";
+      if (!displayTotals) {
+        if (value <= 12) return "text-green-600 font-semibold";
+        if (value > 20) return "text-red-500 font-semibold";
+      }
     }
     return "";
   };
@@ -159,8 +164,7 @@ export default function PlayerStatsPage() {
         </CardHeader>
         <CardContent>
           {/* Filters */}
-          <div className="flex flex-wrap gap-4 mb-4">
-            {/* Division */}
+          <div className="flex flex-wrap gap-4 mb-4 items-center">
             <select
               value={selectedDiv}
               onChange={(e) => {
@@ -178,7 +182,6 @@ export default function PlayerStatsPage() {
               ))}
             </select>
 
-            {/* Group */}
             <select
               value={selectedGroup}
               onChange={(e) => {
@@ -196,7 +199,6 @@ export default function PlayerStatsPage() {
               ))}
             </select>
 
-            {/* Team */}
             <select
               value={selectedTeam}
               onChange={(e) =>
@@ -219,6 +221,17 @@ export default function PlayerStatsPage() {
                   </option>
                 ))}
             </select>
+
+            {/* Toggle for totals */}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={displayTotals}
+                onChange={(e) => setDisplayTotals(e.target.checked)}
+                className="form-checkbox"
+              />
+              Show Totals
+            </label>
           </div>
 
           {/* Table */}
@@ -229,9 +242,9 @@ export default function PlayerStatsPage() {
                   <th className="p-3 text-left">Rank</th>
                   <th className="p-3 text-left">Player</th>
                   <th className="p-3 text-left">Team</th>
-                  <SortableHeader column="K" label="Kills Per Game" />
-                  <SortableHeader column="D" label="Deaths Per Game" />
-                  <SortableHeader column="A" label="Assists Per Game" />
+                  <SortableHeader column="K" label={displayTotals ? "Kills Total" : "Kills Per Game"} />
+                  <SortableHeader column="D" label={displayTotals ? "Deaths Total" : "Deaths Per Game"} />
+                  <SortableHeader column="A" label={displayTotals ? "Assists Total" : "Assists Per Game"} />
                   <SortableHeader column="ADR" label="ADR" />
                   <SortableHeader column="HS" label="HS%" />
                   <SortableHeader column="accuracy" label="Accuracy%" />
@@ -249,19 +262,23 @@ export default function PlayerStatsPage() {
                       {index === 2 && <Medal className="text-amber-700" />}
                       {index > 2 && index + 1}
                     </td>
-                    <td className="p-3"><Link className="hover:underline" href={`/player/${p.id}`}>{p.name}</Link></td>
+                    <td className="p-3">
+                      <Link className="hover:underline" href={`/player/${p.id}`}>
+                        {p.name}
+                      </Link>
+                    </td>
                     <td className="p-3">{p.team}</td>
-                    <td className={`p-3 ${getStatClass("K", p.K / p.games)}`}>
-                      {(p.K / p.games).toFixed(2)}
+                    <td className={`p-3 ${getStatClass("K", displayTotals ? p.K : p.K / p.games)}`}>
+                      {(displayTotals ? p.K : p.K / p.games).toFixed(2)}
                     </td>
-                    <td className={`p-3 ${getStatClass("D", p.D / p.games)}`}>
-                      {(p.D / p.games).toFixed(2)}
+                    <td className={`p-3 ${getStatClass("D", displayTotals ? p.D : p.D / p.games)}`}>
+                      {(displayTotals ? p.D : p.D / p.games).toFixed(2)}
                     </td>
-                    <td className={`p-3 ${getStatClass("A", p.A / p.games)}`}>
-                      {(p.A / p.games).toFixed(2)}
+                    <td className={`p-3 ${getStatClass("A", displayTotals ? p.A : p.A / p.games)}`}>
+                      {(displayTotals ? p.A : p.A / p.games).toFixed(2)}
                     </td>
                     <td className={`p-3 ${getStatClass("ADR", p.ADR)}`}>
-                      {p.ADR.toFixed(2) || undefined}
+                      {p.ADR.toFixed(2)}
                     </td>
                     <td className={`p-3 ${getStatClass("HS", p.HS)}`}>
                       {p.HS ? p.HS.toFixed(2) : undefined}%
