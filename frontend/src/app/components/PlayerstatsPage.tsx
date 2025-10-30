@@ -240,10 +240,10 @@ export default function PlayerStatsPage() {
                       {p.ADR.toFixed(2)}
                     </td>
                     <td className={`p-3 ${getStatClass("HS", p.HS)}`}>
-                      {p.HS}%
+                      {p.HS.toFixed(2)}%
                     </td>
                     <td className={`p-3 ${getStatClass("accuracy", p.accuracy)}`}>
-                      {p.accuracy}%
+                      {p.accuracy.toFixed(2)}%
                     </td>
                   </tr>
                 ))}
