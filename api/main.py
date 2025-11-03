@@ -294,6 +294,25 @@ def get_match(match_id: int, session: Session = Depends(get_session)) -> MatchWi
     result = session.exec(statement).first()
     return result
 
+@app.delete("/deletematch/{match_id}")
+def delete_match(match_id: int, password: str, response: Response, session: Session = Depends(get_session)):
+    if password != PASSWORD:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"message": "Incorrect password"}
+
+    match = session.get(Match, match_id)
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+
+    existing_maps = session.exec(select(Map).where(Map.match_id == match.id)).all()
+    for map_obj in existing_maps:
+        session.exec(delete(Playerstats).where(Playerstats.map_id == map_obj.id))
+        session.exec(delete(MapPlayer).where(MapPlayer.map_id == map_obj.id))
+        session.delete(map_obj)
+    session.delete(match)
+    session.flush()
+    session.commit()
+
 @app.post("/addteam", status_code=status.HTTP_201_CREATED)
 def add_team(team: TeamBase, password, response: Response, session: Session = Depends(get_session)):
     if password != PASSWORD:

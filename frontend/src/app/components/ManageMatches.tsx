@@ -60,6 +60,7 @@ interface Match {
 export default function ManageMatches() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchMatches = async () => {
     try {
@@ -68,6 +69,32 @@ export default function ManageMatches() {
       setMatches(data);
     } catch (err) {
       console.error("Failed to fetch matches:", err);
+    }
+  };
+
+  const deleteMatch = async (matchId: number) => {
+    const password = prompt("Enter password to delete this match:");
+    if (!password) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`${process.env.API_ROOT}/deletematch/${matchId}?password=${password}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errMsg = await res.text();
+        alert(`Failed to delete match: ${errMsg}`);
+        return;
+      }
+
+      alert("Match deleted successfully.");
+      await fetchMatches();
+    } catch (err) {
+      console.error("Error deleting match:", err);
+      alert("Failed to delete match due to a network error.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -118,6 +145,13 @@ export default function ManageMatches() {
                   className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl"
                 >
                   Edit
+                </button>
+                <button
+                  disabled={isDeleting}
+                  onClick={() => deleteMatch(match.id)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl disabled:opacity-50"
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
                 </button>
               </div>
             </div>
