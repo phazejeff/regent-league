@@ -196,14 +196,22 @@ export default function UpcomingMatchesPage() {
           const team1Secondary = match.team1.secondColor || "#000000";
           const team2Secondary = match.team2.secondColor || "#000000";
           const matchtime = DateTime.fromISO(match.datetime, { zone: "America/Los_Angeles" });
-          const isLive = DateTime.now() >= matchtime;
+          const now = DateTime.now();
+          const hoursSinceMatch = now.diff(matchtime, "hours").hours;
+
+          const isLive = hoursSinceMatch >= 0 && hoursSinceMatch < 5;
+          const isFinishedAwaitingResults = hoursSinceMatch >= 5;
+
 
           return (
             <div
               key={idx}
               className={`relative flex flex-col md:flex-row justify-between md:items-start items-center text-white rounded-2xl shadow-2xl overflow-hidden border-4 ${
-                isLive ? "border-red-600 animate-pulse" : 
-                match.casted ? "border-purple-600" : "border-black"
+                isLive
+                  ? "border-red-600 animate-pulse"
+                  : match.casted
+                  ? "border-purple-600"
+                  : "border-black"
               }`}
               style={{
                 background: `linear-gradient(${isMobile ? "180deg" : "90deg"}, ${team1Color}, ${team2Color})`,
@@ -213,6 +221,12 @@ export default function UpcomingMatchesPage() {
               {isLive && (
                 <div className="absolute top-2 right-2 bg-red-600 text-white font-bold px-3 py-1 rounded-full shadow-md text-sm">
                   LIVE
+                </div>
+              )}
+
+              {isFinishedAwaitingResults && (
+                <div className="absolute top-2 right-2 bg-gray-300 text-black font-bold px-3 py-1 rounded-full shadow-md text-sm whitespace-nowrap">
+                  Finished
                 </div>
               )}
 
