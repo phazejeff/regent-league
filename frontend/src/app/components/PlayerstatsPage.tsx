@@ -293,7 +293,7 @@ export default function PlayerStatsPage() {
                       {playerRanks[p.id] === 1 && <Medal className="text-yellow-500" />}
                       {playerRanks[p.id] === 2 && <Medal className="text-gray-400" />}
                       {playerRanks[p.id] === 3 && <Medal className="text-amber-700" />}
-                      {playerRanks[p.id] > 3 && playerRanks[p.id] + 1}
+                      {playerRanks[p.id] > 3 && playerRanks[p.id]}
                     </td>
                     <td className="p-3">
                       <Link className="hover:underline" href={`/player/${p.id}`}>
