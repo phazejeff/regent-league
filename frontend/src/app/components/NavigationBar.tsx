@@ -34,6 +34,7 @@ export default function NavigationBar() {
     { href: "/teams", label: "Teams" },
     { href: "/matches", label: "Matches" },
     { href: "/standings", label: "Standings" },
+    { href: "/playoffs", label: "Playoffs" },
     { href: "/results", label: "Results" },
     { href: "/playerstats", label: "Player Stats" },
     { href: "/rules", label: "Ruleset" },
