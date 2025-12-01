@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Loader2, Trophy } from "lucide-react";
 import Link from "next/link";
@@ -78,6 +78,7 @@ export default function StandingsPage() {
       <Card className="shadow-xl rounded-2xl border border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">League Standings</CardTitle>
+          <CardDescription className="text-center">Tiebreaker goes as follows: H2H, Round Differential, Map Differential</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap justify-center gap-6">
@@ -168,17 +169,17 @@ export default function StandingsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="font-medium">Maps</p>
-                    <p>{s.map_wins}W - {s.map_losses}L</p>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Diff: {getDiff(s.map_wins, s.map_losses)}
-                    </p>
-                  </div>
-                  <div>
                     <p className="font-medium">Rounds</p>
                     <p>{s.round_wins}W - {s.round_losses}L</p>
                     <p className="text-gray-500 dark:text-gray-400">
                       Diff: {getDiff(s.round_wins, s.round_losses)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Maps</p>
+                    <p>{s.map_wins}W - {s.map_losses}L</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Diff: {getDiff(s.map_wins, s.map_losses)}
                     </p>
                   </div>
                 </div>
