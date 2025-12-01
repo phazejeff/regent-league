@@ -280,7 +280,6 @@ export default function PlayerStatsPage() {
                   />
                   <SortableHeader column="ADR" label="ADR" />
                   <SortableHeader column="HS" label="HS%" />
-                  <SortableHeader column="accuracy" label="Accuracy%" />
                 </tr>
               </thead>
               <tbody>
@@ -330,9 +329,6 @@ export default function PlayerStatsPage() {
                     </td>
                     <td className={`p-3 ${getStatClass("HS", p.HS)}`}>
                       {p.HS ? p.HS.toFixed(2) : undefined}%
-                    </td>
-                    <td className={`p-3 ${getStatClass("accuracy", p.accuracy)}`}>
-                      {p.accuracy ? p.accuracy.toFixed(2) : undefined}%
                     </td>
                   </tr>
                 ))}
