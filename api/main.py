@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List
 from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, File, UploadFile
@@ -450,42 +451,68 @@ def get_standings(div: str, group: str, session: Session = Depends(get_session))
         statement = statement.where(Team.group == group)
     teams = session.exec(statement).all()
 
-    all_team_stats: List[TeamStats] = []
+    head_to_head = {}
+
+    team_stats_map = {}
 
     for team in teams:
         matches = [*team.matches_as_team1, *team.matches_as_team2]
-        team_stats = TeamStats()
-        team_stats.team = team
+        stats = TeamStats()
+        stats.team = team
+        
         for match in matches:
+            opponent_id = match.team1_id if match.team1_id != team.id else match.team2_id
+
+            head_to_head.setdefault((team.id, opponent_id), 0)
+
             if match.winner_id == team.id:
-                team_stats.match_wins += 1
+                stats.match_wins += 1
+                head_to_head[(team.id, opponent_id)] += 1
             else:
-                team_stats.match_losses += 1
-            
+                stats.match_losses += 1
+
             for map in match.maps:
                 if map.winner_id == team.id:
-                    team_stats.map_wins += 1
+                    stats.map_wins += 1
                 else:
-                    team_stats.map_losses += 1
-                
-                if match.team1_id == team.id:
-                    team_stats.round_wins += map.team1_score
-                    team_stats.round_losses += map.team2_score
-                else:
-                    team_stats.round_wins += map.team2_score
-                    team_stats.round_losses += map.team1_score
-        all_team_stats.append(team_stats)
+                    stats.map_losses += 1
 
-    all_team_stats = sorted(
-        all_team_stats,
-        key = lambda t: (
-            t.match_wins - t.match_losses,
-            t.map_wins - t.map_losses,
-            t.round_wins - t.round_losses,
-        ),
-        reverse=True
-    )
-    return all_team_stats
+                if match.team1_id == team.id:
+                    stats.round_wins += map.team1_score
+                    stats.round_losses += map.team2_score
+                else:
+                    stats.round_wins += map.team2_score
+                    stats.round_losses += map.team1_score
+
+        team_stats_map[team.id] = stats
+
+    groups = defaultdict(list)
+
+    for stats in team_stats_map.values():
+        key = (stats.match_wins, stats.match_losses)
+        groups[key].append(stats)
+
+    final_list = []
+
+    for key, tied_teams in sorted(groups.items(), key=lambda x: (x[0][0] - x[0][1]), reverse=True):
+        def tiebreaker(t: TeamStats):
+            # Head-to-head score vs all tied opponents
+            h2h_score = 0
+            for other in tied_teams:
+                if other.team.id == t.team.id:
+                    continue
+                h2h_score += head_to_head.get((t.team.id, other.team.id), 0)
+
+            return (
+                h2h_score,
+                t.round_wins - t.round_losses,
+                t.map_wins - t.map_losses,
+            )
+
+        tied_sorted = sorted(tied_teams, key=tiebreaker, reverse=True)
+        final_list.extend(tied_sorted)
+
+    return final_list
 
 @app.get("/playerstats")
 def get_playerstats(div: str | None = None, group: str | None = None, team_id: int | None = None, session: Session = Depends(get_session)) -> List[PlayerstatsAggregated]:
