@@ -268,15 +268,15 @@ export default function PlayerStatsPage() {
                   <th className="p-3 text-left">Team</th>
                   <SortableHeader
                     column="K"
-                    label={displayTotals ? "Kills Total" : "Kills Per Game"}
+                    label={displayTotals ? "Kills Total" : "Kills Per Map"}
                   />
                   <SortableHeader
                     column="D"
-                    label={displayTotals ? "Deaths Total" : "Deaths Per Game"}
+                    label={displayTotals ? "Deaths Total" : "Deaths Per Map"}
                   />
                   <SortableHeader
                     column="A"
-                    label={displayTotals ? "Assists Total" : "Assists Per Game"}
+                    label={displayTotals ? "Assists Total" : "Assists Per Map"}
                   />
                   <SortableHeader column="ADR" label="ADR" />
                   <SortableHeader column="HS" label="HS%" />
