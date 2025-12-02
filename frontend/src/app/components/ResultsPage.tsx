@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectTrigger,
@@ -162,6 +162,7 @@ export default function ResultsPage() {
       <Card className="shadow-md rounded-2xl">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Filter Matches</CardTitle>
+          <CardDescription>Regular Season Results</CardDescription>
         </CardHeader>
         <CardContent className="flex gap-4 flex-wrap">
           <Select onValueChange={setSelectedDiv} value={selectedDiv}>

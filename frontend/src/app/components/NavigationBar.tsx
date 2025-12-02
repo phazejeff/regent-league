@@ -32,7 +32,7 @@ export default function NavigationBar() {
   const links = [
     { href: "/about", label: "About Us" },
     { href: "/teams", label: "Teams" },
-    { href: "/matches", label: "Matches" },
+    // { href: "/matches", label: "Matches" }, // hide during playoffs
     { href: "/standings", label: "Standings" },
     { href: "/playoffs", label: "Playoffs" },
     { href: "/results", label: "Results" },
