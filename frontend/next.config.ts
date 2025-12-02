@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
       return [
         {
           source: '/',
-          destination: '/standings',
+          destination: '/playoffs',
           permanent: true
         },
         {
@@ -17,8 +17,8 @@ const nextConfig: NextConfig = {
       ]
   },
   env: {
-    API_ROOT: 'https://regent-league-api.poopdealer.lol'
-    // API_ROOT: 'http://127.0.0.1:8000'
+    // API_ROOT: 'https://regent-league-api.poopdealer.lol'
+    API_ROOT: 'http://127.0.0.1:8000'
   },
   images: {
     remotePatterns: [
