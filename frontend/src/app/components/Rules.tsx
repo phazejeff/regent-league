@@ -10,14 +10,14 @@ interface Division {
 
 const rulesDocs: Record<string, { view: string; mobile: string }> = {
   Elites: {
-    view: "https://docs.google.com/document/d/1AXnkKkmM_HJ6h7XAejdm-_Q3XjfPh8QdvcdclMwXrJo/view",
+    view: "https://docs.google.com/document/d/1DKDl8nO9JVwS97U_vdNGV8oVSYux5PCVETdZh5Hxtmg/view",
     mobile:
-      "https://docs.google.com/document/d/1AXnkKkmM_HJ6h7XAejdm-_Q3XjfPh8QdvcdclMwXrJo/mobilebasic",
+      "https://docs.google.com/document/d/1DKDl8nO9JVwS97U_vdNGV8oVSYux5PCVETdZh5Hxtmg/mobilebasic",
   },
   Challengers: {
-    view: "https://docs.google.com/document/d/1XdG79c2RTE1YAkR1ku0PX-EtL5C9pdzfKoAoxXyxDQ0/view",
+    view: "https://docs.google.com/document/d/1G2y2VWaPwps44Lb6k8hJqr2vU3GW1w0NxxAjKWN0D2o/view",
     mobile:
-      "https://docs.google.com/document/d/1XdG79c2RTE1YAkR1ku0PX-EtL5C9pdzfKoAoxXyxDQ0/mobilebasic",
+      "https://docs.google.com/document/d/1G2y2VWaPwps44Lb6k8hJqr2vU3GW1w0NxxAjKWN0D2o/mobilebasic",
   },
 };
 
