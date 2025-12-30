@@ -58,16 +58,18 @@ export default function PlacementsPage() {
     medal,
     label,
     isWinner = false,
+    medalSize = 16, // default 16px
   }: {
     teams: Placement[];
     height: string;
     medal: string;
     label: string;
     isWinner?: boolean;
+    medalSize?: number;
   }) {
     return (
       <div className="flex flex-col items-center">
-        {/* Teams */}
+        {/* Team Names & Logos */}
         <div className="flex gap-6 mb-2">
           {teams.map((p, idx) => (
             <motion.div
@@ -75,30 +77,17 @@ export default function PlacementsPage() {
               className="flex flex-col items-center"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.6, type: "spring", bounce: 0.3 }}
+              transition={{ delay: idx * 0.2, duration: 0.6, type: "spring", bounce: 0.3 }}
             >
-              {/* Team Name */}
               <div className="text-center font-bold mb-1">
                 <Link href={`/team/${p.team.id}`} className="hover:underline">
                   {p.team.name}
                 </Link>
               </div>
-
-              {/* Logo */}
-              <div className="relative w-24 h-24 mb-2">
+              <div className="relative w-32 h-32">
                 <Image
                   src={`${API_ROOT}/photos/${p.team.logo}`}
                   alt={p.team.name}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Medal / Trophy */}
-              <div className="relative w-24 h-24">
-                <Image
-                  src={medal}
-                  alt={isWinner ? "Trophy" : "Medal"}
                   fill
                   className="object-contain"
                 />
@@ -107,9 +96,9 @@ export default function PlacementsPage() {
           ))}
         </div>
 
-        {/* Podium Base */}
+        {/* Podium Base with Medal/Trophy */}
         <motion.div
-          className={`w-36 ${height} rounded-t-lg flex items-center justify-center font-bold text-xl`}
+          className={`w-36 ${height} rounded-t-lg flex flex-col items-center justify-center font-bold text-xl relative`}
           style={{
             background: teams[0].team.mainColor || "#444",
             color: "#fff",
@@ -119,7 +108,18 @@ export default function PlacementsPage() {
           animate={{ scaleY: 1 }}
           transition={{ duration: 1.5, type: "spring", bounce: 0.3 }}
         >
-          {label}
+          {/* Medal/Trophy */}
+          <div className={`absolute top-5`} style={{ width: medalSize, height: medalSize }}>
+            <Image
+              src={medal}
+              alt={isWinner ? "Trophy" : "Medal"}
+              fill
+              className="object-contain"
+            />
+          </div>
+
+          {/* Podium Label */}
+          <div>{label}</div>
         </motion.div>
       </div>
     );
@@ -154,12 +154,12 @@ export default function PlacementsPage() {
       </h1>
 
       {/* Division Buttons */}
-      <div className="flex justify-center gap-4 mb-20">
+      <div className="flex flex-wrap gap-4 mb-6 justify-center">
         {(["Elites", "Challengers"] as Division[]).map((div) => (
           <button
             key={div}
             onClick={() => setSelectedDivision(div)}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
+            className={`px-6 py-3 rounded-lg text-lg font-semibold transition ${
               selectedDivision === div
                 ? "bg-blue-600 text-white shadow-lg"
                 : "bg-gray-800 text-gray-300 hover:bg-blue-500"
@@ -172,15 +172,16 @@ export default function PlacementsPage() {
 
       {/* Podium */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-3 items-end justify-items-center h-[420px] max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 items-end justify-items-center h-[500px] max-w-4xl mx-auto">
           {/* 3rd Place (LEFT) */}
           <div className="w-full flex justify-center">
             {podiumPlacements.third.length > 0 && (
               <PodiumColumn
-                height="h-40"
+                height="h-50"
                 teams={podiumPlacements.third}
                 medal={MEDAL_BRONZE}
                 label="3rd"
+                medalSize={64} // smallest
               />
             )}
           </div>
@@ -189,11 +190,12 @@ export default function PlacementsPage() {
           <div className="w-full flex justify-center">
             {podiumPlacements.first.length > 0 && (
               <PodiumColumn
-                height="h-56"
+                height="h-90"
                 teams={podiumPlacements.first}
                 medal={MEDAL_GOLD}
                 label="1st"
                 isWinner
+                medalSize={150} // largest
               />
             )}
           </div>
@@ -202,10 +204,11 @@ export default function PlacementsPage() {
           <div className="w-full flex justify-center">
             {podiumPlacements.second.length > 0 && (
               <PodiumColumn
-                height="h-48"
+                height="h-70"
                 teams={podiumPlacements.second}
                 medal={MEDAL_SILVER}
                 label="2nd"
+                medalSize={100} // medium
               />
             )}
           </div>
