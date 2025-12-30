@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 type Team = {
   id: number;
@@ -50,6 +51,7 @@ export default function PlacementsPage() {
     }
   };
 
+  
   function PodiumColumn({
     teams,
     height,
@@ -68,10 +70,18 @@ export default function PlacementsPage() {
         {/* Teams */}
         <div className="flex gap-6 mb-2">
           {teams.map((p, idx) => (
-            <div key={idx} className="flex flex-col items-center">
+            <motion.div
+              key={idx}
+              className="flex flex-col items-center"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6, type: "spring", bounce: 0.3 }}
+            >
               {/* Team Name */}
               <div className="text-center font-bold mb-1">
-                <Link href={`/team/${p.team.id}`} className="hover:underline">{p.team.name}</Link>
+                <Link href={`/team/${p.team.id}`} className="hover:underline">
+                  {p.team.name}
+                </Link>
               </div>
 
               {/* Logo */}
@@ -93,20 +103,24 @@ export default function PlacementsPage() {
                   className="object-contain"
                 />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Podium Base */}
-        <div
+        <motion.div
           className={`w-36 ${height} rounded-t-lg flex items-center justify-center font-bold text-xl`}
           style={{
             background: teams[0].team.mainColor || "#444",
             color: teams[0].team.secondColor || "#fff",
+            transformOrigin: "bottom",
           }}
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
+          transition={{ duration: 1.5, type: "spring", bounce: 0.3 }}
         >
           {label}
-        </div>
+        </motion.div>
       </div>
     );
   }
