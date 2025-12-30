@@ -140,7 +140,7 @@ class TeamFull(TeamBase):
     upcoming_as_team2: List[GetUpcoming]
 
 class GetPlacement(PlacementsBase):
-    team: TeamBase
+    team: Team
 
 def get_session():
     with Session(engine) as session:
