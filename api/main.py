@@ -139,6 +139,9 @@ class TeamFull(TeamBase):
     upcoming_as_team1: List[GetUpcoming]
     upcoming_as_team2: List[GetUpcoming]
 
+class GetPlacement(PlacementsBase):
+    team: TeamBase
+
 def get_session():
     with Session(engine) as session:
         yield session
@@ -638,3 +641,11 @@ def edit_upcoming(upcoming: EditUpcoming, password, response: Response, session:
     session.commit()
     session.refresh(upcoming_db)
     return {"message" : "Created"}
+
+@app.get("/placements")
+def get_placements(div: str | None, session: Session = Depends(get_session)) -> List[GetPlacement]:
+    placements_db = select(Placements)
+    if div:
+        placements_db = placements_db.where(Placements.division == div)
+    placements_db = placements_db.order_by(Placements.placement)
+    return session.exec(placements_db).all()
