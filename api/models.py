@@ -24,6 +24,7 @@ class Team(TeamBase, table=True):
     matches_as_team2: List["Match"] = Relationship(back_populates="team2", sa_relationship_kwargs={"foreign_keys": "[Match.team2_id]"})
     upcoming_as_team1: List["Upcoming"] = Relationship(back_populates="team1", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team1_id]"})
     upcoming_as_team2: List["Upcoming"] = Relationship(back_populates="team2", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team2_id]"})
+    placements: List["Placements"] = Relationship(back_populates="team", sa_relationship_kwargs={"foreign_keys": "[Placements.team_id]"})
 
 class PlayerBase(SQLModel):
     name: str
@@ -120,3 +121,15 @@ class Upcoming(UpcomingBase, table=True):
 
     team1: Team = Relationship(back_populates="upcoming_as_team1", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team1_id]"})
     team2: Team = Relationship(back_populates="upcoming_as_team2", sa_relationship_kwargs={"foreign_keys": "[Upcoming.team2_id]"})
+
+class PlacementsBase(SQLModel):
+    placement: int
+    division: str
+    semester: str
+    year: int
+    split: bool
+
+class Placements(PlacementsBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    team_id: int = Field(foreign_key="team.id")
+    team: Team = Relationship(back_populates="placements", sa_relationship_kwargs={"foreign_keys": "[Placements.team_id]"})
