@@ -36,6 +36,7 @@ export default function NavigationBar() {
     { href: "/standings", label: "Standings" },
     // { href: "/playoffs", label: "Playoffs" }, // hide during regular season
     { href: "/results", label: "Results" },
+    { href: "/winners", label: "Winners"},
     { href: "/playerstats", label: "Player Stats" },
     { href: "/rules", label: "Ruleset" },
   ];
