@@ -33,13 +33,13 @@ app.add_middleware(
 
 app.mount("/photos", StaticFiles(directory="photos"), name="photos")
 
-with Session(engine) as session:
-    statement = select(Team)
-    teams = session.exec(statement).all()
-    for team in teams:
-        team.mainColor = getMainColor(team.logo)
-    session.add_all(teams)
-    session.commit()
+# with Session(engine) as session:
+#     statement = select(Team)
+#     teams = session.exec(statement).all()
+#     for team in teams:
+#         team.mainColor = getMainColor(team.logo)
+#     session.add_all(teams)
+#     session.commit()
 
 class TeamStats(BaseModel):
     team: Team | None = None
