@@ -228,7 +228,7 @@ export default function PlacementsPage() {
               return (
                 <div
                   key={idx}
-                  className="flex items-center gap-4 p-4 rounded-lg bg-gray-900 border border-gray-700"
+                  className="flex items-center gap-4 p-4 mr-5 ml-5 rounded-lg bg-gray-900 border border-gray-700"
                 >
                   {/* Medal / Trophy */}
                   <div className="relative w-12 h-12 shrink-0">
