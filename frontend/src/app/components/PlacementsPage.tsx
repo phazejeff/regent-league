@@ -112,7 +112,7 @@ export default function PlacementsPage() {
           className={`w-36 ${height} rounded-t-lg flex items-center justify-center font-bold text-xl`}
           style={{
             background: teams[0].team.mainColor || "#444",
-            color: teams[0].team.secondColor || "#fff",
+            color: "#fff",
             transformOrigin: "bottom",
           }}
           initial={{ scaleY: 0 }}
@@ -150,7 +150,7 @@ export default function PlacementsPage() {
   return (
     <div className="max-w-6xl mx-auto mt-8 text-white">
       <h1 className="text-3xl font-bold text-center mb-6">
-        {selectedDivision} Placements
+        {selectedDivision} Fall 2025 Winners
       </h1>
 
       {/* Division Buttons */}
@@ -311,7 +311,7 @@ export default function PlacementsPage() {
 
                   {/* Team Name */}
                   <div className="flex flex-col">
-                    <span className="font-semibold">{p.team.name}</span>
+                    <span className="font-semibold"><Link href={`/team/${p.team.id}`} className="hover:underline">{p.team.name}</Link></span>
                     <span className="text-sm text-gray-400">
                       {p.team.school}
                     </span>
