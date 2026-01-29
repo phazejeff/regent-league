@@ -20,7 +20,7 @@ interface PlayerStat {
   D: number;
   ADR: number;
   hs_percent: number;
-  accuracy: number;
+  KPR: number;
   player: Player;
 }
 
