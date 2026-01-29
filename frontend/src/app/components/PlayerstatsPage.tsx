@@ -18,7 +18,7 @@ type PlayerStats = {
   A: number;
   ADR: number;
   HS: number;
-  accuracy: number;
+  KPR: number;
   games: number;
 };
 
@@ -149,9 +149,9 @@ export default function PlayerStatsPage() {
       if (value >= 50) return "text-green-600 font-semibold";
       if (value < 30) return "text-red-500 font-semibold";
     }
-    if (column === "accuracy") {
-      if (value >= 60) return "text-green-600 font-semibold";
-      if (value < 15) return "text-red-500 font-semibold";
+    if (column === "KPR") {
+      if (value >= 1) return "text-green-600 font-semibold";
+      if (value < 0.7) return "text-red-500 font-semibold";
     }
     if (column === "K") {
       if (!displayTotals) {

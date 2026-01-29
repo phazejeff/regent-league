@@ -85,7 +85,7 @@ class PlayerstatsBase(SQLModel):
     D: int
     ADR: float
     hs_percent: Optional[float]
-    accuracy: Optional[float]
+    KPR: Optional[float]
 class Playerstats(PlayerstatsBase, table=True):
     player_id: int = Field(foreign_key="player.id", primary_key=True)
     map_id: int = Field(foreign_key="map.id", primary_key=True)
