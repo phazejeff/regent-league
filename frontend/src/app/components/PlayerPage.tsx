@@ -222,7 +222,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
 
           {/* RIGHT: Faceit Stats */}
           {(faceitElo !== null || faceitLevel !== null) && (
-            <div className="flex flex-col items-end gap-3 rounded-xl bg-zinc-900/60 px-5 py-4 text-sm text-zinc-200 min-w-[180px]">
+            <div className="flex flex-col items-center gap-3 rounded-xl bg-zinc-900/60 px-5 py-4 text-sm text-zinc-200 min-w-[180px]">
               {faceitLevel !== null && (
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-semibold text-white">
@@ -232,7 +232,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
               )}
 
               {faceitElo !== null && (
-                <div className="text-right">
+                <div className="text-center">
                   <span className="text-xs uppercase tracking-wide text-zinc-400">
                     Faceit Elo
                   </span>

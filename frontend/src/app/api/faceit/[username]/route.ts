@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   _: Request,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const { username } = await params;
     const res = await fetch(
-      `https://www.faceit.com/api/users/v1/nicknames/${params.username}`,
+      `https://www.faceit.com/api/users/v1/nicknames/${username}`,
       {
         headers: {
           "User-Agent": "Mozilla/5.0",
