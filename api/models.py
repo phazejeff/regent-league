@@ -32,6 +32,9 @@ class PlayerBase(SQLModel):
     year: str
     major: str
     main: bool
+    faceit_url: Optional[str]
+    hometown: Optional[str]
+    former_player: bool = Field(default=False)
 class Player(PlayerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team_id: Optional[int] = Field(foreign_key="team.id")

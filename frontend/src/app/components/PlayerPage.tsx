@@ -45,6 +45,9 @@ interface Player {
   year: string;
   major: string;
   main: boolean;
+  faceit_url: string;
+  hometown: string;
+  former_player: boolean;
   team: Team;
   team_sub?: Team | null;
   map_stats: MapStats[];
@@ -54,9 +57,43 @@ interface PlayerPageProps {
     playerId: number;
 }
 
+function faceitLevelClasses(level: number) {
+  switch (level) {
+    case 1:
+    case 2:
+      return "bg-gray-600 text-white";
+    case 3:
+    case 4:
+      return "bg-green-600 text-white";
+    case 5:
+    case 6:
+      return "bg-blue-600 text-white";
+    case 7:
+    case 8:
+      return "bg-purple-600 text-white";
+    case 9:
+      return "bg-orange-500 text-black";
+    case 10:
+      return "bg-red-600 text-white shadow-[0_0_12px_rgba(239,68,68,0.6)]";
+    default:
+      return "bg-gray-700 text-white";
+  }
+}
+
 export default function PlayerPage({ playerId }: PlayerPageProps) {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
+  const [faceitElo, setFaceitElo] = useState<number | null>(null);
+  const [faceitLevel, setFaceitLevel] = useState<number | null>(null);
+
+  function getFaceitUsername(url: string) {
+    try {
+      const parts = new URL(url).pathname.split("/");
+      return parts[parts.length - 1]; // last segment
+    } catch {
+      return null;
+    }
+  }
 
   useEffect(() => {
     async function fetchPlayer() {
@@ -72,6 +109,25 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
     }
     if (playerId) fetchPlayer();
   }, [playerId]);
+
+  useEffect(() => {
+    async function fetchFaceit(username: string) {
+      try {
+        const res = await fetch(`/api/faceit/${username}`);
+        const data = await res.json();
+
+        setFaceitElo(data.elo);
+        setFaceitLevel(data.level);
+      } catch (err) {
+        console.error("Failed to load Faceit stats", err);
+      }
+    }
+
+    if (player?.faceit_url) {
+      const username = getFaceitUsername(player.faceit_url);
+      if (username) fetchFaceit(username);
+    }
+  }, [player]);
 
   if (loading) return <p className="text-center py-10">Loading player...</p>;
   if (!player) return <p className="text-center py-10">Player not found</p>;
@@ -111,39 +167,88 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Overview Card */}
       <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 shadow-md text-white">
-        <h1 className="text-3xl font-bold">{player.name}</h1>
-        <p className="text-lg text-gray-300">{player.real_name}</p>
-        <p className="mt-1 text-sm">
-          {player.year} • {player.major}
-        </p>
-        <div className="flex items-center gap-6 mt-4">
-          {/* Main Team */}
-          <div className="flex items-center gap-2">
-            {player.team.logo && (
-              <Image
-                src={`${process.env.API_ROOT}/photos/${player.team.logo}`}
-                alt={player.team.name}
-                width={40}
-                height={40}
-                className="rounded"
-              />
-            )}
-            <span className="font-semibold"><Link href={`/team/${player.team.id}`} className="hover:underline">{player.team.name}</Link></span>
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+          
+          {/* LEFT: Player Info */}
+          <div>
+            <h1 className="text-3xl font-bold">{player.name}</h1>
+            <p className="text-lg text-gray-300">{player.real_name}</p>
+            <p className="text-lg text-gray-300">{player.hometown}</p>
+            <p className="mt-1 text-sm">
+              {player.year} • {player.major}
+            </p>
+
+            <div className="flex items-center gap-6 mt-4">
+              {/* Main Team */}
+              <div className="flex items-center gap-2">
+                {player.team.logo && (
+                  <Image
+                    src={`${process.env.API_ROOT}/photos/${player.team.logo}`}
+                    alt={player.team.name}
+                    width={40}
+                    height={40}
+                    className="rounded"
+                  />
+                )}
+                <span className="font-semibold">
+                  <Link href={`/team/${player.team.id}`} className="hover:underline">
+                    {player.team.name}
+                  </Link>
+                </span>
+              </div>
+
+              {/* Sub Team */}
+              {player.team_sub && (
+                <div className="flex items-center gap-2">
+                  {player.team_sub.logo && (
+                    <Image
+                      src={`${process.env.API_ROOT}/photos/${player.team_sub.logo}`}
+                      alt={player.team_sub.name}
+                      width={40}
+                      height={40}
+                      className="rounded"
+                    />
+                  )}
+                  <span className="font-semibold">
+                    <Link href={`/team/${player.team_sub.id}`} className="hover:underline">
+                      {player.team_sub.name}
+                    </Link>{" "}
+                    (sub)
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sub Team (optional) */}
-          {player.team_sub && (
-            <div className="flex items-center gap-2">
-              {player.team_sub.logo && (
-                <Image
-                  src={`${process.env.API_ROOT}/photos/${player.team_sub.logo}`}
-                  alt={player.team_sub.name}
-                  width={40}
-                  height={40}
-                  className="rounded"
-                />
+          {/* RIGHT: Faceit Stats */}
+          {(faceitElo !== null || faceitLevel !== null) && (
+            <div className="flex flex-col items-end gap-3 rounded-xl bg-zinc-900/60 px-5 py-4 text-sm text-zinc-200 min-w-[180px]">
+              {faceitLevel !== null && (
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold text-white">
+                    Level {faceitLevel}
+                  </span>
+                </div>
               )}
-              <span className="font-semibold"><Link href={`/team/${player.team_sub.id}`} className="hover:underline">{player.team_sub.name}</Link> (sub)</span>
+
+              {faceitElo !== null && (
+                <div className="text-right">
+                  <span className="text-xs uppercase tracking-wide text-zinc-400">
+                    Faceit Elo
+                  </span>
+                  <div className="text-lg font-semibold text-white">
+                    {faceitElo}
+                  </div>
+                </div>
+              )}
+
+              <Link
+                href={player.faceit_url}
+                target="_blank"
+                className="mt-2 rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-white transition hover:border-zinc-500 hover:bg-zinc-800"
+              >
+                View Faceit →
+              </Link>
             </div>
           )}
         </div>

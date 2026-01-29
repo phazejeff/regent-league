@@ -9,6 +9,9 @@ interface Player {
   year: string;
   major: string;
   main: boolean;
+  faceit_url: string;
+  hometown: string;
+  former_player: boolean;
   team_id: number;
   team_sub_id?: number | string;
 }
@@ -183,6 +186,30 @@ export default function PlayerEditor() {
             </div>
 
             <div>
+              <label className="block font-medium mb-1">Hometown</label>
+              <input
+                type="text"
+                value={editingPlayer.hometown}
+                onChange={(e) =>
+                  setEditingPlayer({ ...editingPlayer, hometown: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">Faceit URL</label>
+              <input
+                type="text"
+                value={editingPlayer.faceit_url}
+                onChange={(e) =>
+                  setEditingPlayer({ ...editingPlayer, faceit_url: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div>
               <label className="block font-medium mb-1">Year</label>
               <input
                 type="text"
@@ -220,6 +247,22 @@ export default function PlayerEditor() {
                 className="mr-2"
               />
               <span>{editingPlayer.main ? "Yes" : "No"}</span>
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">Former Player</label>
+              <input
+                type="checkbox"
+                checked={editingPlayer.former_player}
+                onChange={(e) =>
+                  setEditingPlayer({
+                    ...editingPlayer,
+                    former_player: e.target.checked,
+                  })
+                }
+                className="mr-2"
+              />
+              <span>{editingPlayer.former_player ? "Yes" : "No"}</span>
             </div>
 
             <div>
