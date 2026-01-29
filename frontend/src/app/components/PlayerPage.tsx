@@ -35,7 +35,7 @@ interface MapStats {
   D: number;
   ADR: number;
   hs_percent: number;
-  accuracy: number;
+  KPR: number;
   map: Map;
 }
 
@@ -85,10 +85,10 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
       acc.D += s.D;
       acc.ADR += s.ADR;
       acc.hs_percent += s.hs_percent;
-      acc.accuracy += s.accuracy;
+      acc.KPR += s.KPR;
       return acc;
     },
-    { K: 0, A: 0, D: 0, ADR: 0, hs_percent: 0, accuracy: 0 }
+    { K: 0, A: 0, D: 0, ADR: 0, hs_percent: 0, KPR: 0 }
   );
   const avg = {
     K: agg.K / totalMaps,
@@ -96,7 +96,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
     D: agg.D / totalMaps,
     ADR: agg.ADR / totalMaps,
     hs_percent: agg.hs_percent / totalMaps,
-    accuracy: agg.accuracy / totalMaps,
+    KPR: agg.KPR / totalMaps,
   };
 
   // Group by matches
@@ -171,8 +171,8 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
             <p className="text-sm">HS%</p>
           </div>
           <div>
-            <p className="text-lg font-bold">{avg.accuracy.toFixed(1)}%</p>
-            <p className="text-sm">Accuracy</p>
+            <p className="text-lg font-bold">{avg.KPR.toFixed(1)}</p>
+            <p className="text-sm">KPR</p>
           </div>
         </div>
       </div>
@@ -213,7 +213,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
                     <span>K/A/D: {ms.K}/{ms.A}/{ms.D}</span>
                     <span>ADR: {ms.ADR}</span>
                     <span>HS%: {ms.hs_percent}%</span>
-                    <span>Accuracy: {ms.accuracy}%</span>
+                    <span>KPR: {ms.KPR}%</span>
                   </div>
                 ))}
               </div>

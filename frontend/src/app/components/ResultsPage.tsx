@@ -36,7 +36,7 @@ type PlayerStats = {
   D: number;
   ADR: number;
   hs_percent: number;
-  accuracy: number;
+  KPR: number;
   player: Player;
 };
 type MapStats = {
@@ -303,7 +303,7 @@ export default function ResultsPage() {
                               <col className="w-1/12" /> {/* D */}
                               <col className="w-1/12" /> {/* ADR */}
                               <col className="w-1/12" /> {/* HS% */}
-                              <col className="w-1/12" /> {/* Accuracy */}
+                              <col className="w-1/12" /> {/* KPR */}
                             </colgroup>
 
                             <TableHeader>
@@ -314,7 +314,7 @@ export default function ResultsPage() {
                                 {renderHeader("D", "D", mapKey)}
                                 {renderHeader("ADR", "ADR", mapKey)}
                                 {renderHeader("HS%", "hs_percent", mapKey)}
-                                {renderHeader("Accuracy", "accuracy", mapKey)}
+                                {renderHeader("KPR", "KPR", mapKey)}
                               </TableRow>
                             </TableHeader>
 
@@ -331,7 +331,7 @@ export default function ResultsPage() {
                                   <TableCell>{ps.D}</TableCell>
                                   <TableCell>{ps.ADR}</TableCell>
                                   <TableCell>{ps.hs_percent}%</TableCell>
-                                  <TableCell>{ps.accuracy}%</TableCell>
+                                  <TableCell>{ps.KPR}%</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -351,7 +351,7 @@ export default function ResultsPage() {
                               <col className="w-1/12" /> {/* D */}
                               <col className="w-1/12" /> {/* ADR */}
                               <col className="w-1/12" /> {/* HS% */}
-                              <col className="w-1/12" /> {/* Accuracy */}
+                              <col className="w-1/12" /> {/* KPR */}
                             </colgroup>
                             <TableHeader>
                               <TableRow>
@@ -361,7 +361,7 @@ export default function ResultsPage() {
                                 {renderHeader("D", "D", mapKey)}
                                 {renderHeader("ADR", "ADR", mapKey)}
                                 {renderHeader("HS%", "hs_percent", mapKey)}
-                                {renderHeader("Accuracy", "accuracy", mapKey)}
+                                {renderHeader("KPR", "KPR", mapKey)}
                               </TableRow>
                             </TableHeader>
 
@@ -378,7 +378,7 @@ export default function ResultsPage() {
                                   <TableCell>{ps.D}</TableCell>
                                   <TableCell>{ps.ADR}</TableCell>
                                   <TableCell>{ps.hs_percent}%</TableCell>
-                                  <TableCell>{ps.accuracy}%</TableCell>
+                                  <TableCell>{ps.KPR}%</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>

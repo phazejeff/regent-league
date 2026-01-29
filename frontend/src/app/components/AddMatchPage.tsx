@@ -26,7 +26,7 @@ interface PlayerStat {
   D: number;
   ADR: number;
   hs_percent: number;
-  accuracy: number;
+  KPR: number;
   player_id: number;
 }
 
@@ -125,7 +125,7 @@ export default function AddMatchPage({
             D: ps.D,
             ADR: ps.ADR,
             hs_percent: ps.hs_percent,
-            accuracy: ps.accuracy,
+            KPR: ps.KPR,
             player_id: ps.player.id,
           })),
         }));
@@ -167,7 +167,7 @@ export default function AddMatchPage({
       D: 0,
       ADR: 0,
       hs_percent: 0,
-      accuracy: 0,
+      KPR: 0,
       player_id: 0,
     });
     setMaps(newMaps);
@@ -492,9 +492,9 @@ export default function AddMatchPage({
                       />
                       <Input
                         type="number"
-                        value={ps.accuracy}
+                        value={ps.KPR}
                         onChange={(e) =>
-                          handlePlayerStatChange(mapIndex, psIndex, "accuracy", Number(e.target.value))
+                          handlePlayerStatChange(mapIndex, psIndex, "KPR", Number(e.target.value))
                         }
                       />
                     </div>
