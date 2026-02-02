@@ -3,10 +3,11 @@ import TeamPage from '../../components/TeamPage';
 import type { Metadata } from "next";
 
 export async function generateMetadata(
-  { params }: { params: { team_id: string } }
+  { params }: { params: { id: number } }
 ): Promise<Metadata> {
+  const paramsAwaited = await params;
   const res = await fetch(
-    `${process.env.API_ROOT}/team/${params.team_id}`,
+    `${process.env.API_ROOT}/team/${paramsAwaited.id}`,
     { cache: "no-store" }
   );
 
@@ -19,7 +20,7 @@ export async function generateMetadata(
   const team = await res.json();
 
   return {
-    title: `${team.name} | CS Team`,
+    title: `${team.name}`,
     description: `${team.school} — ${team.div} Division, Group ${team.group}`,
     openGraph: {
       title: team.name,
