@@ -29,8 +29,6 @@ export async function generateMetadata(
       images: [
         {
           url: `${process.env.API_ROOT}/photos/${player.team.logo}`,
-          width: 512,
-          height: 512,
           alt: `${player.team.name} logo`,
         },
       ],
