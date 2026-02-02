@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface Team {
   id: number;
@@ -85,6 +86,7 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
   const [loading, setLoading] = useState(true);
   const [faceitElo, setFaceitElo] = useState<number | null>(null);
   const [faceitLevel, setFaceitLevel] = useState<number | null>(null);
+  const [poops, setPoops] = useState<number[]>([]);
 
   function getFaceitUsername(url: string) {
     try {
@@ -171,7 +173,34 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
           
           {/* LEFT: Player Info */}
           <div>
-            <h1 className="text-3xl font-bold">{player.name}</h1>
+            <h1
+              className={`text-3xl font-bold ${
+                Number(playerId) === 14 ? "hover:cursor-pointer" : ""
+              }`}
+              onClick={() => {
+                if (Number(playerId) === 14) {
+                  setPoops((p) => [...p, Date.now()]);
+                }
+              }}
+            >
+              {player.name}
+            </h1>
+            <div className="relative h-0">
+              {poops.map((id) => (
+                <motion.div
+                  key={id}
+                  initial={{ opacity: 1, y: 0, x: Math.random() * 150, scale: Math.random() + 1 }}
+                  animate={{ opacity: 0, y: 500, x: Math.random() * 150, scale: 1.4 }}
+                  transition={{ duration: Math.random() * 3 + 1, ease: "easeOut" }}
+                  onAnimationComplete={() =>
+                    setPoops((p) => p.filter((x) => x !== id))
+                  }
+                  className="absolute text-3xl"
+                >
+                  💩
+                </motion.div>
+              ))}
+            </div>
             <p className="text-lg text-gray-300">{player.real_name}</p>
             <p className="text-lg text-gray-300">{player.hometown}</p>
             <p className="mt-1 text-sm">
