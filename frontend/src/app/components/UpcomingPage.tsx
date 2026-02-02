@@ -63,12 +63,14 @@ export default function UpcomingMatchesPage() {
       // Convert standings into a lookup table for quick access
       const standingsMap: Record<number, { rank: number; matchRecord: string }> = {};
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      standingsData.forEach((entry: any, index: number) => {
-        standingsMap[entry.team.id] = {
-          rank: index + 1,
-          matchRecord: `${entry.match_wins}-${entry.match_losses}`,
-        };
-      });
+
+      {/* ENABLE THIS TO SHOW STANDING RANKINGS */}
+      // standingsData.forEach((entry: any, index: number) => {
+      //   standingsMap[entry.team.id] = {
+      //     rank: index + 1,
+      //     matchRecord: `${entry.match_wins}-${entry.match_losses}`,
+      //   };
+      // });
 
       setStandings(standingsMap);
     } catch (err) {
