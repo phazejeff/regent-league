@@ -23,7 +23,7 @@ export async function generateMetadata(
     title: `${team.name} - Regent League`,
     description: `${team.school} — ${team.div} Division, Group ${team.group}`,
     openGraph: {
-      title: team.name,
+      title: `${team.name} - Regent League`,
       description: `${team.school} — ${team.div} Division, Group ${team.group}`,
       url: `https://regentsleague.com/team/${team.id}`,
       images: [
@@ -37,7 +37,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: team.name,
+      title: `${team.name} - Regent League`,
       description: `${team.school} — ${team.div} Division, Group ${team.group}`,
       images: [`${process.env.API_ROOT}/photos/${team.logo}`],
     },
