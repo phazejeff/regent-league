@@ -21,10 +21,10 @@ export async function generateMetadata(
 
   return {
     title: `${player.name} - Regent League`,
-    description: `${player.real_name} - ${player.team.school}`,
+    description: `${player.real_name} - ${player.former_player ? 'Former player for ' : ''} ${player.team.school}`,
     openGraph: {
       title: `${player.name} - Regent League`,
-      description: `${player.real_name} - ${player.team.school}`,
+      description: `${player.real_name} - ${player.former_player ? 'Former player for ' : ''} ${player.team.school}`,
       url: `https://regentsleague.com/player/${player.id}`,
       images: [
         {
@@ -37,7 +37,7 @@ export async function generateMetadata(
     twitter: {
       card: "summary_large_image",
       title: `${player.name} - Regent League`,
-      description: `${player.real_name} - ${player.team.school}`,
+      description: `${player.real_name} - ${player.former_player ? 'Former player for ' : ''} ${player.team.school}`,
       images: [`${process.env.API_ROOT}/photos/${player.team.logo}`],
     },
   };
