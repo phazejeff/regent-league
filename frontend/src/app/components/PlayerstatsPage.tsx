@@ -280,6 +280,7 @@ export default function PlayerStatsPage() {
                   />
                   <SortableHeader column="ADR" label="ADR" />
                   <SortableHeader column="HS" label="HS%" />
+                  <SortableHeader column="KPR" label="KPR" />
                 </tr>
               </thead>
               <tbody>
