@@ -13,6 +13,7 @@ interface Player {
   major: string;
   year: string;
   main: boolean;
+  former_player: boolean;
 }
 
 interface TeamInfo {
@@ -102,6 +103,19 @@ export default function TeamPage({ team_id }: TeamPageProps) {
     );
   }
 
+  const mainPlayers = team.players.filter(
+    (p) => !p.former_player
+  );
+
+  const subPlayers = team.sub_players.filter(
+    (p) => !p.former_player
+  );
+
+  const formerPlayers = [
+    ...team.players,
+    ...team.sub_players,
+  ].filter((p) => p.former_player);
+
   // Combine matches
   const pastMatches = [...team.matches_as_team1, ...team.matches_as_team2].sort(
     (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
@@ -147,7 +161,7 @@ export default function TeamPage({ team_id }: TeamPageProps) {
           <CardTitle className="text-2xl font-bold">Players</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {team.players.map((p) => (
+          {mainPlayers.map((p) => (
             <motion.div
               key={p.id}
               initial={{ opacity: 0, y: 30 }}
@@ -170,13 +184,13 @@ export default function TeamPage({ team_id }: TeamPageProps) {
       </Card>
 
       {/* Sub Players */}
-      {team.sub_players.length > 0 && 
+      {subPlayers.length > 0 &&
         <Card className="mb-12 border-none shadow-md">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Substitute Players</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {team.sub_players.map((p) => (
+            {subPlayers.map((p) => (
               <motion.div
                 key={p.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -198,6 +212,39 @@ export default function TeamPage({ team_id }: TeamPageProps) {
           </CardContent>
         </Card>
       }
+
+      {/* Former Players */}
+      {formerPlayers.length > 0 && (
+      <Card className="mb-12 border-none shadow-md">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-muted-foreground">
+            Former Players
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {formerPlayers.map((p) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              viewport={{ once: true }}
+              className="p-4 rounded-lg border bg-muted/30 shadow-sm"
+            >
+              <h3 className="text-lg font-semibold hover:underline">
+                <Link href={`/player/${p.id}`}>
+                  {p.name}
+                </Link>
+              </h3>
+              {p.real_name && (
+                <p className="text-sm text-muted-foreground">{p.real_name}</p>
+              )}
+              <p className="text-sm mt-1">Major: {p.major}</p>
+            </motion.div>
+          ))}
+        </CardContent>
+      </Card>
+    )}
       
       {/* Upcoming Matches */}
       {upcomingMatches.length > 0 && (

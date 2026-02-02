@@ -8,7 +8,7 @@ import Link from "next/link";
 
 interface Division { id: number; name: string; }
 interface Team { id: number; name: string; div: string; group: string; logo?: string; }
-interface Player { id: number; name: string; age: number; year: string; major: string; main: boolean; team_id: number; team_sub_id: number; }
+interface Player { id: number; name: string; age: number; year: string; major: string; main: boolean; team_id: number; team_sub_id: number; former_player: boolean; }
 
 export default function TeamsByDivision() {
   const [divisions, setDivisions] = useState<Division[]>([]);

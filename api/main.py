@@ -369,7 +369,7 @@ def get_players(team_id: int | None = None, main_only: bool = False, session: Se
     statement = select(Player)
     if team_id is not None:
         if main_only:
-            statement = statement.where(and_(Player.team_id == team_id, Player.main == True))
+            statement = statement.where(and_(Player.team_id == team_id, Player.main == True, Player.former_player == False))
         else:
             statement = statement.where(or_(Player.team_id == team_id, Player.team_sub_id == team_id))
     players = session.exec(statement).all()
