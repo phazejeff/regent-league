@@ -32,7 +32,7 @@ export default function TeamsByDivision() {
       try {
         const [divRes, teamRes] = await Promise.all([
           fetch(`${process.env.API_ROOT}/divisions`),
-          fetch(`${process.env.API_ROOT}/teams`),
+          fetch(`${process.env.API_ROOT}/teams?active_only=true`),
         ]);
         const divisionsData: Division[] = await divRes.json();
         const teamsData: Team[] = await teamRes.json();

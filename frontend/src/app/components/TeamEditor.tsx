@@ -13,6 +13,7 @@ interface Team {
   school: string;
   mainColor: string;
   secondColor: string;
+  active: boolean;
 }
 
 export default function TeamEditor() {
@@ -83,6 +84,7 @@ export default function TeamEditor() {
             school: editingTeam.school,
             mainColor: editingTeam.mainColor,
             secondColor: editingTeam.secondColor,
+            active: editingTeam.active,
           }),
         }
       );
@@ -171,6 +173,14 @@ export default function TeamEditor() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Address: {team.address}
                   </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Status:{" "}
+                    <span
+                      className={team.active ? "text-green-600 font-medium" : "text-red-600 font-medium"}
+                    >
+                      {team.active ? "Active" : "Inactive"}
+                    </span>
+                  </p>
                   <div className="flex gap-2 mt-1">
                     <div className="w-5 h-5 rounded" style={{ backgroundColor: team.mainColor }} />
                     <div className="w-5 h-5 rounded" style={{ backgroundColor: team.secondColor }} />
@@ -240,6 +250,19 @@ export default function TeamEditor() {
                 }
                 className="w-full p-2 border rounded"
               />
+            </div>
+
+            {/* Active */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={editingTeam.active}
+                onChange={(e) =>
+                  setEditingTeam({ ...editingTeam, active: e.target.checked })
+                }
+                className="w-4 h-4"
+              />
+              <label className="font-medium">Team is Active</label>
             </div>
 
             {/* Address */}
