@@ -20,7 +20,7 @@ export async function generateMetadata(
   const team = await res.json();
 
   return {
-    title: `${team.name}`,
+    title: `${team.name} - Regent League`,
     description: `${team.school} — ${team.div} Division, Group ${team.group}`,
     openGraph: {
       title: team.name,
