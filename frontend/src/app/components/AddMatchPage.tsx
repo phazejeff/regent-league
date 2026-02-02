@@ -421,7 +421,7 @@ export default function AddMatchPage({
                     <div className="text-center">D</div>
                     <div className="text-center">ADR</div>
                     <div className="text-center">HS%</div>
-                    <div className="text-center">Acc</div>
+                    <div className="text-center">KPR</div>
                   </div>
 
                   {map.player_stats.map((ps, psIndex) => (
