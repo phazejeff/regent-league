@@ -33,6 +33,7 @@ class PlayerBase(SQLModel):
     year: str
     major: str
     main: bool
+    steam_id: Optional[str]
     faceit_url: Optional[str]
     hometown: Optional[str]
     former_player: bool = Field(default=False)

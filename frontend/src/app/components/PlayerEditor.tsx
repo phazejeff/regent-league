@@ -10,6 +10,7 @@ interface Player {
   major: string;
   main: boolean;
   faceit_url: string;
+  steam_id: string;
   hometown: string;
   former_player: boolean;
   team_id: number;
@@ -204,6 +205,18 @@ export default function PlayerEditor() {
                 value={editingPlayer.faceit_url}
                 onChange={(e) =>
                   setEditingPlayer({ ...editingPlayer, faceit_url: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">Steam64 ID</label>
+              <input
+                type="text"
+                value={editingPlayer.steam_id}
+                onChange={(e) =>
+                  setEditingPlayer({ ...editingPlayer, steam_id: e.target.value })
                 }
                 className="w-full p-2 border rounded"
               />
