@@ -104,12 +104,15 @@ export default function TeamPage({ team_id }: TeamPageProps) {
   }
 
   const mainPlayers = team.players.filter(
-    (p) => !p.former_player
+    (p) => !p.former_player && p.main
   );
 
   const subPlayers = team.sub_players.filter(
     (p) => !p.former_player
-  );
+  )
+  .concat(team.players.filter(
+    (p) => !p.former_player && !p.main
+  ));
 
   const formerPlayers = [
     ...team.players,

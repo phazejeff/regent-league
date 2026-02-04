@@ -283,7 +283,7 @@ export default function PlayerEditor() {
             </div>
 
             <div>
-              <label className="block font-medium mb-1">Main</label>
+              <label className="block font-medium mb-1">Main Player?</label>
               <input
                 type="checkbox"
                 checked={editingPlayer.main}
@@ -299,7 +299,8 @@ export default function PlayerEditor() {
             </div>
 
             <div>
-              <label className="block font-medium mb-1">Former Player</label>
+              <label className="block font-medium mb-1">Former Player?</label>
+              <span className="text-sm text-gray-400">The main player box will be ignored if this is yes</span><br></br>
               <input
                 type="checkbox"
                 checked={editingPlayer.former_player}
@@ -338,7 +339,9 @@ export default function PlayerEditor() {
             </div>
 
             <div>
-              <label className="block font-medium mb-1">Sub Team</label>
+              <label className="block font-medium mb-1">2nd Team</label>
+              <span className="text-sm text-gray-400">Will be classified as a sub for the 2nd team if applicable. This is typically used if a player from a Challengers team subs for their school's Elite team.</span><br></br>
+              <span className="text-sm text-gray-400">If this player is only a sub for their main team and nothing more, leave this as "No Team" and uncheck the "Main" box above.</span>
               <select
                 value={editingPlayer.team_sub_id}
                 onChange={(e) =>
