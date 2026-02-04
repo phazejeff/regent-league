@@ -5,6 +5,7 @@ from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, Fil
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine, getMainColor
 from .models import *
+from .collegecounter.models import *
 from sqlmodel import Session, delete, desc, select, func, or_, and_
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,8 +19,15 @@ app = FastAPI(
     contact={
         "name" : "poop dealer",
         "email" : "phazejeff@proton.me"
-    }
+    },
+    openapi_tags=[
+        {
+            "name" : "CollegeCounter",
+            "description" : "Collection of endpoints designed specifically to for CollegeCounter. Hi Aiden :)"
+        }
+    ]
 )
+
 twitch = Twitch()
 PASSWORD = os.environ.get("PASSWORD")
 if PASSWORD is None:
@@ -657,3 +665,26 @@ def get_placements(div: str | None, session: Session = Depends(get_session)) -> 
         placements_db = placements_db.where(Placements.division == div)
     placements_db = placements_db.order_by(Placements.placement)
     return session.exec(placements_db).all()
+
+@app.get("/cc/teams", tags=["CollegeCounter"])
+def get_teams_cc(session: Session = Depends(get_session)) -> List[CCTeam]:
+    statement = select(Team).order_by(Team.name)
+    statement = statement.where(Team.active == True)
+    results = session.exec(statement).all()
+
+    response = [CCTeam.convert_to_cc(result) for result in results]
+    return response
+
+@app.get("/cc/matches", tags=["CollegeCounter"])
+def get_matches_cc(session: Session = Depends(get_session)) -> List[CCMatch]:
+    statement = select(Upcoming)
+    statement = statement.order_by(Upcoming.datetime)
+    results = session.exec(statement).all()
+    response = [CCMatch.convert_upcoming_to_cc(result) for result in results]
+
+    statement = select(Match)
+    statement = statement.order_by(Match.datetime)
+    results = session.exec(statement).all()
+    response = response + [CCMatch.convert_finished_match_to_cc(result) for result in results]
+
+    return response
