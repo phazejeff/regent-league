@@ -2,6 +2,14 @@
 
 import { useState, useEffect } from "react";
 
+interface Team {
+  id: number;
+  name: string;
+  div: string;
+  group: string;
+  logo: string;
+}
+
 interface Player {
   id: number;
   name: string;
@@ -15,14 +23,7 @@ interface Player {
   former_player: boolean;
   team_id: number;
   team_sub_id?: number | string;
-}
-
-interface Team {
-  id: number;
-  name: string;
-  div: string;
-  group: string;
-  logo: string;
+  team: Team;
 }
 
 export default function PlayerEditor() {
@@ -30,8 +31,15 @@ export default function PlayerEditor() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [password, setPassword] = useState("");
-  const [deletePassword, setDeletePassword] = useState(""); // 🔹 New
-  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null); // 🔹 New
+  const [deletePassword, setDeletePassword] = useState("");
+  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<number | "all">("all");
+
+  const filteredPlayers = players.filter((p) => {
+    if (selectedTeam === "all") return true;
+    if (selectedTeam === 0) return !p.team;
+    return p.team?.id === selectedTeam;
+  });
 
   // Fetch players and teams
   useEffect(() => {
@@ -82,7 +90,7 @@ export default function PlayerEditor() {
     setPassword("");
   };
 
-  // 🔹 New: Handle player deletion
+  // Handle player deletion
   const handleDelete = async () => {
     if (!playerToDelete) return;
 
@@ -120,9 +128,31 @@ export default function PlayerEditor() {
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 space-y-6">
         <h1 className="text-2xl font-bold mb-4">Player Management</h1>
 
+        {/* Team Filter */}
+        <div className="flex items-center gap-4">
+          <label className="font-medium">Filter by team:</label>
+          <select
+            value={selectedTeam}
+            onChange={(e) => {
+              const value =
+                e.target.value === "all" ? "all" : parseInt(e.target.value, 10);
+              setSelectedTeam(value);
+            }}
+            className="p-2 border rounded dark:text-white"
+          >
+            <option value="all">All Teams</option>
+            <option value={0}>No Team</option>
+            {teams.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name} ({t.div}/{t.group})
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Player List */}
         <div className="space-y-4">
-          {players.map((p) => (
+          {filteredPlayers.map((p) => (
             <div
               key={p.id}
               className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
@@ -130,7 +160,13 @@ export default function PlayerEditor() {
               <div>
                 <p className="font-semibold">{p.name}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {p.real_name ? p.real_name + " |" : ""} {p.year} | {p.major} | Team {p.team_id}
+                  {p.real_name ? p.real_name + " |" : ""} {p.year} | {p.major} | {p.team ? p.team.name : "No Team"}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Status: {p.former_player ? "Former Player" : p.main ? "Main Player" : "Substitute Player"}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {p.faceit_url ? "✅ Faceit |" : "❌ Faceit |"} {p.steam_id ? "✅ Steam" : "❌ Steam"}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -140,7 +176,7 @@ export default function PlayerEditor() {
                 >
                   Edit
                 </button>
-                {/* 🔹 New Delete Button */}
+                {/* Delete Button */}
                 <button
                   onClick={() => setPlayerToDelete(p)}
                   className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -156,7 +192,7 @@ export default function PlayerEditor() {
       {/* Edit Modal */}
       {editingPlayer && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-4">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-2">Edit Player</h2>
 
             <div>

@@ -210,7 +210,7 @@ export default function TeamEditor() {
       {/* Edit Modal */}
       {editingTeam && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-4">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-2">Edit Team</h2>
 
             {/* Name */}
@@ -386,7 +386,7 @@ export default function TeamEditor() {
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-black"
               >
                 Cancel
               </button>

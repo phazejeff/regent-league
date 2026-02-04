@@ -55,6 +55,10 @@ app.mount("/photos", StaticFiles(directory="photos"), name="photos")
 #     session.add_all(teams)
 #     session.commit()
 
+class PlayerWithTeam(PlayerBase):
+    team_id: int | None = None
+    team: Team | None = None
+
 class TeamStats(BaseModel):
     team: Team | None = None
     match_wins: int = 0
@@ -379,7 +383,7 @@ def edit_player(player: PlayerUpdate, player_id: int, password, response: Respon
     return {"message" : "Created"}
 
 @app.get("/players")
-def get_players(team_id: int | None = None, main_only: bool = False, session: Session = Depends(get_session)) -> List[Player]:
+def get_players(team_id: int | None = None, main_only: bool = False, session: Session = Depends(get_session)) -> List[PlayerWithTeam]:
     statement = select(Player)
     if team_id is not None:
         if main_only:
