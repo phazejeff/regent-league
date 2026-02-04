@@ -23,7 +23,7 @@ app = FastAPI(
     openapi_tags=[
         {
             "name" : "CollegeCounter",
-            "description" : "Collection of endpoints designed specifically to for CollegeCounter. Hi Aiden :)"
+            "description" : "Collection of endpoints designed specifically to for CollegeCounter. Hi Aidan :)"
         }
     ]
 )
