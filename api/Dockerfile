@@ -12,7 +12,7 @@ COPY twitch.py /code
 COPY pyproject.toml /code
 COPY .python-version /code
 COPY uv.lock /code
-COPY /collegecounter/models.py /code/collegecounter
+COPY collegecounter/models.py /code/collegecounter
 
 RUN cd /code && uv sync 
 
