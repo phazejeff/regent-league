@@ -9,10 +9,10 @@ class TeamBase(SQLModel):
     div: str
     group: str
     logo: str
-    address: Optional[str]
-    school: Optional[str]
-    mainColor: Optional[str]
-    secondColor: Optional[str]
+    address: Optional[str] = None
+    school: Optional[str] = None
+    mainColor: Optional[str] = None
+    secondColor: Optional[str] = None
     active: Optional[bool] = Field(default=True)
     
 class Team(TeamBase, table=True):
@@ -29,13 +29,13 @@ class Team(TeamBase, table=True):
 
 class PlayerBase(SQLModel):
     name: str
-    real_name: Optional[str]
+    real_name: Optional[str] = None
     year: str
     major: str
     main: bool
-    steam_id: Optional[str]
-    faceit_url: Optional[str]
-    hometown: Optional[str]
+    steam_id: Optional[str] = None
+    faceit_url: Optional[str] = None
+    hometown: Optional[str] = None
     former_player: bool = Field(default=False)
 class Player(PlayerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -51,6 +51,7 @@ class MatchBase(SQLModel):
     score1: int
     score2: int
     datetime: datetime
+    upcoming_id: Optional[int] = None
 class Match(MatchBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team1_id: int = Field(foreign_key="team.id")
@@ -89,8 +90,8 @@ class PlayerstatsBase(SQLModel):
     A: int
     D: int
     ADR: float
-    hs_percent: Optional[float]
-    KPR: Optional[float]
+    hs_percent: Optional[float] = None
+    KPR: Optional[float] = None
 class Playerstats(PlayerstatsBase, table=True):
     player_id: int = Field(foreign_key="player.id", primary_key=True)
     map_id: int = Field(foreign_key="map.id", primary_key=True)

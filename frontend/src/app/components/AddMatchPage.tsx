@@ -186,7 +186,6 @@ export default function AddMatchPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const match = {
       score1,
       score2,
@@ -199,6 +198,7 @@ export default function AddMatchPage({
         map_num: idx + 1,
         winner_id: m.winner_id ? Number(m.winner_id) : null,
       })),
+      upcoming_id: _upcomingId
     };
 
     const endpoint = match_id

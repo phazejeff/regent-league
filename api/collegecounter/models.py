@@ -66,7 +66,7 @@ class CCMatch(BaseModel):
     @staticmethod
     def convert_finished_match_to_cc(match: Match):
         return CCMatch(
-            id = match.id,
+            id = match.upcoming_id,
             team1 = CCTeam.convert_to_cc(match.team1),
             team2 = CCTeam.convert_to_cc(match.team2),
             date = match.datetime,

@@ -188,6 +188,7 @@ def add_match(match_data: MatchCreate, password, response: Response, session: Se
         score2=match_data.score2,
         datetime=match_data.datetime,
         winner_id=match_data.winner_id,
+        upcoming_id=match_data.upcoming_id
     )
     session.add(match)
     session.flush()  # ensures match.id is available
