@@ -26,6 +26,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { DateTime } from "luxon";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -240,7 +241,7 @@ export default function ResultsPage() {
                   </Link>
                 </div>
                 <span className="text-sm text-gray-500">
-                  {new Date(match.datetime).toLocaleString()}
+                  {DateTime.fromISO(match.datetime, { zone: "utc" }).toLocal().toLocaleString(DateTime.DATETIME_MED)}
                 </span>
               </CardTitle>
             </CardHeader>

@@ -197,7 +197,7 @@ export default function UpcomingMatchesPage() {
           const team2Color = match.team2.mainColor || "#065f46";
           const team1Secondary = match.team1.secondColor || "#000000";
           const team2Secondary = match.team2.secondColor || "#000000";
-          const matchtime = DateTime.fromISO(match.datetime, { zone: "America/Los_Angeles" });
+          const matchtime = DateTime.fromISO(match.datetime, { zone: "utc" });
           const now = DateTime.now();
           const hoursSinceMatch = now.diff(matchtime, "hours").hours;
 
@@ -303,15 +303,8 @@ export default function UpcomingMatchesPage() {
                 <div className="text-sm mb-1">Week {match.week}</div>
                 <div className="text-5xl font-extrabold my-2">VS</div>
                 <div className="text-sm font-medium">
-                  Time:{" "}
-                  {new Date(match.datetime).toLocaleString([], {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div> PST
+                  {DateTime.fromISO(match.datetime, { zone: "utc" }).toLocal().toLocaleString(DateTime.DATETIME_HUGE)}
+                </div>
                 <div className="mt-2 text-sm">
                   {match.casted && (
                     <>

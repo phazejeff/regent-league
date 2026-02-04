@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import AddMatchPage from "./AddMatchPage";
+import { DateTime } from "luxon";
 
 interface Player {
   id: number;
@@ -131,7 +132,8 @@ export default function ManageMatches() {
               {/* Match Info */}
               <div className="text-center md:text-center mt-2 md:mt-0">
                 <p className="text-gray-600 dark:text-gray-300">
-                  {new Date(match.datetime).toLocaleString()}
+                  {DateTime.fromISO(match.datetime, { zone: "utc" })
+                                      .toLocal().toLocaleString(DateTime.DATETIME_SHORT)}
                 </p>
                 <p className="text-gray-600 dark:text-gray-300 font-medium">
                   {match.score1} - {match.score2}

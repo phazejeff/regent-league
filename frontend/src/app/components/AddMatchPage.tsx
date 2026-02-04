@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { DateTime } from "luxon";
 
 interface Team {
   id: number;
@@ -65,7 +66,11 @@ export default function AddMatchPage({
 
   const [score1, setScore1] = useState<number>(0);
   const [score2, setScore2] = useState<number>(0);
-  const [datetime, setDatetime] = useState<string>(_datetime || "");
+
+  const datetimeConverted = _datetime ? DateTime.fromISO(_datetime, { zone: "utc" })
+                      .toLocal()
+                      .toFormat("yyyy-MM-dd'T'HH:mm") : undefined;
+  const [datetime, setDatetime] = useState<string>(datetimeConverted || "");
 
   const [maps, setMaps] = useState<MapData[]>([
     {
@@ -105,7 +110,10 @@ export default function AddMatchPage({
       .then((data) => {
         setScore1(data.score1);
         setScore2(data.score2);
-        setDatetime(data.datetime.slice(0, 16));
+        const datetimeConverted = DateTime.fromISO(data.datetime, { zone: "utc" })
+                      .toLocal()
+                      .toFormat("yyyy-MM-dd'T'HH:mm");
+        setDatetime(datetimeConverted);
         setTeam1Id(data.team1.id.toString());
         setTeam2Id(data.team2.id.toString());
         setWinnerId(data.winner_id.toString());
@@ -186,10 +194,12 @@ export default function AddMatchPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const local = new Date(datetime);
+    const isoUtc = local.toISOString();
     const match = {
       score1,
       score2,
-      datetime,
+      isoUtc,
       team1_id: Number(team1Id),
       team2_id: Number(team2Id),
       winner_id: winnerId ? Number(winnerId) : null,

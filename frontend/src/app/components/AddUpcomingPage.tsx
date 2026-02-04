@@ -114,9 +114,12 @@ export default function AddUpcomingMatch({ onSubmit }: AddUpcomingMatchProps) {
       if (s.name && s.url) team2StreamsObj[s.name] = s.url;
     }
 
+    const local = new Date(datetime);
+    const isoUtc = local.toISOString();
+
     const upcoming = {
       week,
-      datetime,
+      isoUtc,
       division: divisionId,
       team1_id: Number(team1Id),
       team2_id: Number(team2Id),

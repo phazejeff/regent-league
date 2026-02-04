@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import AddMatchPage from "./AddMatchPage";
+import { DateTime } from "luxon";
 
 type StreamMap = Record<string, string>;
 
@@ -49,11 +50,12 @@ export default function ManageUpcoming() {
 
   const handleEditSubmit = async () => {
     if (!editMatch) return;
-
+    const local = new Date(editMatch.datetime);
+    const isoUtc = local.toISOString();
     const payload = {
       id: editMatch.id,
       week: editMatch.week,
-      datetime: editMatch.datetime,
+      datetime: isoUtc,
       division: editMatch.division,
       casted: editMatch.casted,
       team1_id: editMatch.team1.id,
@@ -138,7 +140,8 @@ export default function ManageUpcoming() {
 
               <div className="text-center md:text-center mt-2 md:mt-0">
                 <p className="text-gray-600 dark:text-gray-300">
-                  {new Date(match.datetime).toLocaleString()}
+                  {DateTime.fromISO(match.datetime, { zone: "utc" })
+                    .toLocal().toLocaleString(DateTime.DATETIME_SHORT)}
                 </p>
                 <p className="text-gray-600 dark:text-gray-300">
                   Week {match.week} · {match.division}
@@ -254,9 +257,9 @@ export default function ManageUpcoming() {
                 <input
                   type="datetime-local"
                   value={
-                    editMatch.datetime.length > 16
-                      ? editMatch.datetime.slice(0, 16)
-                      : editMatch.datetime
+                    DateTime.fromISO(editMatch.datetime, { zone: "utc" })
+                    .toLocal()
+                    .toFormat("yyyy-MM-dd'T'HH:mm")
                   }
                   onChange={(e) =>
                     setEditMatch({
