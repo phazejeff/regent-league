@@ -56,6 +56,7 @@ app.mount("/photos", StaticFiles(directory="photos"), name="photos")
 #     session.commit()
 
 class PlayerWithTeam(PlayerBase):
+    id: int
     team_id: int | None = None
     team: Team | None = None
 
