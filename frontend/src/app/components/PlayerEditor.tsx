@@ -340,8 +340,8 @@ export default function PlayerEditor() {
 
             <div>
               <label className="block font-medium mb-1">2nd Team</label>
-              <span className="text-sm text-gray-400">Will be classified as a sub for the 2nd team if applicable. This is typically used if a player from a Challengers team subs for their school's Elite team.</span><br></br>
-              <span className="text-sm text-gray-400">If this player is only a sub for their main team and nothing more, leave this as "No Team" and uncheck the "Main" box above.</span>
+              <span className="text-sm text-gray-400">Will be classified as a sub for the 2nd team if applicable. This is typically used if a player from a Challengers team subs for their school&apos;s Elite team.</span><br></br>
+              <span className="text-sm text-gray-400">If this player is only a sub for their main team and nothing more, leave this as &quot;No Team&quot; and uncheck the &quot;Main&quot; box above.</span>
               <select
                 value={editingPlayer.team_sub_id}
                 onChange={(e) =>
