@@ -13,7 +13,13 @@ from .twitch import Twitch
 from datetime import datetime, timedelta
 
 create_db_and_tables()
-app = FastAPI()
+app = FastAPI(
+    title="Regent League API",
+    contact={
+        "name" : "poop dealer",
+        "email" : "phazejeff@proton.me"
+    }
+)
 twitch = Twitch()
 PASSWORD = os.environ.get("PASSWORD")
 if PASSWORD is None:
