@@ -3,3 +3,4 @@
 /docker-compose.yml.me
 *.db
 *.png
+collegecounter/__pycache__
