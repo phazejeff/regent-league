@@ -331,6 +331,9 @@ export default function PlayerStatsPage() {
                     <td className={`p-3 ${getStatClass("HS", p.HS)}`}>
                       {p.HS ? p.HS.toFixed(2) : undefined}%
                     </td>
+                    <td className={`p-3 ${getStatClass("KPR", p.KPR)}`}>
+                      {p.KPR ? p.KPR.toFixed(2) : undefined}
+                    </td>
                   </tr>
                 ))}
               </tbody>

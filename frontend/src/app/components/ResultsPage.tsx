@@ -332,7 +332,7 @@ export default function ResultsPage() {
                                   <TableCell>{ps.D}</TableCell>
                                   <TableCell>{ps.ADR}</TableCell>
                                   <TableCell>{ps.hs_percent}%</TableCell>
-                                  <TableCell>{ps.KPR}%</TableCell>
+                                  <TableCell>{ps.KPR}</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>

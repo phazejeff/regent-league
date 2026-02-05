@@ -79,7 +79,7 @@ class PlayerstatsAggregated(BaseModel):
     A: int
     ADR: float
     HS: Optional[float]
-    accuracy: Optional[float]
+    KPR: Optional[float]
     games: int
 
 class PlayerstatsWithPlayer(PlayerstatsBase):
@@ -231,7 +231,7 @@ def add_match(match_data: MatchCreate, password, response: Response, session: Se
                 D=ps.D,
                 ADR=ps.ADR,
                 hs_percent=ps.hs_percent,
-                accuracy=ps.accuracy,
+                KPR=ps.KPR,
             )
             session.add(stats)
 
@@ -552,7 +552,7 @@ def get_playerstats(div: str | None = None, group: str | None = None, team_id: i
             func.sum(Playerstats.D).label("D"),
             func.avg(Playerstats.ADR).label("ADR"),
             func.coalesce(func.avg(Playerstats.hs_percent), None).label("HS"),
-            func.coalesce(func.avg(Playerstats.accuracy), None).label("accuracy"),
+            func.coalesce(func.avg(Playerstats.KPR), None).label("KPR"),
             func.count().label("games")
         )
         .join(Playerstats, Player.id == Playerstats.player_id)
