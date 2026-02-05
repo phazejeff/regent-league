@@ -89,7 +89,7 @@ export default function RulesPage() {
             </div>
 
             {/* Embedded doc */}
-            <div className="p-2 border-8 border-black rounded-xl shadow-xl bg-black">
+            <div className="p-2 border-8 border-white rounded-xl shadow-xl bg-white">
               <iframe
                 src={
                   isMobile

@@ -150,8 +150,8 @@ export default function TeamPage({ team_id }: TeamPageProps) {
         />
         <div>
           <h1 className="text-4xl font-bold text-white">{team.name}</h1>
-          <p className="text-lg mt-2">{team.school}</p>
-          <p className="text-sm text-muted-foreground">{team.address}</p>
+          <p className="text-lg mt-2 text-white">{team.school}</p>
+          <p className="text-sm text-gray-400">{team.address}</p>
           <div className="flex gap-4 mt-3 text-sm">
             <span className="bg-muted px-3 py-1 rounded-md">Div {team.div}</span>
             <span className="bg-muted px-3 py-1 rounded-md">Group {team.group}</span>
