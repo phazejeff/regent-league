@@ -1,7 +1,7 @@
 import os
 import requests
 
-FACEIT_API_KEY = "00318291-562d-4565-b300-6069e89cf3b5"
+FACEIT_API_KEY = os.environ.get("FACEIT_API_KEY")
 API_URL = "https://open.faceit.com/data/v4"
 HEADER = {"Authorization" : f"Bearer {FACEIT_API_KEY}"}
 
