@@ -199,7 +199,7 @@ export default function AddMatchPage({
     const match = {
       score1,
       score2,
-      isoUtc,
+      datetime: isoUtc,
       team1_id: Number(team1Id),
       team2_id: Number(team2Id),
       winner_id: winnerId ? Number(winnerId) : null,
