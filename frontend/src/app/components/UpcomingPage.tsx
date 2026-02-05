@@ -42,42 +42,58 @@ export default function UpcomingMatchesPage() {
   const [standings, setStandings] = useState<
     Record<number, { rank: number; matchRecord: string }>
   >({});
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [availableGroups, setAvailableGroups] = useState<string[]>([]);
 
-
-  const fetchMatches = async (divName?: string) => {
+  const fetchMatches = async (divName?: string, group?: string) => {
     try {
       const url = divName
         ? `${process.env.API_ROOT}/getupcoming?div=${encodeURIComponent(divName)}`
         : `${process.env.API_ROOT}/getupcoming`;
+
       const res = await fetch(url);
-      const data = await res.json();
+      const data: UpcomingMatch[] = await res.json();
       setMatches(data);
 
-      // Fetch standings for same division
-      const standingsUrl = divName
-        ? `${process.env.API_ROOT}/standings?div=${encodeURIComponent(divName)}&group=A`
-        : `${process.env.API_ROOT}/standings`;
-      const standingsRes = await fetch(standingsUrl);
-      const standingsData = await standingsRes.json();
+      const groups = Array.from(
+        new Set(
+          data
+            .map((m) => m.team1.group)
+            .filter(Boolean)
+        )
+      ).sort();
 
-      // Convert standings into a lookup table for quick access
-      const standingsMap: Record<number, { rank: number; matchRecord: string }> = {};
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setAvailableGroups(groups);
 
-      {/* ENABLE THIS TO SHOW STANDING RANKINGS */}
-      // standingsData.forEach((entry: any, index: number) => {
-      //   standingsMap[entry.team.id] = {
-      //     rank: index + 1,
-      //     matchRecord: `${entry.match_wins}-${entry.match_losses}`,
-      //   };
-      // });
+      const activeGroup = group ?? groups[0] ?? null;
+      setSelectedGroup(activeGroup);
 
-      setStandings(standingsMap);
+      if (divName && activeGroup) {
+        const standingsUrl = `${process.env.API_ROOT}/standings?div=${encodeURIComponent(
+          divName
+        )}&group=${encodeURIComponent(activeGroup)}`;
+
+        const standingsRes = await fetch(standingsUrl);
+        const standingsData = await standingsRes.json();
+
+        const standingsMap: Record<number, { rank: number; matchRecord: string }> =
+          {};
+
+        standingsData.forEach((entry: any, index: number) => {
+          standingsMap[entry.team.id] = {
+            rank: index + 1,
+            matchRecord: `${entry.match_wins}-${entry.match_losses}`,
+          };
+        });
+
+        setStandings(standingsMap);
+      } else {
+        setStandings({});
+      }
     } catch (err) {
       console.error("Failed to fetch upcoming matches or standings:", err);
     }
   };
-
 
   useEffect(() => {
     const fetchDivisions = async () => {
@@ -134,9 +150,13 @@ export default function UpcomingMatchesPage() {
 
 
   const selectedDivision = divisions.find((d) => d.id === selectedDivId);
+  const filteredMatches = selectedGroup
+  ? matches.filter((m) => m.team1.group === selectedGroup)
+  : matches;
 
   const handleDivisionClick = (div: Division) => {
     setSelectedDivId(div.id);
+    setSelectedGroup(null);
     fetchMatches(div.name);
   };
 
@@ -189,10 +209,33 @@ export default function UpcomingMatchesPage() {
           </button>
         ))}
       </div>
+      
+      {/* Group Filter */}
+      {availableGroups.length > 1 && (
+        <div className="flex flex-wrap gap-3 justify-center mb-6">
+          {availableGroups.map((group) => (
+            <button
+              key={group}
+              onClick={() => {
+                setSelectedGroup(group);
+                fetchMatches(selectedDivision?.name, group);
+              }}
+              className={`px-4 py-2 rounded-lg font-semibold transition
+                ${
+                  selectedGroup === group
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-purple-500 hover:text-white"
+                }`}
+            >
+              Group {group}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Matches List */}
-      {matches.length > 0 ? (
-        matches.map((match, idx) => {
+      {filteredMatches.length > 0 ? (
+        filteredMatches.map((match, idx) => {
           const team1Color = match.team1.mainColor || "#9b1c1c";
           const team2Color = match.team2.mainColor || "#065f46";
           const team1Secondary = match.team1.secondColor || "#000000";
@@ -241,7 +284,8 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team1.id}`}
                     >
-                    {standings[match.team1.id]?.rank && `(#${standings[match.team1.id].rank})`} {match.team1.name}
+                    {/* {standings[match.team1.id]?.rank && `(#${standings[match.team1.id].rank})`} {match.team1.name} */}
+                    {match.team1.name}
                     </Link>
                   </div>
 
@@ -331,7 +375,8 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team2.id}`}
                     >
-                      {standings[match.team2.id]?.rank && `(#${standings[match.team2.id].rank})`} {match.team2.name}
+                      {/* {standings[match.team2.id]?.rank && `(#${standings[match.team2.id].rank})`} {match.team2.name} */}
+                      {match.team2.name}
                     </Link>
                   </div>
 
