@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { DateTime } from "luxon";
 
 interface Player {
   id: number;
@@ -275,7 +276,7 @@ export default function TeamPage({ team_id }: TeamPageProps) {
                   />
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(m.datetime).toLocaleString()}
+                      {DateTime.fromISO(m.datetime, { zone: "utc" }).toLocal().toLocaleString(DateTime.DATETIME_MED)}
                     </p>
                     <p>
                       Week {m.week ?? "-"} | Div {m.division ?? "-"}
@@ -320,7 +321,7 @@ export default function TeamPage({ team_id }: TeamPageProps) {
                   <div className="flex justify-between items-center flex-wrap">
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(m.datetime).toLocaleString()}
+                        {DateTime.fromISO(m.datetime, { zone: "utc" }).toLocal().toLocaleString(DateTime.DATETIME_MED)}
                       </p>
                       <p>
                         vs{" "}
