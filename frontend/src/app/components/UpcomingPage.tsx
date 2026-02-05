@@ -79,6 +79,7 @@ export default function UpcomingMatchesPage() {
         const standingsMap: Record<number, { rank: number; matchRecord: string }> =
           {};
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         standingsData.forEach((entry: any, index: number) => {
           standingsMap[entry.team.id] = {
             rank: index + 1,
