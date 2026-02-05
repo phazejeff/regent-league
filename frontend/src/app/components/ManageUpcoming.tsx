@@ -33,6 +33,7 @@ export default function ManageUpcoming() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [editMatch, setEditMatch] = useState<Match | null>(null);
   const [password, setPassword] = useState("");
+  const [editLocalDatetime, setEditLocalDatetime] = useState<string>("");
 
   const fetchMatches = async () => {
     try {
@@ -50,8 +51,7 @@ export default function ManageUpcoming() {
 
   const handleEditSubmit = async () => {
     if (!editMatch) return;
-    const local = new Date(editMatch.datetime);
-    const isoUtc = local.toISOString();
+    const isoUtc = DateTime.fromISO(editLocalDatetime, { zone: "local" }).toUTC().toISO();
     const payload = {
       id: editMatch.id,
       week: editMatch.week,
@@ -159,7 +159,14 @@ export default function ManageUpcoming() {
                   Finalize
                 </button>
                 <button
-                  onClick={() => setEditMatch({ ...match })}
+                  onClick={() => {
+                    setEditMatch({ ...match });
+                    setEditLocalDatetime(
+                      DateTime.fromISO(match.datetime, { zone: "utc" })
+                        .toLocal()
+                        .toFormat("yyyy-MM-dd'T'HH:mm")
+                    );
+                  }}
                   className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl"
                 >
                   Edit
@@ -256,17 +263,8 @@ export default function ManageUpcoming() {
                 <span className="text-gray-700 dark:text-gray-300">Date & Time</span>
                 <input
                   type="datetime-local"
-                  value={
-                    DateTime.fromISO(editMatch.datetime, { zone: "utc" })
-                    .toLocal()
-                    .toFormat("yyyy-MM-dd'T'HH:mm")
-                  }
-                  onChange={(e) =>
-                    setEditMatch({
-                      ...editMatch,
-                      datetime: e.target.value,
-                    })
-                  }
+                  value={editLocalDatetime}
+                  onChange={(e) => setEditLocalDatetime(e.target.value)}
                   className="w-full mt-1 p-2 border rounded-lg dark:bg-gray-900"
                 />
               </label>
