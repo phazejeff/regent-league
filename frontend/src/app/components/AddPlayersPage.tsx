@@ -21,12 +21,14 @@ interface Player {
   major: string;
   main: boolean;
   team_sub_id?: number | "";
+  faceit_url: string;
+  steam_id: string;
 }
 
 export default function AddPlayersPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [players, setPlayers] = useState<Player[]>([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "" }]);
+  const [players, setPlayers] = useState<Player[]>([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "" }]);
   const [password, setPassword] = useState("");
 
   // Load teams
@@ -51,7 +53,7 @@ export default function AddPlayersPage() {
   };
 
   const addPlayerField = () =>
-    setPlayers([...players, { name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "" }]);
+    setPlayers([...players, { name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "" }]);
   const removePlayerField = (index: number) =>
     setPlayers(players.filter((_, i) => i !== index));
 
@@ -73,7 +75,7 @@ export default function AddPlayersPage() {
 
     if (response.ok) {
       alert("Players added successfully!");
-      setPlayers([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "" }]);
+      setPlayers([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "" }]);
       setPassword("");
       setSelectedTeam("");
     } else {
@@ -135,6 +137,16 @@ export default function AddPlayersPage() {
                     required
                   />
                 </div>
+                <Input
+                  value={player.faceit_url}
+                  onChange={(e) => handlePlayerChange(index, "faceit_url", e.target.value)}
+                  placeholder="Faceit URL"
+                />
+                <Input
+                  value={player.steam_id}
+                  onChange={(e) => handlePlayerChange(index, "steam_id", e.target.value)}
+                  placeholder="Steam64ID"
+                />
                 <div className="flex items-center space-x-2 mt-1">
                   <input
                     type="checkbox"
