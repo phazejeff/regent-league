@@ -231,6 +231,7 @@ export default function AddMatchPage({
       setDatetime(localDatetime);
 
       // Maps + player stats
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const importedMaps: MapData[] = data.maps.map((m: any, idx: number) => ({
         map_num: idx + 1,
         map_name: m.map_name,
@@ -238,6 +239,7 @@ export default function AddMatchPage({
         team2_score: m.team2_score,
         winner_id: m.winner_id,
         map_picker_name: m.map_picker_name,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         player_stats: m.player_stats.map((ps: any) => ({
           K: ps.K,
           A: ps.A,
