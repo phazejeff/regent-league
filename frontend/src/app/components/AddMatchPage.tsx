@@ -72,6 +72,9 @@ export default function AddMatchPage({
                       .toFormat("yyyy-MM-dd'T'HH:mm") : undefined;
   const [datetime, setDatetime] = useState<string>(datetimeConverted || "");
 
+  const [faceitUrl, setFaceitUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+
   const [maps, setMaps] = useState<MapData[]>([
     {
       map_num: 1,
@@ -192,6 +195,69 @@ export default function AddMatchPage({
     setMaps(newMaps);
   };
 
+  const handleImport = async () => {
+    if (!faceitUrl) return;
+
+    try {
+      setImporting(true);
+
+      const res = await fetch(
+        `${process.env.API_ROOT}/faceit/getmatch?faceit_url=${encodeURIComponent(faceitUrl)}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to import Faceit match");
+      }
+
+      const data = await res.json();
+
+      // Scores
+      setScore1(data.score1);
+      setScore2(data.score2);
+
+      // Teams
+      setTeam1Id(data.team1_id.toString());
+      setTeam2Id(data.team2_id.toString());
+
+      // Winner
+      setWinnerId(data.winner_id ? data.winner_id.toString() : "");
+
+      // Datetime: UTC -> local -> datetime-local format
+      const localDatetime = DateTime
+        .fromISO(data.datetime, { zone: "utc" })
+        .toLocal()
+        .toFormat("yyyy-MM-dd'T'HH:mm");
+
+      setDatetime(localDatetime);
+
+      // Maps + player stats
+      const importedMaps: MapData[] = data.maps.map((m: any, idx: number) => ({
+        map_num: idx + 1,
+        map_name: m.map_name,
+        team1_score: m.team1_score,
+        team2_score: m.team2_score,
+        winner_id: m.winner_id,
+        map_picker_name: m.map_picker_name,
+        player_stats: m.player_stats.map((ps: any) => ({
+          K: ps.K,
+          A: ps.A,
+          D: ps.D,
+          ADR: ps.ADR,
+          hs_percent: ps.hs_percent,
+          KPR: ps.KPR,
+          player_id: ps.player_id,
+        })),
+      }));
+
+      setMaps(importedMaps);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to import match from Faceit.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const local = new Date(datetime);
@@ -260,6 +326,29 @@ export default function AddMatchPage({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Faceit Import */}
+          <div className="border rounded-lg p-4 space-y-3">
+            <Label>Import from Faceit</Label>
+
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://www.faceit.com/en/cs2/room/..."
+                value={faceitUrl}
+                onChange={(e) => setFaceitUrl(e.target.value)}
+              />
+              <Button
+                type="button"
+                onClick={handleImport}
+                disabled={importing}
+              >
+                {importing ? "Importing..." : "Import"}
+              </Button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Imports match data from Faceit and pre-fills all fields. Please review before saving.
+            </p>
+          </div>
           {/* Match Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>

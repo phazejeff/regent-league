@@ -10,3 +10,4 @@ services:
       - PASSWORD=value
       - TWITCH_CLIENT_ID=fdgfdgdsfg
       - TWITCH_CLIENT_SECRET=dsgfdsgdsf
+      - FACEIT_API_KEY=fjafkjasdfhk

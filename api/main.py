@@ -11,7 +11,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from .twitch import Twitch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from .faceit import Faceit
 
 create_db_and_tables()
 app = FastAPI(
@@ -303,7 +304,7 @@ def edit_match(match_id: int, match_data: MatchCreate, password: str, response: 
                 D=ps.D,
                 ADR=ps.ADR,
                 hs_percent=ps.hs_percent,
-                accuracy=ps.accuracy,
+                KPR=ps.KPR,
             )
             session.add(stats)
 
@@ -694,3 +695,71 @@ def get_matches_cc(session: Session = Depends(get_session)) -> List[CCMatch]:
     response = response + [CCMatch.convert_finished_match_to_cc(result) for result in results]
 
     return response
+
+@app.get("/faceit/getmatch")
+def get_faceit_match(faceit_url: str, session: Session = Depends(get_session)) -> MatchCreate:
+    match_data, match_stats = Faceit.get_match(faceit_url)
+    maps = match_stats["rounds"]
+    mapsCreate = []
+    for map in maps:
+        team1 = map["teams"][0]
+        team2 = map["teams"][1]
+
+        team1player1stmt = select(Player).where(Player.faceit_url == "https://www.faceit.com/en/players/" + team1["players"][0]["nickname"])
+        team1Db = session.exec(team1player1stmt).first().team
+        team2player2stmt = select(Player).where(Player.faceit_url == "https://www.faceit.com/en/players/" + team2["players"][0]["nickname"])
+        team2Db = session.exec(team2player2stmt).first().team
+
+        if map["round_stats"]["Winner"] == team1["team_id"]:
+            winner_id = team1Db.id
+        elif map["round_stats"]["Winner"] == team2["team_id"]:
+            winner_id = team2Db.id
+        else:
+            winner_id = 0
+        
+        playerstatsCreate = []
+        for player in team1["players"] + team2["players"]:
+            playerstats = player["player_stats"]
+            playerStmt = select(Player).where(Player.faceit_url == "https://www.faceit.com/en/players/" + player["nickname"])
+            playerDb = session.exec(playerStmt).first()
+            if playerDb == None: continue
+            playerstatCreate = PlayerstatsCreate(
+                player_id = playerDb.id,
+                K = int(playerstats["Kills"]),
+                D = int(playerstats["Deaths"]),
+                A = int(playerstats["Assists"]),
+                ADR = float(playerstats["ADR"]),
+                KPR = float(playerstats["K/R Ratio"]),
+                hs_percent = float(playerstats["Headshots %"])
+            )
+            playerstatsCreate.append(playerstatCreate)
+        
+        mapCreate = MapCreate(
+            map_name = map["round_stats"]["Map"],
+            map_num = map["match_round"],
+            team1_score = team1["team_stats"]["Final Score"],
+            team2_score = team2["team_stats"]["Final Score"],
+            map_picker_name = "",
+            winner_id = winner_id,
+            player_stats = playerstatsCreate
+        )
+        mapsCreate.append(mapCreate)
+
+    if match_data["results"]["winner"] == "faction1":
+        winner_id = team1Db.id
+    elif match_data["results"]["winner"] == "faction2":
+        winner_id = team2Db.id
+    else:
+        winner_id = 0
+
+    matchCreate = MatchCreate(
+        team1_id = team1Db.id,
+        team2_id = team2Db.id,
+        maps = mapsCreate,
+        winner_id = winner_id,
+        score1 = match_data["results"]["score"]["faction1"],
+        score2 = match_data["results"]["score"]["faction2"],
+        datetime = datetime.fromtimestamp(match_data["started_at"], tz=timezone.utc)
+    )
+
+    return matchCreate
