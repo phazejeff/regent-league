@@ -65,6 +65,7 @@ export default function AddPlayersPage() {
       .map((p) => ({
         ...p,
         team_id: Number(selectedTeam),
+        team_sub_id: p.team_sub_id === "" ? null : p.team_sub_id,
       }));
 
     const response = await fetch(`${process.env.API_ROOT}/addplayers?password=${password}`, {
