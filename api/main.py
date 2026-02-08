@@ -59,6 +59,7 @@ app.mount("/photos", StaticFiles(directory="photos"), name="photos")
 class PlayerWithTeam(PlayerBase):
     id: int
     team_id: int | None = None
+    team_sub_id: int | None = None
     team: Team | None = None
 
 class TeamStats(BaseModel):
