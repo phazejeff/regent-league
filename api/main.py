@@ -708,6 +708,21 @@ def get_matches_cc(div: str | None = None, session: Session = Depends(get_sessio
 
     return response
 
+@app.get("/cc/match", tags=["CollegeCounter"])
+def get_match_cc(id: int, session: Session = Depends(get_session)) -> CCMatch:
+    statement = select(Upcoming).where(Upcoming.id == id)
+    result = session.exec(statement).first()
+
+    
+    if not result:
+        statement = select(Match).where(Match.upcoming_id == id)
+        result = session.exec(statement).first()
+        match = CCMatch.convert_finished_match_to_cc(result)
+    else:
+        match = CCMatch.convert_upcoming_to_cc(result)
+
+    return match
+
 @app.get("/faceit/getmatch")
 def get_faceit_match(faceit_url: str, session: Session = Depends(get_session)) -> MatchCreate:
     match_data, match_stats = Faceit.get_match(faceit_url)
