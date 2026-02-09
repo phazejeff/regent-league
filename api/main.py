@@ -542,7 +542,7 @@ def get_standings(div: str, group: str, session: Session = Depends(get_session))
     return final_list
 
 @app.get("/playerstats")
-def get_playerstats(div: str | None = None, group: str | None = None, team_id: int | None = None, session: Session = Depends(get_session)) -> List[PlayerstatsAggregated]:
+def get_playerstats(div: str | None = None, group: str | None = None, team_id: int | None = None, start_date: datetime | None = None, end_date: datetime | None = None, session: Session = Depends(get_session)) -> List[PlayerstatsAggregated]:
     statement = (
         select(
             Player.id,
@@ -557,8 +557,10 @@ def get_playerstats(div: str | None = None, group: str | None = None, team_id: i
             func.count().label("games")
         )
         .join(Playerstats, Player.id == Playerstats.player_id)
-        .join(Team, Player.team_id == Team.id)  # Join with Team table
-        .group_by(Player.id, Player.name, Team.name)  # Include Team.name in group_by
+        .join(Team, Player.team_id == Team.id)
+        .join(Map, Playerstats.map_id == Map.id)
+        .join(Match, Map.match_id == Match.id)
+        .group_by(Player.id, Player.name, Team.name)
     )
     if div is not None:
         statement = statement.where(Team.div == div)
@@ -566,6 +568,10 @@ def get_playerstats(div: str | None = None, group: str | None = None, team_id: i
         statement = statement.where(Team.group == group)
     if team_id is not None:
         statement = statement.where(Team.id == team_id)
+    if start_date is not None:
+        statement = statement.where(Match.datetime >= start_date)
+    if end_date is not None:
+        statement = statement.where(Match.datetime <= end_date)
     
     results = session.exec(statement).all()
     return results

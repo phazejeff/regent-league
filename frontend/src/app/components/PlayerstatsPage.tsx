@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronUp, ChevronDown, Medal, Search } from "lucide-react";
 import Link from "next/link";
+import { DateTime } from "luxon";
 
 type Division = { id: number; name: string };
 type Group = { id: number; division: string; name: string };
@@ -38,6 +39,9 @@ export default function PlayerStatsPage() {
   const [displayTotals, setDisplayTotals] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
   // Load divisions
   useEffect(() => {
     fetch(`${process.env.API_ROOT}/divisions`)
@@ -67,15 +71,39 @@ export default function PlayerStatsPage() {
   useEffect(() => {
     let url = `${process.env.API_ROOT}/playerstats`;
     const params = new URLSearchParams();
+
     if (selectedDiv !== "All") params.append("div", selectedDiv);
     if (selectedGroup !== "All") params.append("group", selectedGroup);
     if (selectedTeam !== "All") params.append("team_id", String(selectedTeam));
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+
+    if (startDate) {
+      const startUTC = DateTime
+        .fromISO(startDate, { zone: "local" }) // local date
+        .startOf("day")                         // local midnight
+        .toUTC()
+        .toISO();
+
+      if (startUTC) params.append("start_date", startUTC);
+    }
+
+    if (endDate) {
+      const endUTC = DateTime
+        .fromISO(endDate, { zone: "local" })
+        .endOf("day")                           // local 23:59:59.999
+        .toUTC()
+        .toISO();
+
+      if (endUTC) params.append("end_date", endUTC);
+    }
+
     if (params.toString()) url += `?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
       .then(setPlayers);
-  }, [selectedDiv, selectedGroup, selectedTeam]);
+  }, [selectedDiv, selectedGroup, selectedTeam, startDate, endDate]);
 
   const handleSort = (column: keyof PlayerStats) => {
     if (sortBy === column) {
@@ -233,6 +261,26 @@ export default function PlayerStatsPage() {
                   </option>
                 ))}
             </select>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm">From</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="border rounded p-2 bg-white dark:bg-gray-900"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm">To</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="border rounded p-2 bg-white dark:bg-gray-900"
+              />
+            </div>
 
             {/* Search Bar */}
             <div className="relative flex items-center">
