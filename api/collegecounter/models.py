@@ -71,7 +71,7 @@ class CCMatch(BaseModel):
             team2 = CCTeam.convert_to_cc(match.team2),
             date = match.datetime,
             status = Status.completed,
-            winner = CCTeam.convert_to_cc(match.team1),
+            winner = CCTeam.convert_to_cc(match.team1) if match.team1_id == match.winner_id else CCTeam.convert_to_cc(match.team2),
             score_team1 = match.score1,
             score_team2 = match.score2
         )
