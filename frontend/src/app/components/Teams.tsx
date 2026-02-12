@@ -8,7 +8,7 @@ import Link from "next/link";
 
 interface Division { id: number; name: string; }
 interface Team { id: number; name: string; div: string; group: string; logo?: string; }
-interface Player { id: number; name: string; age: number; year: string; major: string; main: boolean; team_id: number; team_sub_id: number; former_player: boolean; }
+interface Player { id: number; name: string; age: number; year: string; major: string; main: boolean; team_id: number; team_sub_id: number; former_player: boolean; steam_id: string;}
 
 export default function TeamsByDivision() {
   const [divisions, setDivisions] = useState<Division[]>([]);
@@ -18,6 +18,10 @@ export default function TeamsByDivision() {
   const [playersByTeam, setPlayersByTeam] = useState<Record<number, Player[]>>({});
   const [hoveredTeam, setHoveredTeam] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [faceitBySteam, setFaceitBySteam] = useState<
+    Record<string, { level: number; elo: number }>
+  >({});
+
 
   useEffect(() => {
     // Detect mobile
@@ -47,15 +51,45 @@ export default function TeamsByDivision() {
     fetchData();
   }, []);
 
+  const fetchFaceit = async (steamId: string) => {
+    if (!steamId || faceitBySteam[steamId]) return;
+
+    try {
+      const res = await fetch(
+        `${process.env.API_ROOT}/faceit/getplayer?steam_id=${steamId}`
+      );
+      const data = await res.json();
+
+      setFaceitBySteam(prev => ({
+        ...prev,
+        [steamId]: data,
+      }));
+    } catch (err) {
+      console.error("Failed to fetch faceit data", err);
+    }
+  };
+
   const fetchPlayers = async (teamId: number) => {
     if (playersByTeam[teamId]) return;
     try {
       const res = await fetch(`${process.env.API_ROOT}/players?team_id=${teamId}&main_only=true`);
       const data: Player[] = await res.json();
       setPlayersByTeam(prev => ({ ...prev, [teamId]: data }));
+
+      data.forEach(p => {
+        if (p.steam_id) fetchFaceit(p.steam_id);
+      });
     } catch (err) {
       console.error("Failed to fetch players", err);
     }
+  };
+
+  const isFaceitDataLoaded = (teamId: number) => {
+    const players = playersByTeam[teamId];
+    if (!players) return false;
+    
+    // Check if all players with steam_ids have their faceit data loaded
+    return players.every(p => !p.steam_id || faceitBySteam[p.steam_id]);
   };
 
   if (loading) return <div className="p-4">Loading...</div>;
@@ -95,7 +129,7 @@ export default function TeamsByDivision() {
         {/* Hover Overlay */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: hoveredTeam === team.id ? 1 : 0 }}
+          animate={{ opacity: hoveredTeam === team.id && playersByTeam[team.id] && playersByTeam[team.id].length === 5 && isFaceitDataLoaded(team.id) ? 1 : 0 }}
           transition={{ duration: 0.2 }}
           className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white p-4 pointer-events-none"
         >
@@ -107,6 +141,16 @@ export default function TeamsByDivision() {
               {playersByTeam[team.id].map(p => (
                 <li key={p.id}>
                   <Link href={`/player/${p.id}`} className="hover:underline">{p.name}</Link>
+
+                  {faceitBySteam[p.steam_id]?.level && (
+                    <Image
+                      src={`/faceit/lvl${faceitBySteam[p.steam_id].level}.svg`}
+                      alt={`Faceit Level ${faceitBySteam[p.steam_id].level}`}
+                      width={20}
+                      height={20}
+                      className="inline-block ml-2"
+                    />
+                  )}
                 </li>
               ))}
             </ul>
