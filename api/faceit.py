@@ -13,5 +13,14 @@ class Faceit:
         match_stats = requests.get(API_URL + "/matches/" + match_id + "/stats", headers=HEADER).json()
 
         return match_data, match_stats
+    
+    @staticmethod
+    def get_player_elo(steam_id: str):
+        r: dict = requests.get(API_URL + f"/players?game_player_id={steam_id}&game=cs2", headers=HEADER).json()
+        cs2_data: dict = r.get("games").get("cs2")
+        return {
+            "elo": cs2_data.get("faceit_elo"),
+            "level": cs2_data.get("skill_level")
+        }
 
 Faceit.get_match("https://www.faceit.com/en/cs2/room/1-cdebb786-f451-49b3-a39d-5c40f9f772bd")

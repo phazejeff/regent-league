@@ -47,6 +47,7 @@ interface Player {
   major: string;
   main: boolean;
   faceit_url: string;
+  steam_id: string;
   hometown: string;
   former_player: boolean;
   team: Team;
@@ -58,44 +59,12 @@ interface PlayerPageProps {
     playerId: number;
 }
 
-function faceitLevelClasses(level: number) {
-  switch (level) {
-    case 1:
-    case 2:
-      return "bg-gray-600 text-white";
-    case 3:
-    case 4:
-      return "bg-green-600 text-white";
-    case 5:
-    case 6:
-      return "bg-blue-600 text-white";
-    case 7:
-    case 8:
-      return "bg-purple-600 text-white";
-    case 9:
-      return "bg-orange-500 text-black";
-    case 10:
-      return "bg-red-600 text-white shadow-[0_0_12px_rgba(239,68,68,0.6)]";
-    default:
-      return "bg-gray-700 text-white";
-  }
-}
-
 export default function PlayerPage({ playerId }: PlayerPageProps) {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [faceitElo, setFaceitElo] = useState<number | null>(null);
   const [faceitLevel, setFaceitLevel] = useState<number | null>(null);
   const [poops, setPoops] = useState<number[]>([]);
-
-  function getFaceitUsername(url: string) {
-    try {
-      const parts = new URL(url).pathname.split("/");
-      return parts[parts.length - 1]; // last segment
-    } catch {
-      return null;
-    }
-  }
 
   useEffect(() => {
     async function fetchPlayer() {
@@ -113,9 +82,9 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
   }, [playerId]);
 
   useEffect(() => {
-    async function fetchFaceit(username: string) {
+    async function fetchFaceit(steam_id: string) {
       try {
-        const res = await fetch(`/api/faceit/${username}`);
+        const res = await fetch(`${process.env.API_ROOT}/faceit/getplayer?steam_id=${steam_id}`);
         const data = await res.json();
 
         setFaceitElo(data.elo);
@@ -125,9 +94,8 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
       }
     }
 
-    if (player?.faceit_url) {
-      const username = getFaceitUsername(player.faceit_url);
-      if (username) fetchFaceit(username);
+    if (player?.steam_id) {
+      fetchFaceit(player.steam_id);
     }
   }, [player]);
 
@@ -254,9 +222,12 @@ export default function PlayerPage({ playerId }: PlayerPageProps) {
             <div className="flex flex-col items-center gap-3 rounded-xl bg-zinc-900/60 px-5 py-4 text-sm text-zinc-200 min-w-[180px]">
               {faceitLevel !== null && (
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-white">
-                    Level {faceitLevel}
-                  </span>
+                  <Image
+                    src={`/faceit/lvl${faceitLevel}.svg`}
+                    alt={`Faceit Level ${faceitLevel}`}
+                    width={50}
+                    height={50}
+                  />
                 </div>
               )}
 

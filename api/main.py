@@ -790,3 +790,7 @@ def get_faceit_match(faceit_url: str, session: Session = Depends(get_session)) -
     )
 
     return matchCreate
+
+@app.get("/faceit/getplayer")
+def get_faceit_player(steam_id: str, session: Session = Depends(get_session)):
+    return Faceit.get_player_elo(steam_id)
