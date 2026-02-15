@@ -98,12 +98,12 @@ class PlayerstatsWithMap(PlayerstatsBase):
 
 class MapWithStats(MapBase):
     player_stats: List[PlayerstatsWithPlayer]
-    winner_id: int
+    winner_id: Optional[int]
 
 class MatchWithMapsWithStats(MatchBase):
     team1: Team
     team2: Team
-    winner_id: int
+    winner_id: Optional[int]
     maps: List[MapWithStats]
 
 class MatchWithMapsWithStatsId(MatchWithMapsWithStats):
@@ -113,13 +113,13 @@ class PlayerstatsCreate(PlayerstatsBase):
     player_id: int
 
 class MapCreate(MapBase):
-    winner_id: int
+    winner_id: Optional[int]
     player_stats: List[PlayerstatsCreate]
 
 class MatchCreate(MatchBase):
     team1_id: int
     team2_id: int
-    winner_id: int
+    winner_id: Optional[int]
     maps: List[MapCreate]
 
 class TeamUpdate(TeamBase):
