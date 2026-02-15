@@ -120,7 +120,7 @@ class MatchCreate(MatchBase):
     team1_id: int
     team2_id: int
     winner_id: Optional[int]
-    maps: List[MapCreate]
+    maps: Optional[List[MapCreate]]
 
 class TeamUpdate(TeamBase):
     name: str | None
@@ -190,7 +190,8 @@ def add_match(match_data: MatchCreate, password, response: Response, session: Se
         score2=match_data.score2,
         datetime=match_data.datetime,
         winner_id=match_data.winner_id,
-        upcoming_id=match_data.upcoming_id
+        upcoming_id=match_data.upcoming_id,
+        ff_both_teams=match_data.ff_both_teams
     )
     session.add(match)
     session.flush()  # ensures match.id is available
@@ -261,6 +262,7 @@ def edit_match(match_id: int, match_data: MatchCreate, password: str, response: 
     match.score2 = match_data.score2
     match.datetime = match_data.datetime
     match.winner_id = match_data.winner_id
+    match.ff_both_teams = match_data.ff_both_teams
 
     existing_maps = session.exec(select(Map).where(Map.match_id == match.id)).all()
     for map_obj in existing_maps:
@@ -492,7 +494,11 @@ def get_standings(div: str, group: str, session: Session = Depends(get_session))
 
             head_to_head.setdefault((team.id, opponent_id), 0)
 
-            if match.winner_id == team.id:
+            if match.ff_both_teams == True:
+                stats.match_losses += 1
+                stats.map_losses += 2
+                stats.round_losses += 26
+            elif match.winner_id == team.id:
                 stats.match_wins += 1
                 head_to_head[(team.id, opponent_id)] += 1
             else:

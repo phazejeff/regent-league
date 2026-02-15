@@ -52,6 +52,7 @@ class MatchBase(SQLModel):
     score2: int
     datetime: datetime
     upcoming_id: Optional[int] = None
+    ff_both_teams: bool = Field(default=False)
 class Match(MatchBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team1_id: int = Field(foreign_key="team.id")
