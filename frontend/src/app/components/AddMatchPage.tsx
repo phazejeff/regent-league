@@ -75,6 +75,8 @@ export default function AddMatchPage({
   const [faceitUrl, setFaceitUrl] = useState("");
   const [importing, setImporting] = useState(false);
 
+  const [ffBothTeams, setFfBothTeams] = useState(false);
+
   const [maps, setMaps] = useState<MapData[]>([
     {
       map_num: 1,
@@ -271,7 +273,8 @@ export default function AddMatchPage({
       team1_id: Number(team1Id),
       team2_id: Number(team2Id),
       winner_id: winnerId ? Number(winnerId) : null,
-      maps: maps.map((m, idx) => ({
+      ff_both_teams: ffBothTeams,
+      maps: ffBothTeams ? [] : maps.map((m, idx) => ({
         ...m,
         map_num: idx + 1,
         winner_id: m.winner_id ? Number(m.winner_id) : null,
@@ -368,7 +371,7 @@ export default function AddMatchPage({
                 </SelectContent>
               </Select>
               <Label className="mt-2 block">Score 1</Label>
-              <Input type="number" value={score1} onChange={(e) => setScore1(Number(e.target.value))} required />
+              <Input type="number" value={score1} onChange={(e) => setScore1(Number(e.target.value))} required disabled={ffBothTeams} />
             </div>
 
             <div>
@@ -386,7 +389,7 @@ export default function AddMatchPage({
                 </SelectContent>
               </Select>
               <Label className="mt-2 block">Score 2</Label>
-              <Input type="number" value={score2} onChange={(e) => setScore2(Number(e.target.value))} required />
+              <Input type="number" value={score2} onChange={(e) => setScore2(Number(e.target.value))} required disabled={ffBothTeams} />
             </div>
           </div>
 
@@ -395,9 +398,22 @@ export default function AddMatchPage({
             <Input type="datetime-local" value={datetime} onChange={(e) => setDatetime(e.target.value)} required />
           </div>
 
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="ff_both_teams"
+              checked={ffBothTeams}
+              onChange={(e) => setFfBothTeams(e.target.checked)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="ff_both_teams">
+              Forfeit — Both Teams
+            </Label>
+          </div>
+
           <div>
             <Label>Winner</Label>
-            <Select onValueChange={setWinnerId} value={winnerId} required>
+            <Select onValueChange={setWinnerId} value={winnerId} required disabled={ffBothTeams}>
               <SelectTrigger>
                 <SelectValue placeholder="Select winner" />
               </SelectTrigger>
@@ -435,6 +451,7 @@ export default function AddMatchPage({
                         handleMapChange(mapIndex, "map_name", e.target.value)
                       }
                       required
+                      disabled={ffBothTeams}
                     />
                   </div>
 
@@ -446,6 +463,7 @@ export default function AddMatchPage({
                       }
                       value={map.map_picker_name || ""}
                       required
+                      disabled={ffBothTeams}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select picker" />
@@ -467,6 +485,7 @@ export default function AddMatchPage({
                         handleMapChange(mapIndex, "team1_score", Number(e.target.value))
                       }
                       required
+                      disabled={ffBothTeams}
                     />
                   </div>
 
@@ -479,6 +498,7 @@ export default function AddMatchPage({
                         handleMapChange(mapIndex, "team2_score", Number(e.target.value))
                       }
                       required
+                      disabled={ffBothTeams}
                     />
                   </div>
                 </div>
@@ -491,6 +511,7 @@ export default function AddMatchPage({
                     }
                     value={map.winner_id ? map.winner_id.toString() : ""}
                     required
+                    disabled={ffBothTeams}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select winner" />
@@ -541,6 +562,7 @@ export default function AddMatchPage({
                               Number(v)
                             )
                           }
+                          disabled={ffBothTeams}
                           value={ps.player_id ? ps.player_id.toString() : ""}
                         >
                           <SelectTrigger>
@@ -548,7 +570,7 @@ export default function AddMatchPage({
                           </SelectTrigger>
                           <SelectContent>
                             {players.map((p) => (
-                              <SelectItem key={p.id} value={p.id.toString()}>
+                              <SelectItem key={p.id} value={p.id.toString()} disabled={ffBothTeams}>
                                 {p.name}
                               </SelectItem>
                             ))}
@@ -562,6 +584,7 @@ export default function AddMatchPage({
                         onChange={(e) =>
                           handlePlayerStatChange(mapIndex, psIndex, "K", Number(e.target.value))
                         }
+                        disabled={ffBothTeams}
                       />
                       <Input
                         type="number"
@@ -569,6 +592,7 @@ export default function AddMatchPage({
                         onChange={(e) =>
                           handlePlayerStatChange(mapIndex, psIndex, "A", Number(e.target.value))
                         }
+                        disabled={ffBothTeams}
                       />
                       <Input
                         type="number"
@@ -576,6 +600,7 @@ export default function AddMatchPage({
                         onChange={(e) =>
                           handlePlayerStatChange(mapIndex, psIndex, "D", Number(e.target.value))
                         }
+                        disabled={ffBothTeams}
                       />
                       <Input
                         type="number"
@@ -583,6 +608,7 @@ export default function AddMatchPage({
                         onChange={(e) =>
                           handlePlayerStatChange(mapIndex, psIndex, "ADR", Number(e.target.value))
                         }
+                        disabled={ffBothTeams}
                       />
                       <Input
                         type="number"
@@ -590,6 +616,7 @@ export default function AddMatchPage({
                         onChange={(e) =>
                           handlePlayerStatChange(mapIndex, psIndex, "hs_percent", Number(e.target.value))
                         }
+                        disabled={ffBothTeams}
                       />
                       <Input
                         type="number"
@@ -597,6 +624,7 @@ export default function AddMatchPage({
                         onChange={(e) =>
                           handlePlayerStatChange(mapIndex, psIndex, "KPR", Number(e.target.value))
                         }
+                        disabled={ffBothTeams}
                       />
                     </div>
                   ))}
@@ -606,13 +634,14 @@ export default function AddMatchPage({
                     size="sm"
                     className="mt-2"
                     onClick={() => addPlayerStat(mapIndex)}
+                    disabled={ffBothTeams}
                   >
                     + Add Player Stat
                   </Button>
                 </div>
               </div>
             ))}
-            <Button type="button" className="mt-3" onClick={addMap}>
+            <Button type="button" className="mt-3" onClick={addMap} disabled={ffBothTeams}>
               + Add Map
             </Button>
           </div>
