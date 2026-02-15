@@ -23,12 +23,13 @@ interface Player {
   team_sub_id?: number | "";
   faceit_url: string;
   steam_id: string;
+  hometown?: string;
 }
 
 export default function AddPlayersPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [players, setPlayers] = useState<Player[]>([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "" }]);
+  const [players, setPlayers] = useState<Player[]>([{ name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "", hometown: "" }]);
   const [password, setPassword] = useState("");
 
   // Load teams
@@ -53,7 +54,7 @@ export default function AddPlayersPage() {
   };
 
   const addPlayerField = () =>
-    setPlayers([...players, { name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "" }]);
+    setPlayers([...players, { name: "", real_name: "", year: "", major: "", main: true, team_sub_id: "", faceit_url: "", steam_id: "", hometown: "" }]);
   const removePlayerField = (index: number) =>
     setPlayers(players.filter((_, i) => i !== index));
 
@@ -124,6 +125,11 @@ export default function AddPlayersPage() {
                   onChange={(e) => handlePlayerChange(index, "real_name", e.target.value)}
                   placeholder="Enter real name"
                 />
+                <Input
+                  value={player.hometown}
+                  onChange={(e) => handlePlayerChange(index, "hometown", e.target.value)}
+                  placeholder="Hometown"
+                />
                 <div className="flex space-x-2">
                   <Input
                     value={player.year}
@@ -159,13 +165,15 @@ export default function AddPlayersPage() {
 
                 {/* Sub Team Selector */}
                   <div>
-                    <Label>Sub Team (optional)</Label>
+                    <Label>2nd Team</Label>
+                    <span className="text-sm text-gray-400">Will be classified as a sub for the 2nd team if applicable. This is typically used if a player from a Challengers team subs for their school&apos;s Elite team.</span><br></br>
+                    <span className="text-sm text-gray-400">If this player is only a sub for their main team and nothing more, leave this as &quot;No Team&quot; and uncheck the &quot;Main&quot; box above.</span>
                     <Select
                       onValueChange={(val) => handlePlayerChange(index, "team_sub_id", val)}
                       value={player.team_sub_id === "" ? "" : String(player.team_sub_id)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select sub team" />
+                        <SelectValue placeholder="Select 2nd team" />
                       </SelectTrigger>
                       <SelectContent>
                         {teams.map((team) => (
