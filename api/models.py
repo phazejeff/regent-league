@@ -14,6 +14,7 @@ class TeamBase(SQLModel):
     mainColor: Optional[str] = None
     secondColor: Optional[str] = None
     active: Optional[bool] = Field(default=True)
+    collegecounter_id: Optional[str] = None
     
 class Team(TeamBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

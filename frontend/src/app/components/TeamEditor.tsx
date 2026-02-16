@@ -14,6 +14,7 @@ interface Team {
   mainColor: string;
   secondColor: string;
   active: boolean;
+  collegecounter_id: string;
 }
 
 export default function TeamEditor() {
@@ -85,6 +86,7 @@ export default function TeamEditor() {
             mainColor: editingTeam.mainColor,
             secondColor: editingTeam.secondColor,
             active: editingTeam.active,
+            collegecounter_id: editingTeam.collegecounter_id,
           }),
         }
       );
@@ -286,6 +288,19 @@ export default function TeamEditor() {
                 value={editingTeam.school}
                 onChange={(e) =>
                   setEditingTeam({ ...editingTeam, school: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            {/* College Counter ID */}
+            <div>
+              <label className="block font-medium mb-1">College Counter ID</label>
+              <input
+                type="text"
+                value={editingTeam.collegecounter_id}
+                onChange={(e) =>
+                  setEditingTeam({ ...editingTeam, collegecounter_id: e.target.value })
                 }
                 className="w-full p-2 border rounded"
               />
