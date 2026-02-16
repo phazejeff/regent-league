@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 interface Division { id: number; name: string; }
-interface Team { id: number; name: string; div: string; group: string; logo?: string; }
+interface Team { id: number; name: string; div: string; group: string; logo?: string; collegecounter_id?: string; }
 interface Player { id: number; name: string; age: number; year: string; major: string; main: boolean; team_id: number; team_sub_id: number; former_player: boolean; steam_id: string;}
 
 export default function TeamsByDivision() {
@@ -21,7 +21,7 @@ export default function TeamsByDivision() {
   const [faceitBySteam, setFaceitBySteam] = useState<
     Record<string, { level: number; elo: number }>
   >({});
-
+  const [rankByTeam, setRankByTeam] = useState<Record<string, number>>({});
 
   useEffect(() => {
     // Detect mobile
@@ -40,7 +40,10 @@ export default function TeamsByDivision() {
         ]);
         const divisionsData: Division[] = await divRes.json();
         const teamsData: Team[] = await teamRes.json();
-
+        
+        teamsData.forEach(team => {
+          fetchCollegeCounterRank(team.collegecounter_id);
+        }); 
         setDivisions(divisionsData);
         setTeams(teamsData);
         if (divisionsData.length > 0) setSelectedDivId(divisionsData[0].id);
@@ -84,6 +87,26 @@ export default function TeamsByDivision() {
     }
   };
 
+  const fetchCollegeCounterRank = async (collegeCounterId?: string) => {
+    if (!collegeCounterId || rankByTeam[collegeCounterId]) return;
+
+    try {
+      const res = await fetch(
+        `https://api.collegecounter.org/v1/public/team-current-ranking?team_id=${collegeCounterId}`
+      );
+      const data = await res.json();
+
+      if (typeof data.rank === "number") {
+        setRankByTeam(prev => ({
+          ...prev,
+          [collegeCounterId]: data.rank,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch CollegeCounter rank", err);
+    }
+  };
+
   const isFaceitDataLoaded = (teamId: number) => {
     const players = playersByTeam[teamId];
     if (!players) return false;
@@ -103,6 +126,20 @@ export default function TeamsByDivision() {
       className="relative"
     >
       <Card className="flex flex-col items-center justify-between p-4 h-64 relative overflow-hidden hover:shadow-lg transition">
+        {team.collegecounter_id && rankByTeam[team.collegecounter_id] && (
+          <div className="absolute top-2 right-2 z-10 group">
+            <div className="bg-[#d5872b] text-white text-sm font-bold px-3 py-2 rounded-lg shadow-md">
+              #{rankByTeam[team.collegecounter_id]}
+            </div>
+
+            {/* Tooltip */}
+            <div className="absolute right-0 mt-1 w-max opacity-0 group-hover:opacity-100 transition-opacity
+                            bg-black text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none">
+              CollegeCounter ranking
+            </div>
+          </div>
+        )}
+        
         {/* Team name */}
         <h2 className="text-lg font-semibold text-center mb-2">{team.name}</h2>
 
