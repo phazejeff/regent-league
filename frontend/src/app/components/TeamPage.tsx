@@ -15,6 +15,7 @@ interface Player {
   year: string;
   main: boolean;
   former_player: boolean;
+  steam_id?: string | null;
 }
 
 interface TeamInfo {
@@ -84,6 +85,8 @@ interface TeamPageProps {
 
 export default function TeamPage({ team_id }: TeamPageProps) {
   const [team, setTeam] = useState<Team | null>(null);
+  const [faceitLevels, setFaceitLevels] = useState<Record<number, number>>({});
+  const [faceitElos, setFaceitElos] = useState<Record<number, number>>({});
 
   useEffect(() => {
     async function fetchTeam() {
@@ -95,6 +98,49 @@ export default function TeamPage({ team_id }: TeamPageProps) {
     }
     if (team_id) fetchTeam();
   }, [team_id]);
+
+  useEffect(() => {
+    if (!team) return;
+
+    const allPlayers = [
+      ...team.players,
+      ...team.sub_players,
+    ].filter(
+      (p) => p.steam_id
+    );
+
+    async function fetchLevels() {
+      const results = await Promise.allSettled(
+        allPlayers.map(async (p) => {
+          const res = await fetch(
+            `${process.env.API_ROOT}/faceit/getplayer?steam_id=${p.steam_id}`
+          );
+          if (!res.ok) throw new Error("Faceit fetch failed");
+          const data = await res.json();
+          return {
+            playerId: p.id,
+            level: data.level,
+            elo: data.elo,
+          };
+        })
+      );
+
+      const levelMap: Record<number, number> = {};
+      const eloMap: Record<number, number> = {};
+
+      results.forEach((r) => {
+        if (r.status === "fulfilled") {
+          levelMap[r.value.playerId] = r.value.level;
+          eloMap[r.value.playerId] = r.value.elo;
+        }
+      });
+
+      setFaceitLevels(levelMap);
+      setFaceitElos(eloMap);
+    }
+
+    fetchLevels();
+  }, [team]);
 
   if (!team) {
     return (
@@ -120,6 +166,24 @@ export default function TeamPage({ team_id }: TeamPageProps) {
     ...team.sub_players,
   ].filter((p) => p.former_player);
 
+  const activePlayers = [
+    ...team.players,
+    ...team.sub_players,
+  ].filter((p) => !p.former_player && faceitElos[p.id]);
+
+  const top5Elos = activePlayers
+    .map((p) => faceitElos[p.id])
+    .sort((a, b) => b - a)
+    .slice(0, 5);
+
+  const teamAverageElo =
+    top5Elos.length > 0
+      ? Math.round(
+          top5Elos.reduce((sum, elo) => sum + elo, 0) / top5Elos.length
+        )
+      : null;
+
+  const teamFaceitLevel = teamAverageElo !== null ? eloToFaceitLevel(teamAverageElo) : null;
   // Combine matches
   const pastMatches = [...team.matches_as_team1, ...team.matches_as_team2].sort(
     (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
@@ -137,6 +201,20 @@ export default function TeamPage({ team_id }: TeamPageProps) {
 
   const isMapWin = (map: MapData) => map.winner_id === team.id;
 
+  function eloToFaceitLevel(elo: number): number {
+    if (elo >= 2001) return 10;
+    if (elo >= 1751) return 9;
+    if (elo >= 1531) return 8;
+    if (elo >= 1351) return 7;
+    if (elo >= 1201) return 6;
+    if (elo >= 1051) return 5;
+    if (elo >= 901) return 4;
+    if (elo >= 751) return 3;
+    if (elo >= 501) return 2;
+    if (elo >= 100) return 1;
+    return 0;
+  }
+
   return (
     <div className="min-h-screen text-foreground py-10 px-4 md:px-12 lg:px-24">
       {/* Header */}
@@ -153,8 +231,20 @@ export default function TeamPage({ team_id }: TeamPageProps) {
           <p className="text-lg mt-2 text-white">{team.school}</p>
           <p className="text-sm text-gray-400">{team.address}</p>
           <div className="flex gap-4 mt-3 text-sm">
-            <span className="bg-muted px-3 py-1 rounded-md">Div {team.div}</span>
-            <span className="bg-muted px-3 py-1 rounded-md">Group {team.group}</span>
+            <span className="bg-muted px-3 py-1 rounded-md flex items-center">Div {team.div}</span>
+            <span className="bg-muted px-3 py-1 rounded-md flex items-center">Group {team.group}</span>
+            {teamAverageElo && teamFaceitLevel && (
+              <div className="bg-muted px-3 py-1 rounded-md flex items-center gap-1">
+                  Average Elo:
+                  <Image
+                    src={`/faceit/lvl${teamFaceitLevel}.svg`}
+                    alt={`Faceit Level ${teamFaceitLevel}`}
+                    width={25}
+                    height={25}
+                  />
+                  {teamAverageElo}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -174,10 +264,20 @@ export default function TeamPage({ team_id }: TeamPageProps) {
               viewport={{ once: true }}
               className="p-4 rounded-lg border bg-card shadow-sm"
             >
-              <h3 className="text-lg font-semibold hover:underline">
+              <h3 className="text-lg font-semibold hover:underline flex items-center gap-2">
                 <Link href={`/player/${p.id}`}>
                   {p.name}
                 </Link>
+
+                {faceitLevels[p.id] && (
+                  <Image
+                    src={`/faceit/lvl${faceitLevels[p.id]}.svg`}
+                    alt={`Faceit Level ${faceitLevels[p.id]}`}
+                    width={20}
+                    height={20}
+                    className="inline-block"
+                  />
+                )}
               </h3>
               {p.real_name && <p className="text-sm text-muted-foreground">{p.real_name}</p>}
               <p className="text-sm mt-1">Major: {p.major}</p>
@@ -203,10 +303,20 @@ export default function TeamPage({ team_id }: TeamPageProps) {
                 viewport={{ once: true }}
                 className="p-4 rounded-lg border bg-card shadow-sm"
               >
-                <h3 className="text-lg font-semibold hover:underline">
+                <h3 className="text-lg font-semibold hover:underline flex items-center gap-2">
                   <Link href={`/player/${p.id}`}>
                     {p.name}
                   </Link>
+
+                  {faceitLevels[p.id] && (
+                    <Image
+                      src={`/faceit/lvl${faceitLevels[p.id]}.svg`}
+                      alt={`Faceit Level ${faceitLevels[p.id]}`}
+                      width={20}
+                      height={20}
+                      className="inline-block"
+                    />
+                  )}
                 </h3>
                 {p.real_name && <p className="text-sm text-muted-foreground">{p.real_name}</p>}
                 <p className="text-sm mt-1">Major: {p.major}</p>
@@ -235,10 +345,20 @@ export default function TeamPage({ team_id }: TeamPageProps) {
               viewport={{ once: true }}
               className="p-4 rounded-lg border bg-muted/30 shadow-sm"
             >
-              <h3 className="text-lg font-semibold hover:underline">
+              <h3 className="text-lg font-semibold hover:underline flex items-center gap-2">
                 <Link href={`/player/${p.id}`}>
                   {p.name}
                 </Link>
+
+                {faceitLevels[p.id] && (
+                  <Image
+                    src={`/faceit/lvl${faceitLevels[p.id]}.svg`}
+                    alt={`Faceit Level ${faceitLevels[p.id]}`}
+                    width={20}
+                    height={20}
+                    className="inline-block"
+                  />
+                )}
               </h3>
               {p.real_name && (
                 <p className="text-sm text-muted-foreground">{p.real_name}</p>
