@@ -169,21 +169,19 @@ export default function TeamPage({ team_id }: TeamPageProps) {
   const activePlayers = [
     ...team.players,
     ...team.sub_players,
-  ].filter((p) => !p.former_player && faceitElos[p.id]);
+  ].filter((p) => !p.former_player && faceitLevels[p.id]);
 
-  const top5Elos = activePlayers
-    .map((p) => faceitElos[p.id])
+  const top5Levels = activePlayers
+    .map((p) => faceitLevels[p.id])
     .sort((a, b) => b - a)
     .slice(0, 5);
 
-  const teamAverageElo =
-    top5Elos.length > 0
-      ? Math.round(
-          top5Elos.reduce((sum, elo) => sum + elo, 0) / top5Elos.length
-        )
+  const teamAverageLevel =
+    top5Levels.length > 0
+      ? top5Levels.reduce((sum, level) => sum + level, 0) / top5Levels.length
       : null;
 
-  const teamFaceitLevel = teamAverageElo !== null ? eloToFaceitLevel(teamAverageElo) : null;
+  const teamFaceitLevel = teamAverageLevel ? Math.floor(teamAverageLevel) : 1;
   // Combine matches
   const pastMatches = [...team.matches_as_team1, ...team.matches_as_team2].sort(
     (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
@@ -200,20 +198,6 @@ export default function TeamPage({ team_id }: TeamPageProps) {
   const isWin = (match: Match) => match.winner_id === team.id;
 
   const isMapWin = (map: MapData) => map.winner_id === team.id;
-
-  function eloToFaceitLevel(elo: number): number {
-    if (elo >= 2001) return 10;
-    if (elo >= 1751) return 9;
-    if (elo >= 1531) return 8;
-    if (elo >= 1351) return 7;
-    if (elo >= 1201) return 6;
-    if (elo >= 1051) return 5;
-    if (elo >= 901) return 4;
-    if (elo >= 751) return 3;
-    if (elo >= 501) return 2;
-    if (elo >= 100) return 1;
-    return 0;
-  }
 
   return (
     <div className="min-h-screen text-foreground py-10 px-4 md:px-12 lg:px-24">
@@ -233,16 +217,15 @@ export default function TeamPage({ team_id }: TeamPageProps) {
           <div className="flex gap-4 mt-3 text-sm">
             <span className="bg-muted px-3 py-1 rounded-md flex items-center">Div {team.div}</span>
             <span className="bg-muted px-3 py-1 rounded-md flex items-center">Group {team.group}</span>
-            {teamAverageElo && teamFaceitLevel && (
-              <div className="bg-muted px-3 py-1 rounded-md flex items-center gap-1">
-                  Average Elo:
+            {teamAverageLevel && teamFaceitLevel && (
+              <div className="bg-muted px-3 py-1 rounded-md flex items-center gap-2">
+                  Average Level
                   <Image
                     src={`/faceit/lvl${teamFaceitLevel}.svg`}
                     alt={`Faceit Level ${teamFaceitLevel}`}
                     width={25}
                     height={25}
                   />
-                  {teamAverageElo}
               </div>
             )}
           </div>
