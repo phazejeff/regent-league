@@ -285,7 +285,7 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team1.id}`}
                     >
-                    {/* {standings[match.team1.id]?.rank && `(#${standings[match.team1.id].rank})`} {match.team1.name} */}
+                    {standings[match.team1.id]?.rank && `(#${standings[match.team1.id].rank})`} {match.team1.name}
                     {match.team1.name}
                     </Link>
                   </div>
@@ -376,7 +376,7 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team2.id}`}
                     >
-                      {/* {standings[match.team2.id]?.rank && `(#${standings[match.team2.id].rank})`} {match.team2.name} */}
+                      {standings[match.team2.id]?.rank && `(#${standings[match.team2.id].rank})`} {match.team2.name}
                       {match.team2.name}
                     </Link>
                   </div>
