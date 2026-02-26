@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import List
 from zoneinfo import ZoneInfo
+import requests
 from fastapi import FastAPI, Form, HTTPException, Response, status, Depends, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, engine, getMainColor
@@ -800,3 +801,66 @@ def get_faceit_match(faceit_url: str, session: Session = Depends(get_session)) -
 @app.get("/faceit/getplayer")
 def get_faceit_player(steam_id: str, session: Session = Depends(get_session)):
     return Faceit.get_player_elo(steam_id)
+
+@app.get("/popflash/getmap")
+def get_popflash_map(popflash_url: str, team1_id: int, team2_id: int, session: Session = Depends(get_session)) -> MapCreate:
+    popflash_match_id = popflash_url.removesuffix("/").split("/")[-1]
+    response: dict = requests.get("https://api.popflash.site/api/rest/match/" + popflash_match_id, headers={"User-Agent" : "716492"}).json()
+    match: dict = response.get("match")
+
+    playerstats: list[PlayerstatsCreate] = []
+    total_rounds: int = match.get("score1") + match.get("score2")
+    for player in match.get("users_matches"):
+        player: dict
+        steam_id = player.get("user").get("steamid")
+        stmt = select(Player.id).where(Player.steam_id == steam_id)
+        player_id = session.exec(stmt).first()
+        if player_id == None:
+            continue
+        playerstat = PlayerstatsCreate(
+            player_id=player_id,
+            K=player.get("kills"),
+            A=player.get("assists"),
+            D=player.get("deaths"),
+            ADR=round(player.get("average_damage_per_round"), 2),
+            hs_percent=round(player.get("headshot_ratio") * 100, 2),
+            KPR=round(player.get("kills") / total_rounds, 2)
+        )
+        playerstats.append(playerstat)
+
+    first_player = match.get("users_matches")[0]
+    steam_id = first_player.get("user").get("steamid")
+    stmt = select(Player).where(Player.steam_id == steam_id)
+    first_player_team = session.exec(stmt).first().team
+
+    second_player = match.get("users_matches")[5]
+    steam_id = second_player.get("user").get("steamid")
+    stmt = select(Player).where(Player.steam_id == steam_id)
+    second_player_team = session.exec(stmt).first().team
+    if first_player_team.id == team1_id:
+        team1_scorename = "score1"
+        team2_scorename = "score2"
+        team1 = first_player_team
+        team2 = second_player_team
+    else:
+        team1_scorename = "score2"
+        team2_scorename = "score1"
+        team1 = second_player_team
+        team2 = first_player_team
+
+    if match.get(team1_scorename) > match.get(team2_scorename):
+        winner_id = team1.id
+    else:
+        winner_id = team2.id
+
+    map = MapCreate(
+        map_num = 0,
+        map_name = match.get("map"),
+        map_picker_name="",
+        team1_score = match.get(team1_scorename),
+        team2_score = match.get(team2_scorename),
+        player_stats=playerstats,
+        winner_id = winner_id
+    )
+
+    return map

@@ -77,6 +77,9 @@ export default function AddMatchPage({
 
   const [ffBothTeams, setFfBothTeams] = useState(false);
 
+  const [popflashUrl, setPopflashUrl] = useState("");
+  const [importingPopflash, setImportingPopflash] = useState(false);
+
   const [maps, setMaps] = useState<MapData[]>([
     {
       map_num: 1,
@@ -262,6 +265,76 @@ export default function AddMatchPage({
     }
   };
 
+  const handlePopflashImport = async () => {
+    if (!popflashUrl || !team1Id || !team2Id) return;
+
+    try {
+      setImportingPopflash(true);
+
+      const res = await fetch(
+        `${process.env.API_ROOT}/popflash/getmap` +
+          `?popflash_url=${encodeURIComponent(popflashUrl)}` +
+          `&team1_id=${team1Id}` +
+          `&team2_id=${team2Id}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to import PopFlash map");
+      }
+
+      const data = await res.json();
+
+      const newMap: MapData = {
+        map_num: maps.length + 1,
+        map_name: data.map_name,
+        team1_score: data.team1_score,
+        team2_score: data.team2_score,
+        winner_id: data.winner_id,
+        map_picker_name: data.map_picker_name,
+        player_stats: data.player_stats.map((ps: any) => ({
+          K: ps.K,
+          A: ps.A,
+          D: ps.D,
+          ADR: ps.ADR,
+          hs_percent: ps.hs_percent,
+          KPR: ps.KPR,
+          player_id: ps.player_id,
+        })),
+      };
+
+      setMaps((prev) => [...prev, newMap]);
+      setPopflashUrl("");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to import map from PopFlash.");
+    } finally {
+      setImportingPopflash(false);
+    }
+  };
+
+  const removeMap = (mapIndex: number) => {
+    setMaps((prev) =>
+      prev
+        .filter((_, i) => i !== mapIndex)
+        .map((m, i) => ({ ...m, map_num: i + 1 }))
+    );
+  };
+
+  const removePlayerStat = (mapIndex: number, psIndex: number) => {
+    setMaps((prev) =>
+      prev.map((map, i) =>
+        i === mapIndex
+          ? {
+              ...map,
+              player_stats: map.player_stats.filter(
+                (_, j) => j !== psIndex
+              ),
+            }
+          : map
+      )
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const local = new Date(datetime);
@@ -354,6 +427,31 @@ export default function AddMatchPage({
               Imports match data from Faceit and pre-fills all fields. Please review before saving.
             </p>
           </div>
+          {/* PopFlash Import */}
+          <div className="border rounded-lg p-4 space-y-3">
+            <Label>Import Map from PopFlash</Label>
+
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://popflash.site/match/..."
+                value={popflashUrl}
+                onChange={(e) => setPopflashUrl(e.target.value)}
+                disabled={!team1Id || !team2Id}
+              />
+              <Button
+                type="button"
+                onClick={handlePopflashImport}
+                disabled={importingPopflash || !team1Id || !team2Id}
+              >
+                {importingPopflash ? "Importing..." : "Add Map"}
+              </Button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Imports a single map from PopFlash and appends it to the match.
+              Team 1 and Team 2 must be selected first.
+            </p>
+          </div>
           {/* Match Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -440,7 +538,20 @@ export default function AddMatchPage({
                 key={mapIndex}
                 className="border p-3 rounded-lg mt-3 space-y-3"
               >
-                <p className="font-semibold">Map {mapIndex + 1}</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold">Map {mapIndex + 1}</p>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeMap(mapIndex)}
+                    disabled={ffBothTeams}
+                    className="text-red-500 hover:text-red-600 text-2xl"
+                  >
+                    ✕
+                  </Button>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -536,7 +647,7 @@ export default function AddMatchPage({
                   <Label>Player Stats</Label>
 
                   {/* Header Row */}
-                  <div className="grid grid-cols-8 gap-2 mt-2 font-semibold text-sm text-gray-700">
+                  <div className="grid grid-cols-9 gap-2 mt-2 font-semibold text-sm text-gray-700">
                     <div className="col-span-2">Player</div>
                     <div className="text-center">K</div>
                     <div className="text-center">A</div>
@@ -544,12 +655,13 @@ export default function AddMatchPage({
                     <div className="text-center">ADR</div>
                     <div className="text-center">HS%</div>
                     <div className="text-center">KPR</div>
+                    <div></div>
                   </div>
 
                   {map.player_stats.map((ps, psIndex) => (
                     <div
                       key={psIndex}
-                      className="grid grid-cols-8 gap-2 mt-2 items-center"
+                      className="grid grid-cols-9 gap-2 mt-2 items-center"
                     >
                       {/* Player Select */}
                       <div className="col-span-2">
@@ -626,6 +738,16 @@ export default function AddMatchPage({
                         }
                         disabled={ffBothTeams}
                       />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removePlayerStat(mapIndex, psIndex)}
+                        disabled={ffBothTeams}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        ✕
+                      </Button>
                     </div>
                   ))}
 
