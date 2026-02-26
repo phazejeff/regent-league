@@ -291,6 +291,7 @@ export default function AddMatchPage({
         team2_score: data.team2_score,
         winner_id: data.winner_id,
         map_picker_name: data.map_picker_name,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         player_stats: data.player_stats.map((ps: any) => ({
           K: ps.K,
           A: ps.A,
