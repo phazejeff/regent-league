@@ -119,7 +119,7 @@ export default function AddUpcomingMatch({ onSubmit }: AddUpcomingMatchProps) {
 
     const upcoming = {
       week,
-      isoUtc,
+      datetime: isoUtc,
       division: divisionId,
       team1_id: Number(team1Id),
       team2_id: Number(team2Id),
