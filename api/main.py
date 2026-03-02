@@ -757,7 +757,8 @@ def get_faceit_match(faceit_url: str, session: Session = Depends(get_session)) -
         playerstatsCreate = []
         for player in team1["players"] + team2["players"]:
             playerstats = player["player_stats"]
-            playerStmt = select(Player).where(Player.faceit_url == "https://www.faceit.com/en/players/" + player["nickname"])
+            player = Faceit.get_player_data(player["player_id"])
+            playerStmt = select(Player).where(Player.steam_id == player["steam_id_64"])
             playerDb = session.exec(playerStmt).first()
             if playerDb == None: continue
             playerstatCreate = PlayerstatsCreate(
