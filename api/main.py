@@ -738,10 +738,13 @@ def get_faceit_match(faceit_url: str, session: Session = Depends(get_session)) -
     for map in maps:
         team1 = map["teams"][0]
         team2 = map["teams"][1]
+        
+        player1 = Faceit.get_player_data(team1["players"][0]["player_id"])
+        player2 = Faceit.get_player_data(team2["players"][0]["player_id"])
 
-        team1player1stmt = select(Player).where(Player.faceit_url == "https://www.faceit.com/en/players/" + team1["players"][0]["nickname"])
+        team1player1stmt = select(Player).where(Player.steam_id == player1["steam_id_64"])
         team1Db = session.exec(team1player1stmt).first().team
-        team2player2stmt = select(Player).where(Player.faceit_url == "https://www.faceit.com/en/players/" + team2["players"][0]["nickname"])
+        team2player2stmt = select(Player).where(Player.steam_id == player2["steam_id_64"])
         team2Db = session.exec(team2player2stmt).first().team
 
         if map["round_stats"]["Winner"] == team1["team_id"]:

@@ -22,5 +22,10 @@ class Faceit:
             "elo": cs2_data.get("faceit_elo"),
             "level": cs2_data.get("skill_level")
         }
+    
+    @staticmethod
+    def get_player_data(faceit_id: str):
+        r: dict = requests.get(API_URL + f"/players/{faceit_id}", headers=HEADER).json()
+        return r
 
 Faceit.get_match("https://www.faceit.com/en/cs2/room/1-cdebb786-f451-49b3-a39d-5c40f9f772bd")
