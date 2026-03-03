@@ -391,7 +391,7 @@ export default function TeamPage({ team_id }: TeamPageProps) {
       </Card>
     )}
 
-      {/* Map Stats - Responsive Competitive Style */}
+      {/* Map Stats */}
       {sortedMapStats.length > 0 && (
         <Card className="mb-12 border-none shadow-md">
           <CardHeader>
@@ -405,7 +405,8 @@ export default function TeamPage({ team_id }: TeamPageProps) {
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          {/* MOBILE: stacked | DESKTOP: vertical grid cards */}
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {sortedMapStats.map((map) => {
               const percent = map.winPercent.toFixed(1);
               const mapDisplay = map.mapName.replace("de_", "").toUpperCase();
@@ -421,35 +422,45 @@ export default function TeamPage({ team_id }: TeamPageProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25 }}
                   viewport={{ once: true }}
-                  className="space-y-3"
+                  className="rounded-xl overflow-hidden border bg-card shadow-sm flex flex-col"
                 >
-                  {/* Top Section */}
-                  <div className="flex justify-between items-start sm:items-center">
-                    
-                    {/* Left Side */}
-                    <div className="space-y-1">
-                      <div className="text-lg sm:text-xl font-bold">
-                        {mapDisplay}
-                      </div>
-
-                      <div className="flex gap-3 text-sm text-muted-foreground flex-wrap">
-                        <span>{map.total} played</span>
-                        <span>{map.wins}-{map.losses}</span>
-                      </div>
-                    </div>
-
-                    {/* Right Side - Big Percentage */}
-                    <div className={`text-2xl sm:text-3xl font-bold ${percentColor}`}>
-                      {percent}%
+                  {/* Map Image Banner */}
+                  <div className="relative h-28 w-full overflow-hidden">
+                    <Image
+                      src={`/maps/${map.mapName}.png`}
+                      alt={mapDisplay}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-2 left-3 text-lg font-bold text-white tracking-wide">
+                      {mapDisplay}
                     </div>
                   </div>
 
-                  {/* Performance Bar */}
-                  <div className="h-3 sm:h-4 w-full bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 transition-all duration-500"
-                      style={{ width: `${percent}%` }}
-                    />
+                  {/* Stats Section */}
+                  <div className="p-4 flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-muted-foreground">
+                        {map.total} played
+                      </div>
+                      <div className={`text-2xl font-bold ${percentColor}`}>
+                        {percent}%
+                      </div>
+                    </div>
+
+                    <div className="text-sm">
+                      <span className="font-semibold">{map.wins}</span>W -{" "}
+                      <span className="font-semibold">{map.losses}</span>L
+                    </div>
+
+                    {/* Performance Bar */}
+                    <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500 transition-all duration-500"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
                   </div>
                 </motion.div>
               );
