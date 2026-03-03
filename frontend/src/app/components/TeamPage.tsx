@@ -87,6 +87,9 @@ export default function TeamPage({ team_id }: TeamPageProps) {
   const [team, setTeam] = useState<Team | null>(null);
   const [faceitLevels, setFaceitLevels] = useState<Record<number, number>>({});
   const [faceitElos, setFaceitElos] = useState<Record<number, number>>({});
+  const [mapStats, setMapStats] = useState<
+    Record<string, { wins: number; losses: number }>
+  >({});
 
   useEffect(() => {
     async function fetchTeam() {
@@ -97,6 +100,20 @@ export default function TeamPage({ team_id }: TeamPageProps) {
       }
     }
     if (team_id) fetchTeam();
+  }, [team_id]);
+
+  useEffect(() => {
+    async function fetchMapStats() {
+      const res = await fetch(
+        `${process.env.API_ROOT}/mapstats?team_id=${team_id}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setMapStats(data);
+      }
+    }
+
+    if (team_id) fetchMapStats();
   }, [team_id]);
 
   useEffect(() => {
@@ -198,6 +215,27 @@ export default function TeamPage({ team_id }: TeamPageProps) {
   const isWin = (match: Match) => match.winner_id === team.id;
 
   const isMapWin = (map: MapData) => map.winner_id === team.id;
+
+  const sortedMapStats = Object.entries(mapStats)
+    .map(([mapName, stats]) => {
+      const total = stats.wins + stats.losses;
+      const winPercent = total > 0 ? (stats.wins / total) * 100 : 0;
+
+      return {
+        mapName,
+        ...stats,
+        total,
+        winPercent,
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+
+  const bestMap =
+    sortedMapStats.length > 0
+      ? sortedMapStats.reduce((best, current) =>
+          current.winPercent > best.winPercent ? current : best
+        )
+      : null;
 
   return (
     <div className="min-h-screen text-foreground py-10 px-4 md:px-12 lg:px-24">
@@ -352,6 +390,73 @@ export default function TeamPage({ team_id }: TeamPageProps) {
         </CardContent>
       </Card>
     )}
+
+      {/* Map Stats - Responsive Competitive Style */}
+      {sortedMapStats.length > 0 && (
+        <Card className="mb-12 border-none shadow-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span>Map Performance</span>
+              {bestMap && (
+                <span className="text-sm font-medium text-green-500">
+                  Best Map: {bestMap.mapName.replace("de_", "").toUpperCase()}
+                </span>
+              )}
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {sortedMapStats.map((map) => {
+              const percent = map.winPercent.toFixed(1);
+              const mapDisplay = map.mapName.replace("de_", "").toUpperCase();
+
+              let percentColor = "text-red-500";
+              if (map.winPercent >= 60) percentColor = "text-green-500";
+              else if (map.winPercent >= 45) percentColor = "text-yellow-500";
+
+              return (
+                <motion.div
+                  key={map.mapName}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  viewport={{ once: true }}
+                  className="space-y-3"
+                >
+                  {/* Top Section */}
+                  <div className="flex justify-between items-start sm:items-center">
+                    
+                    {/* Left Side */}
+                    <div className="space-y-1">
+                      <div className="text-lg sm:text-xl font-bold">
+                        {mapDisplay}
+                      </div>
+
+                      <div className="flex gap-3 text-sm text-muted-foreground flex-wrap">
+                        <span>{map.total} played</span>
+                        <span>{map.wins}-{map.losses}</span>
+                      </div>
+                    </div>
+
+                    {/* Right Side - Big Percentage */}
+                    <div className={`text-2xl sm:text-3xl font-bold ${percentColor}`}>
+                      {percent}%
+                    </div>
+                  </div>
+
+                  {/* Performance Bar */}
+                  <div className="h-3 sm:h-4 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 transition-all duration-500"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
       
       {/* Upcoming Matches */}
       {upcomingMatches.length > 0 && (
