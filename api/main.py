@@ -868,3 +868,23 @@ def get_popflash_map(popflash_url: str, team1_id: int, team2_id: int, session: S
     )
 
     return map
+
+@app.get("/mapstats")
+def get_team_map_stats(team_id: int, session: Session = Depends(get_session)):
+    stmt = select(Map).join(Map.match).where(or_(Match.team1_id == team_id, Match.team2_id == team_id))
+    maps = session.exec(stmt).all()
+    map_stats = {}
+    for map in maps:
+        map_name = map.map_name.lower()
+        if map_name == "n/a":
+            continue
+        if not map_name.startswith("de_"):
+            map_name = "de_" + map_name
+        
+        if map_name not in map_stats:
+            map_stats[map_name] = {"wins": 0, "losses": 0}
+        if map.winner_id == team_id:
+            map_stats[map_name]["wins"] += 1
+        else:
+            map_stats[map_name]["losses"] += 1
+    return map_stats
