@@ -45,6 +45,13 @@ export default function UpcomingMatchesPage() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [availableGroups, setAvailableGroups] = useState<string[]>([]);
 
+  const weekLabels: Record<number, string> = {
+    100: "Quarterfinal Match",
+    101: "Semifinal Match",
+    102: "Grand Final",
+    103: "Third Place Match",
+  };
+
   const fetchMatches = async (divName?: string, group?: string) => {
     try {
       const url = divName
@@ -151,9 +158,14 @@ export default function UpcomingMatchesPage() {
 
 
   const selectedDivision = divisions.find((d) => d.id === selectedDivId);
-  const filteredMatches = selectedGroup
-  ? matches.filter((m) => m.team1.group === selectedGroup)
-  : matches;
+  const filteredMatches = (selectedGroup
+    ? matches.filter((m) => m.team1.group === selectedGroup)
+    : matches
+  ).sort((a, b) => {
+    if (a.week === 102) return -1;
+    if (b.week === 102) return 1;
+    return 0;
+  });
 
   const handleDivisionClick = (div: Division) => {
     setSelectedDivId(div.id);
@@ -253,7 +265,9 @@ export default function UpcomingMatchesPage() {
             <div
               key={idx}
               className={`relative flex flex-col md:flex-row justify-between md:items-start items-center text-white rounded-2xl shadow-2xl overflow-hidden border-4 ${
-                isLive
+                match.week === 102
+                  ? "border-yellow-400 shadow-[0_0_25px_rgba(250,204,21,0.7)]"
+                  : isLive
                   ? "border-red-600 animate-pulse"
                   : match.casted
                   ? "border-purple-600"
@@ -345,7 +359,9 @@ export default function UpcomingMatchesPage() {
                 <div className="text-lg font-semibold">
                   Group {match.team1.group}
                 </div>
-                <div className="text-sm mb-1">Week {match.week}</div>
+                <div className="text-sm mb-1">
+                  {weekLabels[match.week] ?? `Week ${match.week}`}
+                </div>
                 <div className="text-5xl font-extrabold my-2">VS</div>
                 <div className="text-sm font-medium">
                   {DateTime.fromISO(match.datetime, { zone: "utc" }).toLocal().toLocaleString(DateTime.DATETIME_HUGE)}
