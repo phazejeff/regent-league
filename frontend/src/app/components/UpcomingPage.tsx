@@ -64,7 +64,7 @@ export default function UpcomingMatchesPage() {
       const data: UpcomingMatch[] = await res.json();
       setMatches(data);
 
-      var activeGroup;
+      let activeGroup;
       if (!PLAYOFFS) {
         const groups = Array.from(
           new Set(
