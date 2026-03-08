@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { DateTime } from "luxon";
 
+const PLAYOFFS = false;
+
 type Team = {
   name: string;
   div: string;
@@ -62,20 +64,26 @@ export default function UpcomingMatchesPage() {
       const data: UpcomingMatch[] = await res.json();
       setMatches(data);
 
-      const groups = Array.from(
-        new Set(
-          data
-            .map((m) => m.team1.group)
-            .filter(Boolean)
-        )
-      ).sort();
+      var activeGroup;
+      if (!PLAYOFFS) {
+        const groups = Array.from(
+          new Set(
+            data
+              .map((m) => m.team1.group)
+              .filter(Boolean)
+          )
+        ).sort();
 
-      setAvailableGroups(groups);
+        setAvailableGroups(groups);
 
-      const activeGroup = group ?? groups[0] ?? null;
-      setSelectedGroup(activeGroup);
+        activeGroup = group ?? groups[0] ?? null;
+        setSelectedGroup(activeGroup);
+      } else {
+        setAvailableGroups([]);
+        setSelectedGroup(null);
+      }
 
-      if (divName && activeGroup) {
+      if (!PLAYOFFS && divName && activeGroup) {
         const standingsUrl = `${process.env.API_ROOT}/standings?div=${encodeURIComponent(
           divName
         )}&group=${encodeURIComponent(activeGroup)}`;
@@ -158,7 +166,9 @@ export default function UpcomingMatchesPage() {
 
 
   const selectedDivision = divisions.find((d) => d.id === selectedDivId);
-  const filteredMatches = (selectedGroup
+  const filteredMatches = (PLAYOFFS
+    ? matches
+    : selectedGroup
     ? matches.filter((m) => m.team1.group === selectedGroup)
     : matches
   ).sort((a, b) => {
@@ -224,7 +234,7 @@ export default function UpcomingMatchesPage() {
       </div>
       
       {/* Group Filter */}
-      {availableGroups.length > 1 && (
+      {!PLAYOFFS && availableGroups.length > 1 && (
         <div className="flex flex-wrap gap-3 justify-center mb-6">
           {availableGroups.map((group) => (
             <button
@@ -356,10 +366,12 @@ export default function UpcomingMatchesPage() {
 
               {/* Center VS Section */}
               <div className="flex flex-col justify-center self-center items-center text-center p-4 md:w-1/3 bg-black/40 backdrop-blur-sm rounded-2xl mx-2">
-                <div className="text-lg font-semibold">
-                  Group {match.team1.group}
-                </div>
-                <div className="text-sm mb-1">
+                {!PLAYOFFS && (
+                  <div className="text-lg font-semibold">
+                    Group {match.team1.group}
+                  </div>
+                )}
+                <div className={`${PLAYOFFS ? "text-2xl font-extrabold tracking-wide" : "text-sm"} mb-1`}>
                   {weekLabels[match.week] ?? `Week ${match.week}`}
                 </div>
                 <div className="text-5xl font-extrabold my-2">VS</div>
