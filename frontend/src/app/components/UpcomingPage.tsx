@@ -64,7 +64,6 @@ export default function UpcomingMatchesPage() {
       const data: UpcomingMatch[] = await res.json();
       setMatches(data);
 
-      let activeGroup;
       const groups = Array.from(
         new Set(
           data
@@ -75,7 +74,7 @@ export default function UpcomingMatchesPage() {
 
       setAvailableGroups(groups);
 
-      activeGroup = group ?? groups[0] ?? null;
+      const activeGroup = group ?? groups[0] ?? null;
 
       if (!PLAYOFFS) {
         setSelectedGroup(activeGroup);
