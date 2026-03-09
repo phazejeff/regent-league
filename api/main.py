@@ -15,7 +15,7 @@ from .twitch import Twitch
 from datetime import datetime, timedelta, timezone
 from .faceit import Faceit
 
-REG_SEASON_END = datetime(2026, 3, 9, tzinfo=ZoneInfo("UTC"))
+REG_SEASON_END = datetime(2026, 3, 9)
 
 create_db_and_tables()
 app = FastAPI(
