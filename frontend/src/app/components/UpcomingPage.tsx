@@ -92,7 +92,8 @@ export default function UpcomingMatchesPage() {
 
           const standingsRes = await fetch(standingsUrl);
           const standingsData = await standingsRes.json();
-
+          
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any 
           standingsData.forEach((entry: any, index: number) => {
             standingsMap[entry.team.id] = {
               rank: index + 1,
