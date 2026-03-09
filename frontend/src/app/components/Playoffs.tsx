@@ -10,14 +10,14 @@ interface Division {
 
 const rulesDocs: Record<string, { view: string; mobile: string }> = {
   Elites: {
-    view: "https://challonge.com/RCCLFall2025PlayoffsElite/module?scale_to_fit=1",
+    view: "https://challonge.com/RCCLSpring2026PlayoffsElite/module?scale_to_fit=1",
     mobile:
-      "https://challonge.com/RCCLFall2025PlayoffsElite/module",
+      "https://challonge.com/RCCLSpring2026PlayoffsElite/module",
   },
   Challengers: {
-    view: "https://challonge.com/RCCLFall2025PlayoffsChallengers/module?scale_to_fit=1",
+    view: "https://challonge.com/RCCLSpring2026PlayoffsChallengers/module?scale_to_fit=1",
     mobile:
-      "https://challonge.com/RCCLFall2025PlayoffsChallengers/module",
+      "https://challonge.com/RCCLSpring2026PlayoffsChallengers/module",
   },
 };
 
@@ -96,7 +96,7 @@ export default function PlayoffsPage() {
                     ? rulesDocs[selectedDivision.name].mobile
                     : rulesDocs[selectedDivision.name].view
                 }
-                className="w-full h-[calc(50vh)] rounded-lg shadow-md border"
+                className="w-full h-[calc(90vh)] rounded-lg shadow-md border"
                 allowFullScreen
               />
             </div>
