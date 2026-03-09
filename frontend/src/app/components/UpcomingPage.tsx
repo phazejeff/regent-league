@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DateTime } from "luxon";
 
-const PLAYOFFS = false;
+const PLAYOFFS = true;
 
 type Team = {
   name: string;
