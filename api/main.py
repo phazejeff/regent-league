@@ -15,6 +15,8 @@ from .twitch import Twitch
 from datetime import datetime, timedelta, timezone
 from .faceit import Faceit
 
+REG_SEASON_END = datetime(2026, 3, 9, tzinfo=ZoneInfo("UTC"))
+
 create_db_and_tables()
 app = FastAPI(
     title="Regent League API",
@@ -486,7 +488,7 @@ def get_standings(div: str, group: str, session: Session = Depends(get_session))
     team_stats_map = {}
 
     for team in teams:
-        matches = [*team.matches_as_team1, *team.matches_as_team2]
+        matches = [m for m in [*team.matches_as_team1, *team.matches_as_team2] if m.datetime <= REG_SEASON_END]
         stats = TeamStats()
         stats.team = team
         
