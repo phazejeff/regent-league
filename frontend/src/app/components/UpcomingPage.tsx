@@ -65,42 +65,42 @@ export default function UpcomingMatchesPage() {
       setMatches(data);
 
       let activeGroup;
+      const groups = Array.from(
+        new Set(
+          data
+            .map((m) => m.team1.group)
+            .filter(Boolean)
+        )
+      ).sort();
+
+      setAvailableGroups(groups);
+
+      activeGroup = group ?? groups[0] ?? null;
+
       if (!PLAYOFFS) {
-        const groups = Array.from(
-          new Set(
-            data
-              .map((m) => m.team1.group)
-              .filter(Boolean)
-          )
-        ).sort();
-
-        setAvailableGroups(groups);
-
-        activeGroup = group ?? groups[0] ?? null;
         setSelectedGroup(activeGroup);
       } else {
-        setAvailableGroups([]);
         setSelectedGroup(null);
       }
 
-      if (!PLAYOFFS && divName && activeGroup) {
-        const standingsUrl = `${process.env.API_ROOT}/standings?div=${encodeURIComponent(
-          divName
-        )}&group=${encodeURIComponent(activeGroup)}`;
+      if (divName && groups.length > 0) {
+        const standingsMap: Record<number, { rank: number; matchRecord: string }> = {};
 
-        const standingsRes = await fetch(standingsUrl);
-        const standingsData = await standingsRes.json();
+        for (const g of groups) {
+          const standingsUrl = `${process.env.API_ROOT}/standings?div=${encodeURIComponent(
+            divName
+          )}&group=${encodeURIComponent(g)}`;
 
-        const standingsMap: Record<number, { rank: number; matchRecord: string }> =
-          {};
+          const standingsRes = await fetch(standingsUrl);
+          const standingsData = await standingsRes.json();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        standingsData.forEach((entry: any, index: number) => {
-          standingsMap[entry.team.id] = {
-            rank: index + 1,
-            matchRecord: `${entry.match_wins}-${entry.match_losses}`,
-          };
-        });
+          standingsData.forEach((entry: any, index: number) => {
+            standingsMap[entry.team.id] = {
+              rank: index + 1,
+              matchRecord: `${entry.match_wins}-${entry.match_losses}`,
+            };
+          });
+        }
 
         setStandings(standingsMap);
       } else {
@@ -309,8 +309,16 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team1.id}`}
                     >
-                    {standings[match.team1.id]?.rank && `(#${standings[match.team1.id].rank})`} {match.team1.name}
-                    {/* {match.team1.name} */}
+                    {standings[match.team1.id] && (
+                      <>
+                        (
+                        {availableGroups.length > 1
+                          ? `#${standings[match.team1.id].rank}${match.team1.group.toLowerCase()}`
+                          : `#${standings[match.team1.id].rank}`}
+                        ){" "}
+                      </>
+                    )}
+                    {match.team1.name}
                     </Link>
                   </div>
 
@@ -404,8 +412,16 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team2.id}`}
                     >
-                      {standings[match.team2.id]?.rank && `(#${standings[match.team2.id].rank})`} {match.team2.name}
-                      {/* {match.team2.name} */}
+                      {standings[match.team2.id] && (
+                        <>
+                          (
+                          {availableGroups.length > 1
+                            ? `#${standings[match.team2.id].rank}${match.team2.group.toLowerCase()}`
+                            : `#${standings[match.team2.id].rank}`}
+                          ){" "}
+                        </>
+                      )}
+                      {match.team2.name}
                     </Link>
                   </div>
 
