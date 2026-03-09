@@ -700,14 +700,14 @@ def get_teams_cc(session: Session = Depends(get_session)) -> List[CCTeam]:
 
 @app.get("/cc/matches", tags=["CollegeCounter"])
 def get_matches_cc(div: str | None = None, session: Session = Depends(get_session)) -> List[CCMatch]:
-    statement = select(Upcoming)
+    statement = select(Upcoming).where(Upcoming.datetime <= REG_SEASON_END)
     statement = statement.order_by(Upcoming.datetime)
     if div:
         statement = statement.where(Upcoming.division == div)
     results = session.exec(statement).all()
     response = [CCMatch.convert_upcoming_to_cc(result) for result in results]
 
-    statement = select(Match)
+    statement = select(Match).where(Match.datetime <= REG_SEASON_END)
     statement = statement.order_by(Match.datetime)
     if div:
         statement = statement.join(Team, Match.team1_id == Team.id)
