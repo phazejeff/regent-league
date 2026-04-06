@@ -24,6 +24,10 @@ type Placement = {
 };
 
 type Division = "Elites" | "Challengers";
+type Season = string;
+type Semester = "Fall" | "Spring";
+
+const seasons: Season[] = ["2025-2026"];
 
 const API_ROOT = process.env.API_ROOT;
 
@@ -35,12 +39,18 @@ const MEDAL_BRONZE = "/Bronze XD Medal.png";
 export default function PlacementsPage() {
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<Division>("Elites");
+  const [selectedSeason, setSelectedSeason] = useState<Season>("2025-2026");
+  const [selectedSemester, setSelectedSemester] = useState<Semester>("Spring");
   const [loading, setLoading] = useState(true);
 
-  const fetchPlacements = async (div: Division) => {
+  const fetchPlacements = async (
+    div: Division,
+    season: Season,
+    semester: Semester
+  ) => {
     try {
       const res = await fetch(
-        `${API_ROOT}/placements?div=${encodeURIComponent(div)}`
+        `${API_ROOT}/placements?div=${encodeURIComponent(div)}&season=${encodeURIComponent(season)}&semester=${encodeURIComponent(semester)}`
       );
       const data: Placement[] = await res.json();
       setPlacements(data);
@@ -50,7 +60,6 @@ export default function PlacementsPage() {
       setLoading(false);
     }
   };
-
   
   function PodiumColumn({
     teams,
@@ -133,8 +142,9 @@ export default function PlacementsPage() {
   }
 
   useEffect(() => {
-    fetchPlacements(selectedDivision);
-  }, [selectedDivision]);
+    setLoading(true);
+    fetchPlacements(selectedDivision, selectedSeason, selectedSemester);
+  }, [selectedDivision, selectedSeason, selectedSemester]);
 
   if (loading) {
     return <div className="text-center text-white p-6">Loading...</div>;
@@ -150,8 +160,45 @@ export default function PlacementsPage() {
   return (
     <div className="max-w-6xl mx-auto mt-8 text-white">
       <h1 className="text-3xl font-bold text-center mb-6">
-        {selectedDivision} Fall 2025 Winners
+        {selectedDivision} {selectedSemester} {selectedSeason} Winners
       </h1>
+
+      {/* Season Selector */}
+      <div className="flex flex-col items-center gap-3 mb-6">
+        {/* School Year Buttons */}
+        <div className="flex gap-4">
+          {seasons.map((season) => (
+            <button
+              key={season}
+              onClick={() => setSelectedSeason(season)}
+              className={`px-6 py-2 rounded-lg font-semibold ${
+                selectedSeason === season
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-purple-500"
+              }`}
+            >
+              {season}
+            </button>
+          ))}
+        </div>
+
+        {/* Semester Buttons */}
+        <div className="flex gap-4">
+          {(["Fall", "Spring"] as Semester[]).map((sem) => (
+            <button
+              key={sem}
+              onClick={() => setSelectedSemester(sem)}
+              className={`px-5 py-2 rounded-lg font-medium ${
+                selectedSemester === sem
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-green-500"
+              }`}
+            >
+              {sem}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Division Buttons */}
       <div className="flex flex-wrap gap-4 mb-6 justify-center">

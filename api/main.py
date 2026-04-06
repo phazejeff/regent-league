@@ -682,10 +682,15 @@ def edit_upcoming(upcoming: EditUpcoming, password, response: Response, session:
     return {"message" : "Created"}
 
 @app.get("/placements")
-def get_placements(div: str | None, session: Session = Depends(get_session)) -> List[GetPlacement]:
+def get_placements(div: str | None, season: str | None, semester: str | None, session: Session = Depends(get_session)) -> List[GetPlacement]:
     placements_db = select(Placements)
     if div:
         placements_db = placements_db.where(Placements.division == div)
+    if season:
+        years = season.split("-")
+        placements_db = placements_db.where(or_(Placements.year == years[0], Placements.year == years[1]))
+    if semester:
+        placements_db = placements_db.where(Placements.semester == semester)
     placements_db = placements_db.order_by(Placements.placement)
     return session.exec(placements_db).all()
 
