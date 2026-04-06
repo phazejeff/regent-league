@@ -31,17 +31,23 @@ const seasons: Season[] = ["2025-2026"];
 
 const API_ROOT = process.env.API_ROOT;
 
-/* Placeholder assets */
-const MEDAL_GOLD = "/Fall 2025 Trophy.png";
-const MEDAL_SILVER = "/Silver XD Medal.png";
-const MEDAL_BRONZE = "/Bronze XD Medal.png";
-
 export default function PlacementsPage() {
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<Division>("Elites");
   const [selectedSeason, setSelectedSeason] = useState<Season>("2025-2026");
   const [selectedSemester, setSelectedSemester] = useState<Semester>("Spring");
   const [loading, setLoading] = useState(true);
+
+  function getMedalImage(p: Placement) {
+    let suffix = "";
+
+    if (p.placement === 1) suffix = "Trophy";
+    else if (p.placement === 2) suffix = "Silver";
+    else if (p.placement === 3) suffix = "Bronze";
+    else return null;
+
+    return `/${p.year}${p.semester}${suffix}.png`;
+  }
 
   const fetchPlacements = async (
     div: Division,
@@ -134,11 +140,8 @@ export default function PlacementsPage() {
     );
   }
 
-  function placementImage(placement: number) {
-    if (placement === 1) return MEDAL_GOLD;
-    if (placement === 2) return MEDAL_SILVER;
-    if (placement === 3) return MEDAL_BRONZE;
-    return null;
+  function placementImage(p: Placement) {
+    return getMedalImage(p);
   }
 
   useEffect(() => {
@@ -226,7 +229,7 @@ export default function PlacementsPage() {
               <PodiumColumn
                 height="h-50"
                 teams={podiumPlacements.third}
-                medal={MEDAL_BRONZE}
+                medal={getMedalImage(podiumPlacements.third[0])!}
                 label="3rd"
                 medalSize={64} // smallest
               />
@@ -239,7 +242,7 @@ export default function PlacementsPage() {
               <PodiumColumn
                 height="h-90"
                 teams={podiumPlacements.first}
-                medal={MEDAL_GOLD}
+                medal={getMedalImage(podiumPlacements.first[0])!}
                 label="1st"
                 isWinner
                 medalSize={150} // largest
@@ -253,7 +256,7 @@ export default function PlacementsPage() {
               <PodiumColumn
                 height="h-70"
                 teams={podiumPlacements.second}
-                medal={MEDAL_SILVER}
+                medal={getMedalImage(podiumPlacements.second[0])!}
                 label="2nd"
                 medalSize={100} // medium
               />
@@ -270,7 +273,7 @@ export default function PlacementsPage() {
             .slice()
             .sort((a, b) => a.placement - b.placement)
             .map((p, idx) => {
-              const medal = placementImage(p.placement);
+              const medal = placementImage(p);
 
               return (
                 <div
