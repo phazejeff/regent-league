@@ -52,6 +52,14 @@ export default function UpcomingMatchesPage() {
     101: "Semifinal Match",
     102: "Grand Final",
     103: "Third Place Match",
+
+    104: "Upper Round 1 Match",
+    105: "Lower Round 1 Match",
+    106: "Upper Quarterfinal Match",
+    107: "Lower Quarterfinal Match",
+    108: "Upper Semifinal Match",
+    109: "Lower Semifinal Match",
+    110: "Lower Final Match",
   };
 
   const fetchMatches = async (divName?: string, group?: string) => {
