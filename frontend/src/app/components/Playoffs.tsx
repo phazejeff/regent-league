@@ -10,14 +10,14 @@ interface Division {
 
 const rulesDocs: Record<string, { view: string; mobile: string }> = {
   Elites: {
-    view: "https://challonge.com/RCCLSpring2026PlayoffsElite/module?scale_to_fit=1",
+    view: "https://challonge.com/RCCSFinalsElites25_26/module",
     mobile:
-      "https://challonge.com/RCCLSpring2026PlayoffsElite/module",
+      "https://challonge.com/RCCSFinalsElites25_26/module",
   },
   Challengers: {
-    view: "https://challonge.com/RCCLSpring2026PlayoffsChallengers/module?scale_to_fit=1",
+    view: "https://challonge.com/RCCSFinalsChallengers25_26/module",
     mobile:
-      "https://challonge.com/RCCLSpring2026PlayoffsChallengers/module",
+      "https://challonge.com/RCCSFinalsChallengers25_26/module",
   },
 };
 
