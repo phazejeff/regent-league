@@ -46,6 +46,7 @@ type AddMatchPageProps = {
   _team2Id?: string;
   _datetime?: string;
   _upcomingId?: number;
+  _CCId?: string;
   match_id?: number;
   onSubmit?: () => void;
 };
@@ -55,6 +56,7 @@ export default function AddMatchPage({
   _team2Id,
   _datetime,
   _upcomingId,
+  _CCId,
   match_id,
   onSubmit,
 }: AddMatchPageProps) {
@@ -353,7 +355,8 @@ export default function AddMatchPage({
         map_num: idx + 1,
         winner_id: m.winner_id ? Number(m.winner_id) : null,
       })),
-      upcoming_id: _upcomingId
+      upcoming_id: _upcomingId,
+      CC_id: _CCId,
     };
 
     const endpoint = match_id

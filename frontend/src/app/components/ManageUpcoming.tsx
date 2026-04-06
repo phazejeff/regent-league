@@ -15,6 +15,7 @@ interface Team {
 }
 
 interface Match {
+  CC_id: string | undefined;
   id: number;
   week: number;
   datetime: string;
@@ -205,6 +206,7 @@ export default function ManageUpcoming() {
                 _team2Id={selectedMatch.team2.id.toString()}
                 _datetime={selectedMatch.datetime}
                 _upcomingId={selectedMatch.id}
+                _CCId={selectedMatch.CC_id}
                 onSubmit={() => {
                   setSelectedMatch(null);
                   fetchMatches();
