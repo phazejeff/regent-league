@@ -56,12 +56,8 @@ class CCMatch(BaseModel):
     @staticmethod
     def convert_upcoming_to_cc(upcoming: Upcoming, reg_season_end: datetime) -> "CCMatch":
         # temporary so it doesnt break old data
-        if upcoming.datetime <= reg_season_end:
-            id = upcoming.id
-        else:
-            id = upcoming.id + 1000
         return CCMatch(
-            id = id,
+            id = upcoming.CC_id,
             team1 = CCTeam.convert_to_cc(upcoming.team1),
             team2 = CCTeam.convert_to_cc(upcoming.team2),
             date = upcoming.datetime,
@@ -70,12 +66,8 @@ class CCMatch(BaseModel):
     
     @staticmethod
     def convert_finished_match_to_cc(match: Match, reg_season_end: datetime):
-        if match.datetime <= reg_season_end:
-            id = match.upcoming_id
-        else:
-            id = match.upcoming_id + 1000
         return CCMatch(
-            id = id,
+            id = match.CC_id,
             team1 = CCTeam.convert_to_cc(match.team1),
             team2 = CCTeam.convert_to_cc(match.team2),
             date = match.datetime,

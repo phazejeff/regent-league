@@ -1,4 +1,5 @@
 from typing import  Dict, List, Optional
+import uuid
 from pydantic import computed_field
 from sqlmodel import JSON, Column, Field, SQLModel, Relationship
 from datetime import datetime
@@ -54,6 +55,7 @@ class MatchBase(SQLModel):
     datetime: datetime
     upcoming_id: Optional[int] = None
     ff_both_teams: bool = Field(default=False)
+    CC_id: uuid.UUID = Field(default_factory=uuid.uuid4)
 class Match(MatchBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team1_id: int = Field(foreign_key="team.id")
@@ -121,6 +123,7 @@ class UpcomingBase(SQLModel):
     main_stream_url: str = Field(default='https://twitch.tv/regent_xd')
     team1_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
     team2_streams: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
+    CC_id: uuid.UUID = Field(default_factory=uuid.uuid4)
 
 class Upcoming(UpcomingBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
