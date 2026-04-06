@@ -34,7 +34,7 @@ export default function NavigationBar() {
     { href: "/teams", label: "Teams" },
     { href: "/standings", label: "Standings" },
     { href: "/matches", label: "Matches" }, // hide during playoffs
-    { href: "/playoffs", label: "Playoffs" }, // hide during regular season
+    { href: "/playoffs", label: "Bracket" }, // hide during regular season
     { href: "/results", label: "Results" },
     { href: "/winners", label: "Winners"},
     { href: "/playerstats", label: "Player Stats" },
