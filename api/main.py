@@ -194,7 +194,8 @@ def add_match(match_data: MatchCreate, password, response: Response, session: Se
         datetime=match_data.datetime,
         winner_id=match_data.winner_id,
         upcoming_id=match_data.upcoming_id,
-        ff_both_teams=match_data.ff_both_teams
+        ff_both_teams=match_data.ff_both_teams,
+        CC_id=match_data.CC_id
     )
     session.add(match)
     session.flush()  # ensures match.id is available
