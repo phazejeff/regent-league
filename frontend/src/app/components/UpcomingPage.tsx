@@ -317,7 +317,7 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team1.id}`}
                     >
-                    {standings[match.team1.id] && (
+                    {/* {standings[match.team1.id] && (
                       <>
                         (
                         {availableGroups.length > 1
@@ -325,7 +325,7 @@ export default function UpcomingMatchesPage() {
                           : `#${standings[match.team1.id].rank}`}
                         ){" "}
                       </>
-                    )}
+                    )} */}
                     {match.team1.name}
                     </Link>
                   </div>
@@ -420,7 +420,7 @@ export default function UpcomingMatchesPage() {
                       className="text-xl font-semibold hover:underline text-white text-center"
                       href={`/team/${match.team2.id}`}
                     >
-                      {standings[match.team2.id] && (
+                      {/* {standings[match.team2.id] && (
                         <>
                           (
                           {availableGroups.length > 1
@@ -428,7 +428,7 @@ export default function UpcomingMatchesPage() {
                             : `#${standings[match.team2.id].rank}`}
                           ){" "}
                         </>
-                      )}
+                      )} */}
                       {match.team2.name}
                     </Link>
                   </div>
