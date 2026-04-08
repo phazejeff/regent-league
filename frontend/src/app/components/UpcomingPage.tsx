@@ -332,9 +332,9 @@ export default function UpcomingMatchesPage() {
 
                   {standings[match.team1.id] && (
                   <div className="flex items-center justify-center gap-2 mt-1">
-                    <p className="text-sm text-gray-200 bg-black/40 px-2 py-[2px] rounded">
+                    {/* <p className="text-sm text-gray-200 bg-black/40 px-2 py-[2px] rounded">
                       ({standings[match.team1.id].matchRecord})
-                    </p>
+                    </p> */}
                   </div>
                 )}
                 </div>
@@ -436,9 +436,9 @@ export default function UpcomingMatchesPage() {
                   {standings[match.team2.id] && (
                   <div className="flex items-center justify-center gap-2 mt-1">
                     {/* Record box */}
-                    <p className="text-sm text-gray-200 bg-black/40 px-2 py-[2px] rounded">
+                    {/* <p className="text-sm text-gray-200 bg-black/40 px-2 py-[2px] rounded">
                       ({standings[match.team2.id].matchRecord})
-                    </p>
+                    </p> */}
                   </div>
                 )}
                 </div>
